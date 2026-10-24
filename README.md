@@ -45,14 +45,15 @@ Los flujos compilan con `SITE_URL=https://calculapanama.com/` y `BASE_PATH=/`, a
 - `npm run verify:seo` (también en GitHub Actions, después del build) falla si el sitemap no es XML válido, si alguna URL no es del dominio propio, no coincide con su canonical, no existe o es `noindex`, o si `robots.txt` no enlaza el sitemap.
 - En Search Console envía `https://calculapanama.com/sitemap.xml` en **Sitemaps**.
 
-## Activar Google AdSense (cuando la cuenta esté aprobada)
+## Google AdSense
 
-No hay anuncios ni identificadores inventados. Mientras `ADSENSE.client` esté vacío, no se carga ningún script de Google ni se muestra ningún espacio vacío.
-
-1. En `src/data/site.ts` pon tu identificador real en `ADSENSE.client` (`ca-pub-` seguido de 16 cifras) y el id de cada bloque en `ADSENSE.slots` (`afterResult` bajo el resultado de las calculadoras, `inArticle` dentro de las guías).
-2. Crea `public/ads.txt` con la línea que te da AdSense: `google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0`, con tu número. Para que Google lo lea, debe estar en la raíz de un dominio propio.
-3. La página de privacidad cambia sola al texto con la información sobre cookies de Google cuando `client` es válido. Si recibes visitas de la UE o del Reino Unido, configura además un mensaje de consentimiento certificado (AdSense → Privacidad y mensajes).
-4. Los anuncios se colocan después del resultado y dentro del texto, nunca entre el formulario y el resultado, para no empeorar la experiencia ni el CLS.
+- ID de editor: `ca-pub-2150093744862116`, configurado en `ADSENSE.client` de `src/data/site.ts`. Con él, `Layout.astro` añade el script oficial en el `<head>` de todas las páginas:
+  `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2150093744862116" crossorigin="anonymous"></script>`
+- `public/ads.txt` publica `google.com, pub-2150093744862116, DIRECT, f08c47fec0942fa0` en `https://calculapanama.com/ads.txt`.
+- La página de privacidad muestra automáticamente la información sobre cookies de Google.
+- No hay bloques manuales: `ADSENSE.slots` está vacío. Para mostrar anuncios, activa los anuncios automáticos en AdSense o crea bloques y pon su id en `slots` (`afterResult` bajo el resultado de las calculadoras, `inArticle` dentro de las guías). Nunca se colocan entre el formulario y el resultado.
+- Si recibes visitas de la UE, el Reino Unido o Suiza, configura un mensaje de consentimiento certificado en AdSense → Privacidad y mensajes.
+- `npm run verify:seo` comprueba que cada página tiene el script una sola vez y que `ads.txt` coincide con el ID.
 
 ## Antes del lanzamiento público
 

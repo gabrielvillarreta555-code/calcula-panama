@@ -27,8 +27,24 @@ const robots = read('dist/robots.txt');
 if (!robots.includes(`Sitemap: ${site}sitemap.xml`)) errors.push('robots.txt no enlaza sitemap.xml');
 if (/^Disallow:\s*\/\s*$/m.test(robots)) errors.push('robots.txt bloquea todo el sitio');
 
+// AdSense: el script oficial debe estar una vez en el <head> de cada página y ads.txt debe coincidir.
+const siteConfig = readFileSync('src/data/site.ts', 'utf8');
+const client = siteConfig.match(/client: '(ca-pub-\d{16})'/)?.[1];
+if (client) {
+  const tag = `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${client}" crossorigin="anonymous"></script>`;
+  for (const loc of locs) {
+    const file = `dist/${loc.slice(site.length)}index.html`;
+    if (!existsSync(file)) continue;
+    const html = readFileSync(file, 'utf8');
+    const head = html.split('</head>')[0];
+    if (head.split(tag).length !== 2 || html.split('adsbygoogle.js').length !== 2) errors.push(`Script de AdSense ausente o duplicado en ${loc}`);
+  }
+  const adsTxt = read('dist/ads.txt');
+  if (!adsTxt.includes(`google.com, ${client.replace('ca-', '')}, DIRECT, f08c47fec0942fa0`)) errors.push('ads.txt no coincide con el ID de AdSense');
+}
+
 if (errors.length) {
   console.error(`Verificación SEO fallida:\n- ${errors.join('\n- ')}`);
   process.exit(1);
 }
-console.log(`Verificación SEO correcta: ${locs.length} URL en sitemap.xml, robots.txt y canonical coherentes con ${site}`);
+console.log(`Verificación SEO correcta: ${locs.length} URL en sitemap.xml, robots.txt y canonical coherentes con ${site}${client ? `; AdSense ${client} en todas las páginas y ads.txt correcto` : ''}`);
