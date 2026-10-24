@@ -20,6 +20,10 @@ function parseIsoDate(value: string): number {
   return time;
 }
 
+function addDays(date: string, amount: number): string {
+  return new Date(parseIsoDate(date) + amount * DAY_MS).toISOString().slice(0, 10);
+}
+
 /** Días naturales entre dos fechas, ambas incluidas. */
 export function daysInclusive(start: string, end: string): number {
   const a = parseIsoDate(start);
@@ -54,18 +58,29 @@ export interface NetSalaryInput {
   otherPerPay?: number;
   /** El décimo tercer mes está gravado con ISR; se suma a la proyección anual salvo que se indique lo contrario. */
   includeThirteenth?: boolean;
+  /** Declaración conjunta de cónyuges: deducción anual de B/.800 (Código Fiscal, art. 709 num. 2). */
+  jointFiling?: boolean;
+  /** Otras deducciones anuales comprobadas ante el empleador (art. 704 y 709): intereses hipotecarios, seguro médico, etc. */
+  otherAnnualDeductions?: number;
 }
 
-export function calculateNetSalary({ grossPerPay, frequency, otherPerPay = 0, includeThirteenth = true }: NetSalaryInput) {
+/**
+ * Retención estimada: el empleador proyecta el ingreso anual (salarios + décimo), resta las deducciones
+ * del art. 709 y aplica proporcionalmente la tarifa del art. 700 (Código Fiscal, art. 704).
+ */
+export function calculateNetSalary({ grossPerPay, frequency, otherPerPay = 0, includeThirteenth = true, jointFiling = false, otherAnnualDeductions = 0 }: NetSalaryInput) {
   const payments = PAYMENTS_PER_YEAR[frequency];
   if (!payments) throw new Error('Frecuencia de pago no válida.');
   if (!(grossPerPay > 0) || !(otherPerPay >= 0)) throw new Error('Introduce un salario mayor que cero.');
+  if (!(otherAnnualDeductions >= 0)) throw new Error('Las deducciones no pueden ser negativas.');
   const gross = grossPerPay + otherPerPay;
   const annualSalary = gross * payments;
   const thirteenthAnnual = includeThirteenth ? annualSalary / THIRTEENTH.divisor : 0;
   const projectedAnnualIncome = annualSalary + thirteenthAnnual;
-  const annualIncomeTax = calculateAnnualIncomeTax(projectedAnnualIncome);
-  const effectiveTaxRate = effectiveIncomeTaxRate(projectedAnnualIncome);
+  const annualDeductions = (jointFiling ? SALARY.jointFilingDeduction : 0) + otherAnnualDeductions;
+  const taxableAnnual = Math.max(0, projectedAnnualIncome - annualDeductions);
+  const annualIncomeTax = calculateAnnualIncomeTax(taxableAnnual);
+  const effectiveTaxRate = projectedAnnualIncome > 0 ? annualIncomeTax / projectedAnnualIncome : 0;
 
   const socialSecurity = roundMoney(gross * SALARY.socialSecurityEmployeeRate);
   const educationalInsurance = roundMoney(gross * SALARY.educationalInsuranceEmployeeRate);
@@ -85,9 +100,11 @@ export function calculateNetSalary({ grossPerPay, frequency, otherPerPay = 0, in
     annualSalary: roundMoney(annualSalary),
     thirteenthAnnual: roundMoney(thirteenthAnnual),
     projectedAnnualIncome: roundMoney(projectedAnnualIncome),
+    annualDeductions: roundMoney(annualDeductions),
+    taxableAnnual: roundMoney(taxableAnnual),
     annualIncomeTax,
     effectiveTaxRate,
-    marginalTaxRate: marginalIncomeTaxRate(projectedAnnualIncome)
+    marginalTaxRate: marginalIncomeTaxRate(taxableAnnual)
   };
 }
 
@@ -188,20 +205,26 @@ export interface VacationInput {
   serviceDays?: number;
   /** Días de vacaciones pendientes, si se conocen. */
   pendingDays?: number;
+  /** Días ya disfrutados dentro del período de `serviceDays`. */
+  takenDays?: number;
 }
 
 /** Código de Trabajo, art. 54: un día de vacaciones por cada 11 días de servicio; 30 días pagados con un mes de salario. */
-export function calculateVacationPay({ monthlySalary, averageLastElevenMonths, serviceDays, pendingDays }: VacationInput) {
+export function calculateVacationPay({ monthlySalary, averageLastElevenMonths, serviceDays, pendingDays, takenDays = 0 }: VacationInput) {
   if (!(monthlySalary > 0)) throw new Error('Introduce un salario mayor que cero.');
   const base = Math.max(monthlySalary, averageLastElevenMonths ?? 0);
   const usedAverage = (averageLastElevenMonths ?? 0) > monthlySalary;
   let days: number;
+  let accruedDays: number | null = null;
   if (pendingDays !== undefined) {
     if (!(pendingDays >= 0)) throw new Error('Los días pendientes no son válidos.');
     days = pendingDays;
   } else {
     if (!(serviceDays !== undefined && serviceDays >= 0)) throw new Error('Indica los días trabajados o los días pendientes.');
-    days = serviceDays / VACATION.serviceDaysPerVacationDay;
+    if (!(takenDays >= 0)) throw new Error('Los días disfrutados no son válidos.');
+    accruedDays = serviceDays / VACATION.serviceDaysPerVacationDay;
+    if (takenDays > accruedDays + 1e-9) throw new Error('Los días disfrutados superan los días acumulados en el período.');
+    days = accruedDays - takenDays;
   }
   const dailyRate = base / VACATION.daysPerElevenMonths;
   const gross = roundMoney(days * dailyRate);
@@ -209,6 +232,8 @@ export function calculateVacationPay({ monthlySalary, averageLastElevenMonths, s
   const educationalInsurance = roundMoney(gross * SALARY.educationalInsuranceEmployeeRate);
   return {
     days: Math.round(days * 100) / 100,
+    accruedDays: accruedDays === null ? null : Math.round(accruedDays * 100) / 100,
+    takenDays: accruedDays === null ? 0 : takenDays,
     base: roundMoney(base),
     usedAverage,
     dailyRate: roundMoney(dailyRate),
@@ -237,6 +262,7 @@ export interface TerminationInput {
   /** Promedio mensual de los últimos cinco años para la prima (art. 226). Si falta, se usa `monthlySalary`. */
   averageSalaryLastFiveYears?: number;
   startDate: string;
+  /** Último día de trabajo (incluido). */
   endDate: string;
   contractType: ContractType;
   reason: TerminationReason;
@@ -246,6 +272,8 @@ export interface TerminationInput {
   currentPeriodEarnings?: number;
   /** Fecha pactada de vencimiento (contratos definidos u obra) para el art. 227. */
   agreedEndDate?: string;
+  /** Si el empleador notificó el despido por escrito con 30 días de anticipación (art. 212). */
+  noticeGiven?: boolean;
 }
 
 export interface TerminationNote {
@@ -255,23 +283,55 @@ export interface TerminationNote {
 
 const INDEMNITY_REASONS: TerminationReason[] = ['unjustified', 'justified-resignation', 'economic'];
 
-function lastAnniversary(start: string, end: string): string {
-  const [sy, sm, sd] = start.split('-').map(Number) as [number, number, number];
-  const endYear = Number(end.slice(0, 4));
-  for (let year = endYear; year >= sy; year--) {
-    // Un ingreso el 29 de febrero cumple aniversario el 28 en años no bisiestos.
-    const lastDay = new Date(Date.UTC(year, sm, 0)).getUTCDate();
-    const candidate = `${year}-${pad(sm)}-${pad(Math.min(sd, lastDay))}`;
-    if (candidate <= end) return candidate < start ? start : candidate;
+/** Fecha del aniversario de `start` en `year` (un 29 de febrero cae el 28 en años no bisiestos). */
+function anniversaryIn(start: string, year: number): string {
+  const [, sm, sd] = start.split('-').map(Number) as [number, number, number];
+  const lastDay = new Date(Date.UTC(year, sm, 0)).getUTCDate();
+  return `${year}-${pad(sm)}-${pad(Math.min(sd, lastDay))}`;
+}
+
+/** Último aniversario de `start` que no es posterior a `date` (o `start` si aún no se cumple ninguno). */
+function lastAnniversary(start: string, date: string): string {
+  const startYear = Number(start.slice(0, 4));
+  for (let year = Number(date.slice(0, 4)); year > startYear; year--) {
+    const candidate = anniversaryIn(start, year);
+    if (candidate <= date) return candidate;
   }
   return start;
+}
+
+/**
+ * Tiempo de servicio de `start` a `end` (ambos incluidos): años completos contados por aniversarios
+ * más la fracción del año en curso. Así 1-ene-2021 a 31-dic-2025 son exactamente 5 años,
+ * aunque el período incluya un 29 de febrero.
+ */
+export function serviceYears(start: string, end: string) {
+  daysInclusive(start, end);
+  const endExclusive = addDays(end, 1);
+  const anniversary = lastAnniversary(start, endExclusive);
+  const fullYears = Number(anniversary.slice(0, 4)) - Number(start.slice(0, 4));
+  const next = anniversaryIn(start, Number(anniversary.slice(0, 4)) + 1);
+  const fraction = (daysInclusive(anniversary, endExclusive) - 1) / (daysInclusive(anniversary, next) - 1);
+  return { fullYears, years: fullYears + fraction };
+}
+
+/**
+ * ISR sobre preaviso, prima de antigüedad e indemnización (Código Fiscal art. 701 lit. j; Decreto
+ * Ejecutivo 170 de 1993, art. 119): no se acumulan al salario, se deduce 1% por cada año completo
+ * de servicio y luego B/.5,000, y al saldo se le aplica la tarifa del art. 700.
+ */
+export function terminationIncomeTax(amount: number, fullYears: number) {
+  if (!(amount > 0)) return { taxable: 0, tax: 0 };
+  const yearsDeduction = amount * Math.min(1, TERMINATION.taxDeductionPerYear * Math.max(0, Math.floor(fullYears)));
+  const taxable = Math.max(0, amount - yearsDeduction - TERMINATION.taxFixedDeduction);
+  return { taxable: roundMoney(taxable), tax: calculateAnnualIncomeTax(taxable) };
 }
 
 export function calculateTermination(input: TerminationInput) {
   const { monthlySalary, startDate, endDate, contractType, reason } = input;
   if (!(monthlySalary > 0)) throw new Error('Introduce un salario mayor que cero.');
   const days = daysInclusive(startDate, endDate);
-  const years = days / 365;
+  const { years, fullYears } = serviceYears(startDate, endDate);
   const weeklySalary = (monthlySalary * 12) / 52;
   const notes: TerminationNote[] = [];
 
@@ -279,6 +339,7 @@ export function calculateTermination(input: TerminationInput) {
   let vacationDays: number;
   let vacationEstimated = false;
   if (input.unusedVacationDays !== undefined) {
+    if (!(input.unusedVacationDays >= 0)) throw new Error('Los días de vacaciones no son válidos.');
     vacationDays = input.unusedVacationDays;
   } else {
     const cycleDays = daysInclusive(lastAnniversary(startDate, endDate), endDate);
@@ -292,6 +353,7 @@ export function calculateTermination(input: TerminationInput) {
   let thirteenth: number;
   let thirteenthEstimated = false;
   if (input.currentPeriodEarnings !== undefined) {
+    if (!(input.currentPeriodEarnings >= 0)) throw new Error('Lo devengado no puede ser negativo.');
     thirteenth = roundMoney(input.currentPeriodEarnings / THIRTEENTH.divisor);
   } else {
     const period = thirteenthPeriodContaining(endDate);
@@ -310,8 +372,9 @@ export function calculateTermination(input: TerminationInput) {
     }
   }
 
-  // Indemnización (arts. 225 y 227).
+  // Indemnización (arts. 225 y 227) y preaviso (art. 212).
   let indemnity = 0;
+  let preaviso = 0;
   let indemnityStatus: 'not-applicable' | 'calculated' | 'needs-review' = 'not-applicable';
   if (contractType === 'indefinite' && INDEMNITY_REASONS.includes(reason)) {
     if (startDate < TERMINATION.law44ReviewBefore) {
@@ -324,7 +387,19 @@ export function calculateTermination(input: TerminationInput) {
       indemnityStatus = 'calculated';
     }
     if (reason === 'unjustified') {
-      notes.push({ kind: 'info', text: 'En un despido injustificado el trabajador puede reclamar el reintegro o la indemnización; el monto final depende de lo que se resuelva o acuerde y puede incluir recargos que aquí no se calculan.' });
+      if (years < TERMINATION.stabilityYears) {
+        if (input.noticeGiven === false) {
+          preaviso = roundMoney(monthlySalary * TERMINATION.noticeDays / VACATION.daysPerElevenMonths);
+          notes.push({ kind: 'info', text: 'Con menos de dos años de servicio el empleador puede despedir sin causa, pero debe pagar la indemnización y avisar con 30 días de anticipación o pagar ese preaviso (art. 212). Lo incluimos porque indicaste que no hubo aviso.' });
+        } else if (input.noticeGiven === undefined) {
+          notes.push({ kind: 'warning', text: 'Con menos de dos años de servicio, si no te avisaron por escrito con 30 días de anticipación, también te corresponde el preaviso: un mes de salario (art. 212). Indícalo para incluirlo.' });
+        }
+      } else {
+        notes.push({ kind: 'info', text: 'Con dos años o más de servicio, el trabajador despedido sin causa justificada puede reclamar el reintegro o la indemnización; si lo resuelve un juez puede haber salarios caídos y recargos que aquí no se calculan. En empresas pequeñas y otros casos del art. 212 se aplica el régimen de preaviso.' });
+      }
+      if (days <= TERMINATION.probationMaxDays) {
+        notes.push({ kind: 'warning', text: 'Si tu contrato escrito fijaba un período probatorio (hasta 3 meses, art. 78), cualquiera de las partes podía terminarlo en ese plazo sin responsabilidad: en ese caso no hay indemnización ni preaviso.' });
+      }
     }
     if (reason === 'economic') {
       notes.push({ kind: 'warning', text: 'El despido por causa económica debe comprobarse previamente ante la autoridad de trabajo (art. 215). Sin ese trámite se considera injustificado.' });
@@ -348,14 +423,31 @@ export function calculateTermination(input: TerminationInput) {
     }
   }
 
-  if (contractType !== 'indefinite' && (reason === 'justified-resignation' || reason === 'economic')) {
-    notes.push({ kind: 'warning', text: 'En contratos definidos u obra determinada este motivo requiere revisión profesional; no se atribuye indemnización automática.' });
+  if (contractType !== 'indefinite') {
+    if (reason === 'justified-resignation' || reason === 'economic') {
+      notes.push({ kind: 'warning', text: 'En contratos definidos u obra determinada este motivo requiere revisión profesional; no se atribuye indemnización automática.' });
+    }
+    notes.push({ kind: 'info', text: 'Un contrato definido o por obra se considera por tiempo indefinido si seguiste trabajando tras su vencimiento o fin de la obra, si hubo contratos sucesivos o si cubría un puesto permanente (arts. 75 y 77). En ese caso te corresponderían prima e indemnización como en un contrato indefinido.' });
+    if (contractType === 'fixed' && input.agreedEndDate && daysInclusive(startDate, input.agreedEndDate) > 366) {
+      notes.push({ kind: 'warning', text: 'Un contrato por tiempo definido no puede pactarse por más de un año, salvo servicios con preparación técnica especial (hasta tres años, art. 74).' });
+    }
+  } else if (reason === 'expiry') {
+    notes.push({ kind: 'warning', text: 'Un contrato por tiempo indefinido no termina por vencimiento. Revisa el tipo de contrato o el motivo.' });
   }
 
-  const total = roundMoney(vacation + thirteenth + seniorityPremium + indemnity);
+  // Descuentos estimados.
+  const vacationSocialSecurity = roundMoney(vacation * SALARY.socialSecurityEmployeeRate);
+  const vacationEducationalInsurance = roundMoney(vacation * SALARY.educationalInsuranceEmployeeRate);
+  const thirteenthSocialSecurity = roundMoney(thirteenth * THIRTEENTH.socialSecurityEmployeeRate);
+  const terminationPayments = roundMoney(seniorityPremium + indemnity + preaviso);
+  const terminationTax = terminationIncomeTax(terminationPayments, fullYears);
+  const totalDeductions = roundMoney(vacationSocialSecurity + vacationEducationalInsurance + thirteenthSocialSecurity + terminationTax.tax);
+
+  const total = roundMoney(vacation + thirteenth + seniorityPremium + indemnity + preaviso);
   return {
     days,
-    years: Math.round(years * 100) / 100,
+    years: Math.round(years * 10000) / 10000,
+    fullYears,
     weeklySalary: roundMoney(weeklySalary),
     vacationDays: Math.round(vacationDays * 100) / 100,
     vacation,
@@ -365,7 +457,18 @@ export function calculateTermination(input: TerminationInput) {
     seniorityPremium,
     indemnity,
     indemnityStatus,
+    preaviso,
     total,
+    deductions: {
+      vacationSocialSecurity,
+      vacationEducationalInsurance,
+      thirteenthSocialSecurity,
+      terminationTaxable: terminationTax.taxable,
+      terminationIncomeTax: terminationTax.tax,
+      total: totalDeductions
+    },
+    /** Neto estimado antes del ISR ordinario sobre vacaciones y décimo, que depende del ingreso anual. */
+    netEstimate: roundMoney(total - totalDeductions),
     notes
   };
 }

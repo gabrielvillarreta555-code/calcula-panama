@@ -57,15 +57,29 @@ No hay anuncios ni identificadores inventados. Mientras `ADSENSE.client` esté v
 
 Modifica primero `src/data/legal.ts`, actualiza o añade casos en `src/lib/calculations.test.ts` y ejecuta la validación completa. Las limitaciones deliberadas deben mantenerse hasta contar con una regla verificable: relaciones anteriores a la Ley 44 de 1995, causas económicas o renuncias justificadas en contratos definidos, fueros y recargos.
 
-### Criterios de cálculo verificados (revisión 2026-10-24)
+### Criterios de cálculo verificados (auditoría 2026-10-24)
 
-| Concepto | Regla | Fuente |
+Cada regla se contrastó con el texto de la norma. Los valores esperados de `src/lib/calculations.test.ts` se generaron con una implementación de referencia independiente (aritmética decimal) escrita desde esas normas.
+
+| Concepto | Regla aplicada | Fuente primaria |
 | --- | --- | --- |
-| Seguro Social | 9.75% del salario; 7.25% sobre el décimo | Ley 51 de 2005, art. 101 (la Ley 462 de 2025 no cambió la cuota del empleado) |
-| Seguro Educativo | 1.25% del salario; no aplica al décimo; ya no es deducible del ISR | Decreto Ejecutivo 98 de 2010 (derogó el art. 73 del DE 170 de 1993) |
-| ISR | Proyección anual de 13 pagos, tarifa 0 / 15% / B/.5,850 + 25%; las cuotas no se restan | Código Fiscal, art. 700 |
-| Décimo | Lo devengado en el período ÷ 12; períodos 16 dic–15 abr, 16 abr–15 ago y 16 ago–15 dic | DG 221 de 1971, DG 52 de 1972 |
-| Vacaciones | 1 día por cada 11 trabajados; 30 días = 1 mes de salario o promedio de 11 meses si es mayor | Código de Trabajo, art. 54 |
-| Prima de antigüedad | 1 semana por año, contratos indefinidos, cualquier causa; promedio de 5 años | arts. 224 y 226 |
-| Indemnización | 3.4 semanas por año (10 primeros) + 1 por año adicional; despido injustificado, renuncia justificada (art. 223) o causa económica (art. 213 C) | arts. 225 C y 149 |
-| Contratos definidos u obra | Salarios del tiempo restante si el empleador los termina sin justa causa | art. 227 |
+| Seguro Social | 9.75% del salario, incluidas comisiones y vacaciones; 7.25% sobre cada partida del décimo; no aplica a prima, indemnización ni preaviso | Ley 51 de 2005, texto único de 2025 (G.O. 30284-B), arts. 85, 86 y 96 |
+| Seguro Educativo | 1.25% de los «salarios básicos»; no aplica al décimo; no es deducible del ISR | Ley 13 de 1987 (DG 168 de 1971); DE 98 de 2010 derogó la deducción |
+| ISR: tarifa | 0% hasta 11,000 · 15% hasta 50,000 · 5,850 + 25% | Código Fiscal art. 700 (Ley 8 de 2010, art. 10) |
+| ISR: retención | Proyección anual (salarios + décimo) − deducciones, tarifa aplicada proporcionalmente a cada pago | Código Fiscal art. 704 (Ley 8 de 2010, art. 17) |
+| ISR: deducciones | B/.800 por declaración conjunta; otras comprobadas por el empleador | Código Fiscal art. 709 (Ley 8 de 2010, art. 25) |
+| ISR: liquidación | Prima, indemnización y preaviso no se acumulan: −1% por año completo, −B/.5,000, tarifa del art. 700 | Código Fiscal art. 701 lit. j; DE 170 de 1993 art. 119 |
+| Décimo | Devengado en el período ÷ 12 (práctica de planilla); pagos 15 abr / 15 ago / 15 dic; base con horas extra, comisiones, vacaciones | DG 221 de 1971 arts. 2 y 3; DG 52 de 1972; Decreto 19 de 1973 art. 4 |
+| Vacaciones | 1 día por cada 11 trabajados; 30 días = 1 mes o promedio de 11 meses si es mayor | Código de Trabajo, art. 54 |
+| Prima de antigüedad | 1 semana por año (aniversarios + fracción), contratos indefinidos, cualquier causa; promedio de 5 años | arts. 224 y 226 |
+| Indemnización | 3.4 semanas por año (10 primeros) + 1 por año adicional | arts. 225 C y 149; también arts. 213 C, 215 y 223 |
+| Preaviso | 30 días si el despido sin causa ocurre con menos de 2 años y sin aviso | art. 212 |
+| Contratos definidos u obra | Salarios del tiempo restante; avisos de conversión a indefinido y plazo máximo | arts. 74, 75, 77 y 227 |
+
+### Limitaciones conocidas (se muestran como avisos o resultados orientativos)
+
+- La DGI aplica la retención con tablas e instrucciones propias (DE 170, art. 140) que pueden diferir en centavos (redondeos del art. 142) o por ajustes de meses anteriores.
+- Ingresos variables: se usa un promedio por pago; los bonos únicos no se modelan.
+- El décimo se calcula como devengado ÷ 12, como se hace en planilla; el decreto lo expresa como «un día por cada once días de trabajo efectivo». Los cortes del día 15 son los habituales; la norma solo fija las fechas de pago.
+- No se automatiza: relaciones iniciadas antes de la Ley 44 de 1995, recargos y salarios caídos, fueros, otros casos del art. 212 (domésticos, empresas pequeñas), causa económica o renuncia justificada en contratos definidos, ni el ISR ordinario sobre vacaciones y décimo en la liquidación.
+- El reglamento del ISR se consultó en un texto compilado no oficial actualizado a 2010; los artículos usados (119, 140, 142) no muestran reformas posteriores en esa compilación.

@@ -53,6 +53,10 @@ const faq = [
     <h2>Indemnización por despido injustificado</h2>
     <p>Para relaciones iniciadas desde la Ley 44 de 1995, el artículo 225 (acápite C) fija <strong>3.4 semanas de salario por cada año en los primeros diez años</strong> y <strong>una semana por cada año posterior</strong>, con proporcionalidad por fracción. También se paga cuando renuncias con causa justificada (art. 223) y en los despidos por causa económica del artículo 213 C, que deben autorizarse previamente ante la autoridad de trabajo (art. 215).</p>
     <p class="formula">Indemnización = salario semanal × (3.4 × años hasta 10 + 1 × años después de 10)</p>
+    <h2>Preaviso en despidos con menos de dos años</h2>
+    <p>El artículo 211 prohíbe despedir sin causa justificada a un trabajador con contrato indefinido, pero el artículo 212 exceptúa, entre otros, a quienes tienen menos de dos años de servicio continuo, a los trabajadores domésticos y a los de empresas muy pequeñas. En esos casos el empleador debe pagar la indemnización y, además, avisar con 30 días de anticipación o pagar ese preaviso.</p>
+    <h2>¿Pagan impuestos?</h2>
+    <p>No pagan cuotas de la CSS (Ley 51, art. 86). Para el ISR no se suman al salario del año: se resta un 1% por cada año completo de servicio y B/.5,000, y solo el saldo paga la tarifa normal (Decreto Ejecutivo 170 de 1993, art. 119). Con salarios habituales, el resultado suele ser cero.</p>
     <h2>Ejemplos con B/.1,000 al mes</h2>
     <div class="table-wrap">
       <table>
@@ -69,7 +73,7 @@ const faq = [
     </ul>
     <p><a class="button primary" href={`${base}calculadoras/liquidacion-laboral/`}>Calcular mi liquidación</a></p>
     <Faq items={faq} />
-    <LegalSources sources={['laborCode', 'mitradel']} />
+    <LegalSources sources={['laborCode', 'css', 'incomeTaxRegulation', 'mitradel']} />
   </article>
   <div class="container"><RelatedCalculators /></div>
 </Layout>

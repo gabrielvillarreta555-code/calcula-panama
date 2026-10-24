@@ -16,7 +16,9 @@ const faq = [
   { q: '¿A partir de qué salario se paga impuesto sobre la renta?', a: 'Con 13 pagos al año (12 salarios más el décimo), un salario mensual fijo de hasta B/.846.15 queda por debajo de B/.11,000 anuales y no genera ISR. A partir de ahí se paga 15% sobre el excedente, y 25% sobre lo que supere B/.50,000 al año.' },
   { q: '¿Por qué la calculadora multiplica por 13 y no por 12?', a: 'El décimo tercer mes es renta gravable para el ISR, así que la proyección anual del empleador lo incluye. Si en tu caso no corresponde (por ejemplo, empezaste a mitad de año), desmarca la opción y verás la estimación sin él.' },
   { q: '¿Las cuotas de Seguro Social reducen el ISR?', a: 'No. Las cuotas del Seguro Social no son deducibles para el impuesto sobre la renta y la deducción del Seguro Educativo fue derogada en 2010 (Decreto Ejecutivo 98). Por eso el ISR se calcula sobre el ingreso bruto.' },
-  { q: '¿Por qué mi talonario no coincide exactamente?', a: 'La retención real usa las tablas de la DGI y puede reflejar deducciones personales declaradas (intereses hipotecarios, gastos médicos o educativos, declaración conjunta), ajustes de meses anteriores, otros empleadores o descuentos voluntarios como préstamos y cuotas sindicales.' },
+  { q: '¿Qué deducciones reducen el ISR de un asalariado?', a: 'Las que declares a tu empleador y él compruebe (Código Fiscal, arts. 704 y 709): B/.800 si declaras en forma conjunta con tu cónyuge, intereses hipotecarios de tu vivienda principal, intereses de préstamos educativos, primas de seguro de hospitalización y aportes a fondos de pensiones. Puedes indicarlas en «Comisiones, deducciones y opciones».' },
+  { q: '¿El ISR anual y la retención de cada pago son lo mismo?', a: 'No exactamente. La retención es un anticipo: el empleador reparte el impuesto anual estimado entre los pagos. Si tu salario cambia, tus comisiones varían o trabajas solo parte del año, el empleador recalcula y, al cierre, la diferencia se ajusta como crédito o como retención adicional (Decreto Ejecutivo 170 de 1993).' },
+  { q: '¿Por qué mi talonario no coincide exactamente?', a: 'La retención real sigue las tablas e instrucciones de la DGI y puede reflejar ajustes de meses anteriores, aumentos, otros empleadores, redondeos o descuentos voluntarios como préstamos y cuotas sindicales.' },
   { q: '¿Se guarda mi salario?', a: 'No. El cálculo ocurre en tu teléfono o computadora y no se envía a ningún servidor.' }
 ];
 const schema = {
@@ -57,12 +59,18 @@ const schema = {
           <small id="frequency-help">Lo que dice tu contrato antes de descuentos. Quincenal = 24 pagos al año; bisemanal = 26 (cada dos semanas).</small>
         </div>
         <details class="more field full">
-          <summary>Comisiones y opciones</summary>
+          <summary>Comisiones, deducciones y opciones</summary>
           <div class="form-grid">
             <div class="field full">
-              <label for="other">Otros ingresos gravables por pago</label>
+              <label for="other">Ingresos variables promedio por pago</label>
               <div class="input-wrap"><span class="prefix">B/.</span><input id="other" name="other" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" /></div>
-              <small>Comisiones, bonificaciones o sobretiempo habitual sujetos a cuotas e ISR.</small>
+              <small>Comisiones o sobretiempo habituales. Usa un promedio: la calculadora supone que se repiten en cada pago. No incluyas bonos únicos.</small>
+            </div>
+            <label class="check field full"><input type="checkbox" name="joint" /><span><strong>Declaro en forma conjunta con mi cónyuge.</strong> Resta B/.800 al año antes de calcular el ISR (Código Fiscal, art. 709).</span></label>
+            <div class="field full">
+              <label for="deductions">Otras deducciones anuales declaradas a tu empleador</label>
+              <div class="input-wrap"><span class="prefix">B/.</span><input id="deductions" name="deductions" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" /></div>
+              <small>Intereses hipotecarios de tu vivienda, intereses de préstamos educativos, seguro de hospitalización o aportes a fondos de pensiones. Solo cuentan si el empleador los comprueba.</small>
             </div>
             <label class="check field full"><input type="checkbox" name="thirteenth" checked /><span><strong>Incluir el décimo tercer mes en la proyección del ISR.</strong> Es lo habitual en la planilla; desmárcalo si este año no recibirás las tres partidas.</span></label>
           </div>
@@ -91,14 +99,16 @@ const schema = {
         <div class="mini-stats">
           <div><span>Neto mensual equivalente</span><strong data-out="netMonthlyEquivalent"></strong></div>
           <div><span>Ingreso anual proyectado</span><strong data-out="projectedAnnualIncome"></strong></div>
+          <div><span>Renta gravable anual</span><strong data-out="taxableAnnual"></strong></div>
           <div><span>ISR anual estimado</span><strong data-out="annualIncomeTax"></strong></div>
           <div><span>Tasa marginal de ISR</span><strong data-out="marginalTaxRate"></strong></div>
+          <div><span>Deducciones aplicadas</span><strong data-out="annualDeductions"></strong></div>
         </div>
         <div class="result-actions">
           <button class="button secondary" type="button" id="salary-share"><Icon name="share" size={18} />Compartir</button>
           <a class="button secondary" href="#como-se-calcula">Ver fórmula</a>
         </div>
-        <p class="callout info">Estimación para un solo empleador sin deducciones personales. Tu retención real sigue las tablas de la DGI y puede variar.</p>
+        <p class="callout info">Estimación orientativa para un solo empleador y un ingreso estable todo el año. La retención real sigue las tablas de la DGI, se recalcula si cambia tu salario y se ajusta al cierre del año.</p>
       </div>
     </section>
   </div>
@@ -109,12 +119,16 @@ const schema = {
     <h2 id="como-se-calcula">¿Cómo se calcula el salario neto en Panamá?</h2>
     <p>Del salario bruto se restan tres conceptos. Los dos primeros son porcentajes fijos de cada pago; el tercero depende de lo que ganarás en todo el año.</p>
     <ol>
-      <li><strong>Seguro Social (CSS): 9.75%</strong> del salario, según el artículo 101 de la Ley 51 de 2005. La reforma de la Ley 462 de 2025 subió la cuota del empleador, no la del trabajador.</li>
-      <li><strong>Seguro Educativo: 1.25%</strong> del salario. No se aplica al décimo tercer mes.</li>
-      <li><strong>Impuesto sobre la renta (ISR):</strong> se proyecta el ingreso del año, 12 salarios más el décimo (13 en total), y se aplica la tarifa del artículo 700 del Código Fiscal. El impuesto anual se reparte de forma proporcional entre los pagos.</li>
+      <li><strong>Seguro Social (CSS): 9.75%</strong> del salario, incluidas comisiones y sobretiempo (Ley 51 de 2005, texto único de 2025, arts. 85 y 96). La reforma de la Ley 462 de 2025 subió la cuota del empleador, no la del trabajador.</li>
+      <li><strong>Seguro Educativo: 1.25%</strong> de los «salarios básicos recibidos» (Ley 13 de 1987). No se aplica al décimo tercer mes. La calculadora lo aplica también a los ingresos variables, como suele hacerse en planilla; si tu empleador lo calcula solo sobre el salario base, la diferencia es pequeña.</li>
+      <li><strong>Impuesto sobre la renta (ISR):</strong> el empleador proyecta tu ingreso del año (12 salarios más el décimo, que también es renta gravable), resta las deducciones que le hayas declarado y aplica la tarifa del artículo 700 del Código Fiscal. El artículo 704 le ordena retener «aplicando proporcionalmente la tarifa», así que el impuesto anual se reparte en proporción a cada pago.</li>
     </ol>
-    <p class="formula">ISR anual = 0 hasta B/.11,000 · 15% sobre el excedente de B/.11,000 hasta B/.50,000 · B/.5,850 + 25% sobre el excedente de B/.50,000</p>
-    <p class="formula">Neto = bruto − 9.75% − 1.25% − (bruto × ISR anual ÷ ingreso anual proyectado)</p>
+    <p class="formula">ISR anual = tarifa del art. 700 sobre (ingreso proyectado − deducciones): 0 hasta B/.11,000 · 15% del excedente hasta B/.50,000 · B/.5,850 + 25% del excedente de B/.50,000</p>
+    <p class="formula">ISR por pago = bruto del pago × ISR anual ÷ ingreso anual proyectado</p>
+    <p>Las cuotas de Seguro Social y Seguro Educativo <strong>no</strong> se restan de la base del ISR: no figuran entre las deducciones del artículo 709 y la deducción del Seguro Educativo fue derogada por el Decreto Ejecutivo 98 de 2010.</p>
+
+    <h3>Impuesto anual y retención de cada pago</h3>
+    <p>El ISR es anual y la retención es un anticipo. Con un salario fijo todo el año, la suma de las retenciones coincide con el impuesto anual. Si recibes aumentos, comisiones que cambian cada mes o trabajas solo parte del año, el empleador recalcula la retención y, al terminar el año o la relación laboral, compara lo retenido con el impuesto causado: devuelve el exceso como crédito o retiene la diferencia (Decreto Ejecutivo 170 de 1993). Por eso, con ingresos variables, esta calculadora da una <strong>estimación orientativa</strong> basada en tu promedio.</p>
 
     <h3>Ejemplo con B/.1,500 mensuales</h3>
     <p>Ingreso anual proyectado: 1,500 × 13 = B/.19,500. Excedente sobre B/.11,000: B/.8,500. ISR anual: 15% de 8,500 = B/.1,275, que equivale a B/.98.08 por cada pago de B/.1,500. Con B/.146.25 de Seguro Social y B/.18.75 de Seguro Educativo, el neto queda en <strong>B/.1,236.92</strong>.</p>
@@ -135,14 +149,15 @@ const schema = {
 
     <h2>Lo que esta calculadora no incluye</h2>
     <ul>
-      <li>Deducciones personales del ISR: intereses hipotecarios o educativos, gastos médicos, primas de seguro de salud, aportes a fondos de pensión o la deducción por declaración conjunta.</li>
+      <li>Bonificaciones únicas o pagos ocasionales: cambian la proyección anual de un modo que depende del procedimiento del empleador.</li>
       <li>Ingresos de otros empleadores, gastos de representación, que tienen su propia retención, ni ajustes de la declaración anual.</li>
+      <li>Redondeos de la tabla de retención de la DGI, que pueden variar unos centavos.</li>
       <li>Descuentos voluntarios o judiciales: préstamos, cuotas sindicales, pensiones alimenticias o embargos.</li>
       <li>Topes, exenciones o tratamientos especiales de casos particulares.</li>
     </ul>
 
     <Faq items={faq} />
-    <LegalSources sources={['css', 'incomeTax', 'mitradel']} />
+    <LegalSources sources={['css', 'educationalInsurance', 'incomeTax', 'incomeTaxRegulation']} />
   </article>
 
   <div class="container"><RelatedCalculators current={path} /></div>
@@ -165,10 +180,17 @@ const schema = {
     run(data) {
       const gross = readNumber(data, 'gross');
       const other = readNumber(data, 'other') ?? 0;
+      const deductions = readNumber(data, 'deductions') ?? 0;
       if (gross === undefined || !(gross > 0)) return 'Escribe un salario bruto mayor que cero.';
-      if (!(other >= 0)) return 'Los otros ingresos no pueden ser negativos.';
+      if (!(other >= 0)) return 'Los ingresos variables no pueden ser negativos.';
+      if (!(deductions >= 0)) return 'Las deducciones no pueden ser negativas.';
       const frequency = readText(data, 'frequency') as Frequency;
-      const out = calculateNetSalary({ grossPerPay: gross, frequency, otherPerPay: other, includeThirteenth: data.get('thirteenth') === 'on' });
+      const out = calculateNetSalary({
+        grossPerPay: gross, frequency, otherPerPay: other,
+        includeThirteenth: data.get('thirteenth') === 'on',
+        jointFiling: data.get('joint') === 'on',
+        otherAnnualDeductions: deductions
+      });
       setOutputs(result, {
         frequencyLabel: labels[frequency],
         net: formatMoney(out.net),
@@ -178,11 +200,13 @@ const schema = {
         socialSecurity: formatMoney(out.socialSecurity),
         educationalInsurance: formatMoney(out.educationalInsurance),
         incomeTax: formatMoney(out.incomeTax),
-        isrNote: out.incomeTax > 0 ? `${formatPercent(out.effectiveTaxRate)} efectivo` : 'no aplica bajo B/.11,000 al año',
+        isrNote: out.incomeTax > 0 ? `${formatPercent(out.effectiveTaxRate)} efectivo` : 'renta gravable anual de hasta B/.11,000',
         netMonthlyEquivalent: formatMoney(out.netMonthlyEquivalent),
         projectedAnnualIncome: formatMoney(out.projectedAnnualIncome),
         annualIncomeTax: formatMoney(out.annualIncomeTax),
-        marginalTaxRate: formatPercent(out.marginalTaxRate)
+        marginalTaxRate: formatPercent(out.marginalTaxRate),
+        taxableAnnual: formatMoney(out.taxableAnnual),
+        annualDeductions: formatMoney(out.annualDeductions)
       });
       renderBar($('#salary-bar'), [
         { label: 'Neto', value: out.net, tone: 'net' },

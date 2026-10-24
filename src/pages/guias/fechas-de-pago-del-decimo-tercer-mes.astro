@@ -39,10 +39,11 @@ const faq = [
         <tbody>{periods.map(p => <tr><th scope="row">{p.label}</th><td>{formatDate(p.start)} – {formatDate(p.end)}</td><td><strong>{formatDate(p.payDate)}</strong></td></tr>)}</tbody>
       </table>
     </div>
-    <p>El Decreto de Gabinete 221 de 1971 creó el décimo en tres partidas. El Decreto de Gabinete 52 de 1972 trasladó la primera del 15 de marzo al 15 de abril.</p>
+    <p>El Decreto de Gabinete 221 de 1971 creó el décimo en tres partidas, y el Decreto de Gabinete 52 de 1972 trasladó la primera del 15 de marzo al 15 de abril. La norma fija las <strong>fechas de pago</strong>; los cortes del día 15 son los habituales en planilla, y algunos empleadores cortan a fin de mes.</p>
     <AdSlot name="inArticle" />
     <h2>¿Cómo se calcula?</h2>
     <p class="formula">Partida bruta = todo lo devengado en el período ÷ 12</p>
+    <p>Así se aplica en planilla. El decreto lo expresa como «un día de salario por cada once días de trabajo efectivo» (art. 2), y el Decreto 19 de 1973 aclara que la base incluye salario, horas extra, comisiones, primas, vacaciones, licencias pagadas y bonificaciones del período.</p>
     <p>Con un salario fijo durante el período completo (cuatro meses), la partida bruta es un tercio de tu salario mensual. Luego se descuenta un <strong>7.25% de Seguro Social</strong> (Ley 51 de 2005, art. 101) y, si tu ingreso anual supera B/.11,000, la parte de <strong>ISR</strong> que corresponda. No se descuenta Seguro Educativo.</p>
     <h2>Cuánto recibes con salarios habituales</h2>
     <div class="table-wrap">
@@ -58,7 +59,7 @@ const faq = [
     <p>La parte proporcional del período en curso se incluye en tu liquidación, sea cual sea el motivo. Puedes estimarla con la <a href={`${base}calculadoras/liquidacion-laboral/`}>calculadora de liquidación</a>.</p>
     <p><a class="button primary" href={`${base}calculadoras/decimo-tercer-mes/`}>Calcular mi décimo</a></p>
     <Faq items={faq} />
-    <LegalSources sources={['thirteenth', 'css', 'mitradel']} />
+    <LegalSources sources={['thirteenth', 'thirteenthRegulation', 'css', 'mitradel']} />
   </article>
   <div class="container"><RelatedCalculators /></div>
 </Layout>

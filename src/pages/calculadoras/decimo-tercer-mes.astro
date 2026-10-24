@@ -10,11 +10,11 @@ import RelatedCalculators from '../../components/RelatedCalculators.astro';
 const path = '/calculadoras/decimo-tercer-mes/';
 const base = import.meta.env.BASE_URL;
 const faq = [
-  { q: '¿Cuánto es el décimo tercer mes en Panamá?', a: 'Cada partida equivale a la doceava parte de lo devengado en el período de cuatro meses que cubre. Con un salario fijo durante todo el período, la partida bruta es aproximadamente un tercio del salario mensual: con B/.900 al mes, unos B/.300.' },
-  { q: '¿Cuándo se paga el décimo tercer mes?', a: 'En tres partidas: el 15 de abril (período del 16 de diciembre al 15 de abril), el 15 de agosto (16 de abril al 15 de agosto) y el 15 de diciembre (16 de agosto al 15 de diciembre).' },
-  { q: '¿Qué descuentos tiene el décimo?', a: 'El trabajador aporta una contribución especial de 7.25% a la Caja de Seguro Social sobre cada partida (Ley 51 de 2005, art. 101). No se descuenta Seguro Educativo. El décimo es renta gravable, por lo que puede llevar retención de impuesto sobre la renta si tu ingreso anual supera B/.11,000.' },
+  { q: '¿Cuánto es el décimo tercer mes en Panamá?', a: 'En la práctica de planillas, cada partida equivale a la doceava parte de lo devengado en los cuatro meses que cubre. Con un salario fijo todo el período, la partida bruta es un tercio del salario mensual: con B/.900 al mes, B/.300. El decreto que lo creó lo expresa como un día de salario por cada once días de trabajo efectivo.' },
+  { q: '¿Cuándo se paga el décimo tercer mes?', a: 'El 15 de abril, el 15 de agosto y el 15 de diciembre (Decreto de Gabinete 221 de 1971, art. 3). La norma fija las fechas de pago, no los cortes de cada período; lo habitual es cortar el día 15 (16 dic–15 abr, 16 abr–15 ago, 16 ago–15 dic), aunque algunos empleadores usan cortes de fin de mes.' },
+  { q: '¿Qué descuentos tiene el décimo?', a: 'El trabajador aporta una contribución especial de 7.25% a la Caja de Seguro Social sobre cada partida (Ley 51 de 2005, texto único de 2025, art. 96). No se descuenta Seguro Educativo. El décimo es renta gravable, por lo que puede llevar retención de impuesto sobre la renta si tu ingreso anual supera B/.11,000.' },
   { q: '¿Me corresponde décimo si entré a mitad del período?', a: 'Sí, en proporción a lo que devengaste desde tu ingreso. En el modo «Salario fijo», indica tu fecha de ingreso y la calculadora prorratea los días trabajados del período.' },
-  { q: '¿Se incluyen comisiones y horas extra?', a: 'La base es lo devengado en el período. Las remuneraciones variables que forman parte del salario, como comisiones o sobretiempo, suelen computarse; ante la duda sobre un concepto concreto, consulta a MITRADEL.' },
+  { q: '¿Se incluyen comisiones y horas extra?', a: 'Sí. El Decreto 19 de 1973 (art. 4) manda calcular cada partida sobre los salarios del período incluyendo salario base, horas extra, recargos, comisiones, primas, vacaciones, licencias pagadas y bonificaciones.' },
   { q: 'Si renuncio o me despiden, ¿pierdo el décimo?', a: 'No. La parte proporcional del período en curso se paga con la liquidación. Puedes estimarla en la calculadora de liquidación laboral.' }
 ];
 const schema = {
@@ -73,10 +73,10 @@ const schema = {
         <div class="field" data-mode="earnings" hidden>
           <label for="ordinary">Salarios devengados en el período</label>
           <div class="input-wrap"><span class="prefix">B/.</span><input id="ordinary" name="ordinary" type="number" min="0" step="0.01" inputmode="decimal" placeholder="3,600.00" /></div>
-          <small>Suma de lo cobrado del inicio al fin del período.</small>
+          <small>Salario base cobrado en el período, incluidas vacaciones y licencias pagadas.</small>
         </div>
         <div class="field" data-mode="earnings" hidden>
-          <label for="variable">Comisiones, sobretiempo y variables</label>
+          <label for="variable">Horas extra, comisiones, primas y bonificaciones</label>
           <div class="input-wrap"><span class="prefix">B/.</span><input id="variable" name="variable" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" /></div>
         </div>
         <div class="field full" data-mode="earnings" hidden>
@@ -105,7 +105,8 @@ const schema = {
           <li class="muted-row" data-row="noIsr"><span>ISR</span><strong>Indica tu salario habitual</strong></li>
           <li class="total"><span>Neto estimado</span><strong data-out="net"></strong></li>
         </ul>
-        <p class="callout info" data-row="prorated">Prorrateado: <span data-out="workedDays"></span> de <span data-out="periodDays"></span> días del período.</p>
+        <p class="callout info" data-row="prorated">Prorrateado: <span data-out="workedDays"></span> de <span data-out="periodDays"></span> días del período, con cortes el día 15.</p>
+        <p class="callout info">Resultado orientativo: sigue la práctica de planilla (devengado ÷ 12). Si tu empleador corta los períodos a fin de mes o tuviste variables, usa el modo «Con lo devengado».</p>
         <div class="result-actions">
           <button class="button secondary" type="button" id="thirteenth-share"><Icon name="share" size={18} />Compartir</button>
           <a class="button secondary" href={`${base}guias/fechas-de-pago-del-decimo-tercer-mes/`}>Fechas y reglas</a>
@@ -118,7 +119,7 @@ const schema = {
 
   <article class="container article">
     <h2>¿Cómo se calcula el décimo tercer mes?</h2>
-    <p>El décimo tercer mes lo creó el Decreto de Gabinete 221 de 1971 y se paga en tres partidas. Cada una corresponde a lo que el trabajador devengó durante un período de cuatro meses:</p>
+    <p>El décimo tercer mes lo creó el Decreto de Gabinete 221 de 1971 y se paga en tres partidas, el 15 de abril, el 15 de agosto y el 15 de diciembre. Cada una corresponde a lo devengado en los cuatro meses anteriores. La norma fija las fechas de pago; los cortes del día 15 de la tabla son los habituales en planilla:</p>
     <div class="table-wrap">
       <table>
         <thead><tr><th scope="col">Partida</th><th scope="col">Período</th><th scope="col">Pago</th></tr></thead>
@@ -131,16 +132,18 @@ const schema = {
     </div>
     <p class="formula">Décimo bruto = salarios y remuneraciones devengados en el período ÷ 12</p>
     <p>Con un salario fijo, el período completo suma cuatro salarios, así que la partida bruta equivale a un tercio del salario mensual. Si entraste a mitad del período, la calculadora estima lo devengado en proporción a los días trabajados.</p>
+    <h3>Qué dice exactamente la norma</h3>
+    <p>El artículo 2 del Decreto de Gabinete 221 de 1971 expresa el derecho como <em>«un día de salario por cada once días, o fracción de trabajo efectivo»</em>, y cuenta como trabajados los días de enfermedad, maternidad, licencia y vacaciones. El Decreto 19 de 1973 (art. 4) ordena calcular cada partida sobre los salarios del período, incluidos horas extra, comisiones, primas, vacaciones y bonificaciones. Las planillas lo aplican como <strong>lo devengado en el período ÷ 12</strong>, que equivale a un mes de salario al año. Esta calculadora sigue esa práctica; ante una discrepancia concreta, la autoridad competente es MITRADEL.</p>
     <h3>Descuentos</h3>
     <ul>
-      <li><strong>Seguro Social: 7.25%</strong> de la partida, como contribución especial del empleado (Ley 51 de 2005, art. 101, num. 5).</li>
+      <li><strong>Seguro Social: 7.25%</strong> de la partida, como contribución especial del empleado (Ley 51 de 2005, texto único de 2025, art. 96, num. 5).</li>
       <li><strong>Seguro Educativo:</strong> no se aplica al décimo.</li>
       <li><strong>Impuesto sobre la renta:</strong> el décimo es renta gravable. La calculadora estima la parte proporcional con tu salario habitual: el ISR anual de 13 pagos repartido en partes iguales. El empleador puede retener un monto distinto según su tabla y tus deducciones.</li>
     </ul>
     <h3>Ejemplo</h3>
     <p>Con B/.900 mensuales todo el período de agosto: base 4 × 900 = B/.3,600; décimo bruto B/.300; Seguro Social 7.25% = B/.21.75. Como 900 × 13 = B/.11,700 supera ligeramente B/.11,000, el ISR proporcional estimado es de unos B/.2.69, y el neto queda cerca de <strong>B/.275.56</strong>.</p>
     <Faq items={faq} />
-    <LegalSources sources={['thirteenth', 'css', 'incomeTax', 'mitradel']} />
+    <LegalSources sources={['thirteenth', 'thirteenthRegulation', 'css', 'incomeTax', 'mitradel']} />
   </article>
 
   <div class="container"><RelatedCalculators current={path} /></div>
