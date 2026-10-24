@@ -34,9 +34,9 @@ npm run build
 1. En GitHub abre **Settings → Pages**.
 2. En **Build and deployment**, selecciona **GitHub Actions**.
 3. Cada push a `main` ejecuta el flujo «Publicar en GitHub Pages», que prueba, compila y publica `dist`.
-4. Si usas dominio propio, cambia `SITE_URL` y `BASE_PATH` en el flujo (o el valor por defecto de `astro.config.mjs`) para que canonical, sitemap y robots apunten al dominio final.
+4. El sitio se publica en el dominio propio **https://calculapanama.com/** (configurado en **Settings → Pages → Custom domain** y en `public/CNAME`).
 
-El flujo configura la ruta base `/<nombre-del-repositorio>/`, por lo que los enlaces funcionan en un proyecto de GitHub Pages. `robots.txt` se genera con la URL correcta del sitemap.
+Los flujos compilan con `SITE_URL=https://calculapanama.com/` y `BASE_PATH=/`, así que los CSS, JS, enlaces, canonical, sitemap y `robots.txt` apuntan a la raíz del dominio. Si algún día vuelves a publicar en `https://<usuario>.github.io/calcula-panama/` sin dominio propio, cambia esas dos variables en `.github/workflows/deploy.yml` y `ci.yml` a esa URL y a `/calcula-panama/`; si no, la página se verá sin estilos.
 
 ## Activar Google AdSense (cuando la cuenta esté aprobada)
 
