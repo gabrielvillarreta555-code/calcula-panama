@@ -25,3 +25,7 @@ jobs:
           # Dominio propio: el sitio se sirve desde la raíz de https://calculapanama.com/
           SITE_URL: https://calculapanama.com/
           BASE_PATH: /
+      - name: Verificar sitemap, robots.txt y URL canónicas
+        run: npm run verify:seo
+        env:
+          SITE_URL: https://calculapanama.com/
