@@ -8,14 +8,15 @@ export const SITE = {
 } as const;
 
 /**
- * Google AdSense. Déjalo vacío hasta tener una cuenta aprobada.
+ * Google AdSense.
  *
+ * Con `client` definido, el script oficial se carga en el <head> de todas las páginas (necesario
+ * para verificar el sitio y para los anuncios automáticos). `public/ads.txt` debe usar el mismo ID.
+ * Los bloques manuales solo aparecen cuando se rellena el id de cada uno en `slots`.
  * Con `client` vacío no se carga ningún script de Google ni se muestra ningún espacio.
- * Para activarlo, pon el identificador real del editor (ca-pub- seguido de 16 cifras) y el
- * id de cada bloque creado en AdSense; añade también `public/ads.txt` (ver README).
  */
 export const ADSENSE = {
-  client: '',
+  client: 'ca-pub-2150093744862116',
   slots: {
     /** Bloque bajo el resultado de cada calculadora. */
     afterResult: '',
