@@ -1,0 +1,64 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import Faq from '../../components/Faq.astro';
+import LegalSources from '../../components/LegalSources.astro';
+import RelatedCalculators from '../../components/RelatedCalculators.astro';
+import { GUIDES } from '../../data/site';
+import { calculateThirteenthMonth, estimatePeriodEarnings, thirteenthPeriod } from '../../lib/calculations';
+import { formatDate, formatMoney } from '../../lib/format';
+
+const guide = GUIDES[1];
+const base = import.meta.env.BASE_URL;
+const year = 2027;
+const periods = (['abril', 'agosto', 'diciembre'] as const).map(id => thirteenthPeriod(id, year));
+const salaries = [650, 900, 1200, 2000];
+const fullPeriod = salaries.map(s => ({ s, r: calculateThirteenthMonth({ ordinaryEarnings: s * 4, regularMonthlySalary: s }) }));
+const midStart = '2027-06-16';
+const mid = estimatePeriodEarnings(1000, periods[1]!, midStart);
+const midResult = calculateThirteenthMonth({ ordinaryEarnings: mid.earnings });
+const faq = [
+  { q: '¿Qué pasa si el 15 cae en fin de semana?', a: 'La norma fija el día 15 como fecha de pago. Si coincide con un día no laborable, consulta con tu empleador o con MITRADEL cómo se hará efectivo; no hay una regla en el decreto que lo traslade automáticamente.' },
+  { q: '¿Por qué se habla de la «segunda partida» retenida?', a: 'El decreto original de 1971 destinaba la partida de agosto a programas de vivienda y entre 1972 y 1983 no se entregó a los trabajadores; una ley de 2017 ordenó pagar esas sumas atrasadas. Hoy la partida de agosto se paga directamente, como las otras dos.' },
+  { q: '¿Los servidores públicos calculan igual?', a: 'No. El sector público tiene su propia ley (Ley 52 de 1974 y sus reformas), con una base salarial máxima. Esta guía y la calculadora se refieren al sector privado.' }
+];
+---
+<Layout title="Décimo tercer mes 2027 en Panamá: fechas de pago, períodos y cálculo" description="Fechas de pago del décimo tercer mes en Panamá (15 de abril, 15 de agosto y 15 de diciembre), qué meses cubre cada partida, cuánto se descuenta y cómo se calcula si entraste a mitad del período." canonicalPath={guide.path}>
+  <header class="page-head container">
+    <Breadcrumbs items={[{ label: 'Guías', path: '/guias/' }, { label: 'Décimo tercer mes', path: guide.path }]} />
+    <span class="eyebrow">Guía</span>
+    <h1>{guide.title}</h1>
+    <p>Qué meses cubre cada pago, cuánto recibes con salarios habituales y cómo se calcula cuando entraste o saliste a mitad del período (sector privado).</p>
+  </header>
+  <article class="container article">
+    <h2>Fechas de pago y períodos de {year}</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th scope="col">Partida</th><th scope="col">Período que cubre</th><th scope="col">Fecha de pago</th></tr></thead>
+        <tbody>{periods.map(p => <tr><th scope="row">{p.label}</th><td>{formatDate(p.start)} – {formatDate(p.end)}</td><td><strong>{formatDate(p.payDate)}</strong></td></tr>)}</tbody>
+      </table>
+    </div>
+    <p>El Decreto de Gabinete 221 de 1971 creó el décimo en tres partidas. El Decreto de Gabinete 52 de 1972 trasladó la primera del 15 de marzo al 15 de abril.</p>
+    <AdSlot name="inArticle" />
+    <h2>¿Cómo se calcula?</h2>
+    <p class="formula">Partida bruta = todo lo devengado en el período ÷ 12</p>
+    <p>Con un salario fijo durante el período completo (cuatro meses), la partida bruta es un tercio de tu salario mensual. Luego se descuenta un <strong>7.25% de Seguro Social</strong> (Ley 51 de 2005, art. 101) y, si tu ingreso anual supera B/.11,000, la parte de <strong>ISR</strong> que corresponda. No se descuenta Seguro Educativo.</p>
+    <h2>Cuánto recibes con salarios habituales</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th scope="col">Salario mensual</th><th scope="col">Bruto</th><th scope="col">CSS 7.25%</th><th scope="col">ISR est.</th><th scope="col">Neto</th></tr></thead>
+        <tbody>{fullPeriod.map(({ s, r }) => <tr><th scope="row">{formatMoney(s)}</th><td>{formatMoney(r.gross)}</td><td>{formatMoney(r.socialSecurity)}</td><td>{formatMoney(r.incomeTax ?? 0)}</td><td><strong>{formatMoney(r.net)}</strong></td></tr>)}</tbody>
+        <caption>Período completo con salario fijo. ISR proporcional estimado; la retención del empleador puede variar.</caption>
+      </table>
+    </div>
+    <h2>Si entraste a mitad del período</h2>
+    <p>Solo cuenta lo que devengaste desde tu ingreso. Ejemplo: entras el {formatDate(midStart)} con B/.1,000 al mes. De los {mid.periodDays} días de la partida de agosto trabajas {mid.workedDays}, así que lo devengado es de unos {formatMoney(mid.earnings)} y la partida bruta, de <strong>{formatMoney(midResult.gross)}</strong>.</p>
+    <h2>Si renuncias o te despiden</h2>
+    <p>La parte proporcional del período en curso se incluye en tu liquidación, sea cual sea el motivo. Puedes estimarla con la <a href={`${base}calculadoras/liquidacion-laboral/`}>calculadora de liquidación</a>.</p>
+    <p><a class="button primary" href={`${base}calculadoras/decimo-tercer-mes/`}>Calcular mi décimo</a></p>
+    <Faq items={faq} />
+    <LegalSources sources={['thirteenth', 'css', 'mitradel']} />
+  </article>
+  <div class="container"><RelatedCalculators /></div>
+</Layout>

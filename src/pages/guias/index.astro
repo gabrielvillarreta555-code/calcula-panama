@@ -1,0 +1,22 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import RelatedCalculators from '../../components/RelatedCalculators.astro';
+import { GUIDES } from '../../data/site';
+const base = import.meta.env.BASE_URL;
+const href = (p: string) => `${base}${p.replace(/^\//, '')}`;
+---
+<Layout title="Guías laborales de Panamá | Calcula Panamá" description="Guías claras sobre descuentos del salario, décimo tercer mes, prima de antigüedad e indemnización en Panamá, con ejemplos y base legal." canonicalPath="/guias/">
+  <header class="page-head container">
+    <Breadcrumbs items={[{ label: 'Guías', path: '/guias/' }]} />
+    <span class="eyebrow">Guías</span>
+    <h1>Guías laborales para Panamá</h1>
+    <p>Explicaciones cortas, con ejemplos y la norma que respalda cada regla. Cada guía enlaza a la calculadora correspondiente.</p>
+  </header>
+  <div class="container section" style="padding-top:12px">
+    <div class="guide-list">
+      {GUIDES.map(g => <a class="guide-card" href={href(g.path)}><strong>{g.title}</strong><span>{g.description}</span></a>)}
+    </div>
+  </div>
+  <div class="container"><RelatedCalculators title="Calculadoras" /></div>
+</Layout>

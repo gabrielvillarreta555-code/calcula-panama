@@ -1,8 +1,19 @@
 ---
-import { LEGAL_PARAMETERS, OFFICIAL_SOURCES } from '../data/legal';
+import { LEGAL_PARAMETERS, OFFICIAL_SOURCES, type SourceKey } from '../data/legal';
+import { formatDate } from '../lib/format';
+interface Props { sources: SourceKey[] }
+const list = Astro.props.sources.map(key => OFFICIAL_SOURCES[key]);
 ---
-<section aria-labelledby="fuentes"><h2 id="fuentes">Fuentes y vigencia</h2>
-  <div class="legal-meta"><span class="tag">Parámetros revisados: {LEGAL_PARAMETERS.reviewedOn}</span><span class="tag">Jurisdicción: Panamá</span></div>
-  <ul class="source-list">{OFFICIAL_SOURCES.map(source => <li><a href={source.url} target="_blank" rel="noopener noreferrer">{source.institution}: {source.title}</a></li>)}</ul>
-  <p class="callout-warning"><strong>Importante:</strong> la normativa, criterios administrativos y condiciones particulares pueden cambiar el resultado. Contrasta el cálculo con tu comprobante, la institución competente o un profesional.</p>
+<section class="sources" aria-labelledby="fuentes">
+  <h2 id="fuentes">Fuentes y vigencia</h2>
+  <p class="muted">Parámetros revisados el {formatDate(LEGAL_PARAMETERS.reviewedOn)} contra el texto de las normas citadas.</p>
+  <ul class="source-list">
+    {list.map(source => (
+      <li>
+        <a href={source.url} target="_blank" rel="noopener noreferrer">{source.title}</a>
+        <span>{source.institution}. {source.detail}</span>
+      </li>
+    ))}
+  </ul>
+  <p class="callout warning"><strong>Importante:</strong> las leyes, los criterios administrativos y las condiciones de tu contrato pueden cambiar el resultado. Contrasta la estimación con tu comprobante de pago, con tu empleador o con MITRADEL antes de tomar decisiones.</p>
 </section>

@@ -1,1 +1,12 @@
-{"name":"Calcula Panamá","short_name":"Calcula PA","lang":"es-PA","start_url":"./","display":"standalone","background_color":"#f4f7f8","theme_color":"#063b50","icons":[]}
+{
+  "name": "Calcula Panamá",
+  "short_name": "Calcula PA",
+  "description": "Calculadoras laborales para Panamá: salario neto, décimo, vacaciones y liquidación.",
+  "lang": "es-PA",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f3f6f7",
+  "theme_color": "#0b3d52",
+  "icons": [{ "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}

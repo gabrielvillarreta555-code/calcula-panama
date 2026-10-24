@@ -1,1 +1,14 @@
-<aside class="ad-slot" aria-label="Espacio reservado para publicidad">Espacio publicitario reservado · Sin anuncios activos</aside>
+---
+import { ADSENSE, isAdsenseEnabled, type AdSlotName } from '../data/site';
+interface Props { name: AdSlotName }
+const slot = ADSENSE.slots[Astro.props.name];
+// Sin cuenta aprobada no se renderiza nada: ni marcadores ni scripts de terceros.
+const enabled = isAdsenseEnabled() && /^\d{6,}$/.test(slot);
+---
+{enabled && (
+  <aside class="ad-slot" aria-label="Publicidad">
+    <span class="ad-label">Publicidad</span>
+    <ins class="adsbygoogle" style="display:block" data-ad-client={ADSENSE.client} data-ad-slot={slot} data-ad-format="auto" data-full-width-responsive="true"></ins>
+    <script is:inline>(window.adsbygoogle = window.adsbygoogle || []).push({});</script>
+  </aside>
+)}

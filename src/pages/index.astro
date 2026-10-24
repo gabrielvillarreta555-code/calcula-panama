@@ -1,16 +1,132 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import AdSlot from '../components/AdSlot.astro';
+import Icon from '../components/Icon.astro';
+import { CALCULATORS, GUIDES, SITE } from '../data/site';
+import { calculateNetSalary } from '../lib/calculations';
+import { formatMoney } from '../lib/format';
+
 const base = import.meta.env.BASE_URL;
-const href = (p:string) => `${base}${p.replace(/^\//,'')}`;
-const schema={ '@context':'https://schema.org','@type':'WebSite',name:'Calcula Panamá',description:'Calculadoras laborales gratuitas para Panamá',inLanguage:'es-PA' };
+const href = (p: string) => `${base}${p.replace(/^\//, '')}`;
+const example = calculateNetSalary({ grossPerPay: 1500, frequency: 'monthly' });
+const share = (n: number) => `${((n / example.gross) * 100).toFixed(1)}%`;
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: SITE.name,
+    description: SITE.description,
+    inLanguage: 'es-PA',
+    url: new URL(base, Astro.site ?? Astro.url.origin).toString()
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: 'Calculadoras laborales de Panamá',
+    itemListElement: CALCULATORS.map((c, i) => ({ '@type': 'ListItem', position: i + 1, name: c.label, url: new URL(c.path.replace(/^\//, ''), Astro.site ?? Astro.url.origin).toString() }))
+  }
+];
 ---
-<Layout title="Calcula Panamá | Calculadoras laborales gratuitas" description="Calcula salario neto, décimo tercer mes y liquidación laboral en Panamá con desglose, fórmulas y fuentes oficiales." schema={schema}>
-  <section class="hero"><div class="container"><span class="eyebrow">Hecho para Panamá</span><h1>Tus números laborales, mucho más claros.</h1><p>Calculadoras gratuitas para estimar tu salario neto, décimo tercer mes y liquidación. Sin cuentas, sin enviar tus datos y con cada fórmula explicada.</p><div class="actions"><a class="button primary" href={href('/calculadoras/salario-neto/')}>Calcular mi salario →</a><a class="button secondary" href="#calculadoras">Ver calculadoras</a></div><div class="trust-row"><span>✓ Cálculos en tu dispositivo</span><span>✓ Fuentes identificadas</span><span>✓ Gratis y sin registro</span></div></div></section>
-  <section class="section" id="calculadoras"><div class="container"><div class="section-title"><span class="eyebrow">Herramientas</span><h2>Empieza con lo que necesitas calcular</h2><p>Cada resultado incluye un desglose comprensible, los supuestos utilizados y límites que conviene revisar.</p></div><div class="cards">
-    <article class="card"><div class="card-icon">B/.</div><h3>Salario neto</h3><p>Estima Seguro Social, Seguro Educativo, impuesto sobre la renta y pago disponible.</p><a class="card-link" href={href('/calculadoras/salario-neto/')}>Abrir calculadora →</a></article>
-    <article class="card"><div class="card-icon">⅓</div><h3>Décimo tercer mes</h3><p>Calcula una partida desde tus remuneraciones reales del período, incluidas las variables.</p><a class="card-link" href={href('/calculadoras/decimo-tercer-mes/')}>Abrir calculadora →</a></article>
-    <article class="card"><div class="card-icon">≋</div><h3>Liquidación laboral</h3><p>Distingue vacaciones, décimo proporcional, prima de antigüedad e indemnización aplicable.</p><a class="card-link" href={href('/calculadoras/liquidacion-laboral/')}>Abrir calculadora →</a></article>
-  </div><AdSlot /></div></section>
-  <section class="section"><div class="container"><div class="panel"><div class="section-title"><span class="eyebrow">Privacidad primero</span><h2>Tus cifras no salen de tu teléfono</h2><p>Los cálculos se ejecutan localmente en el navegador. No pedimos nombre, cédula, correo ni almacenamos salarios. El código está organizado para actualizar las reglas legales sin rehacer la interfaz.</p></div><div class="pill-row"><span class="pill">Sin registro</span><span class="pill">Sin base de datos</span><span class="pill">Sin rastreo salarial</span><span class="pill">Accesible</span></div></div></div></section>
+<Layout title="Calcula Panamá: calculadoras de salario neto, décimo, vacaciones y liquidación" description="Calculadoras laborales gratuitas para Panamá: salario neto con CSS e ISR, décimo tercer mes, vacaciones y liquidación. Fórmulas explicadas, fuentes oficiales y sin enviar tus datos." canonicalPath="/" schema={schema}>
+  <section class="hero">
+    <div class="container hero-inner">
+      <div>
+        <span class="eyebrow">Hecho para Panamá</span>
+        <h1>Entiende tu salario <em>antes</em> de que llegue la quincena.</h1>
+        <p class="lead">Calcula tu salario neto, el décimo tercer mes, tus vacaciones o tu liquidación en segundos. Cada resultado muestra la fórmula y la ley que lo respalda.</p>
+        <div class="actions">
+          <a class="button primary" href={href('/calculadoras/salario-neto/')}>Calcular mi salario <Icon name="arrow" size={18} /></a>
+          <a class="button secondary" href="#calculadoras">Ver calculadoras</a>
+        </div>
+        <ul class="trust-row">
+          <li><Icon name="check" size={18} />Gratis y sin registro</li>
+          <li><Icon name="check" size={18} />Tus datos no salen del teléfono</li>
+          <li><Icon name="check" size={18} />Basado en el Código de Trabajo</li>
+        </ul>
+      </div>
+      <aside class="hero-preview" aria-label="Ejemplo de cálculo">
+        <div class="preview-head"><small>Salario de {formatMoney(example.gross)} al mes</small><small>Ejemplo</small></div>
+        <div class="preview-amount">{formatMoney(example.net)}</div>
+        <small>neto estimado por mes</small>
+        <div class="stack-bar" role="img" aria-label={`Neto ${share(example.net)}, Seguro Social ${share(example.socialSecurity)}, Seguro Educativo ${share(example.educationalInsurance)}, ISR ${share(example.incomeTax)}`} style="margin-top:14px">
+          <span class="tone-net" style={`width:${share(example.net)}`}></span>
+          <span class="tone-css" style={`width:${share(example.socialSecurity)}`}></span>
+          <span class="tone-edu" style={`width:${share(example.educationalInsurance)}`}></span>
+          <span class="tone-isr" style={`width:${share(example.incomeTax)}`}></span>
+        </div>
+        <ul class="breakdown">
+          <li class="minus"><span>Seguro Social 9.75%</span><strong>{formatMoney(example.socialSecurity)}</strong></li>
+          <li class="minus"><span>Seguro Educativo 1.25%</span><strong>{formatMoney(example.educationalInsurance)}</strong></li>
+          <li class="minus"><span>ISR estimado</span><strong>{formatMoney(example.incomeTax)}</strong></li>
+        </ul>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section" id="calculadoras">
+    <div class="container">
+      <div class="section-title">
+        <span class="eyebrow">Calculadoras</span>
+        <h2>¿Qué necesitas calcular hoy?</h2>
+        <p>Cada herramienta desglosa el resultado, explica los supuestos y te avisa cuando un caso necesita revisión profesional.</p>
+      </div>
+      <div class="cards">
+        {CALCULATORS.map(c => (
+          <a class="card" href={href(c.path)}>
+            <span class={`card-icon icon-${c.icon}`}><Icon name={c.icon} /></span>
+            <h3>{c.label}</h3>
+            <p>{c.description}</p>
+            <span class="card-link">Calcular <Icon name="arrow" size={16} /></span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="fechas-decimo">
+    <div class="container">
+      <div class="section-title">
+        <span class="eyebrow">Calendario</span>
+        <h2 id="fechas-decimo">Fechas de pago del décimo tercer mes</h2>
+        <p>Cada partida cubre cuatro meses y se paga el día 15. <a href={href('/guias/fechas-de-pago-del-decimo-tercer-mes/')}>Ver períodos y reglas</a>.</p>
+      </div>
+      <div class="dates-strip" id="decimo-dates">
+        <div class="date-chip" data-month="4"><strong>15 abr</strong><span>16 dic – 15 abr</span></div>
+        <div class="date-chip" data-month="8"><strong>15 ago</strong><span>16 abr – 15 ago</span></div>
+        <div class="date-chip" data-month="12"><strong>15 dic</strong><span>16 ago – 15 dic</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="feature-grid">
+        <div class="feature"><Icon name="shield" size={28} /><h3>Privado por diseño</h3><p>Los cálculos se hacen en tu navegador. No pedimos nombre, cédula ni correo, y no guardamos salarios.</p></div>
+        <div class="feature"><Icon name="book" size={28} /><h3>Con base legal</h3><p>Citamos el artículo de cada regla: Código de Trabajo, Ley Orgánica de la CSS y Código Fiscal.</p></div>
+        <div class="feature"><Icon name="alert" size={28} /><h3>Sin falsa precisión</h3><p>Cuando un caso depende de datos que no tenemos o de una interpretación jurídica, te lo decimos en lugar de inventar una cifra.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="guias-title">
+    <div class="container">
+      <div class="section-title">
+        <span class="eyebrow">Guías</span>
+        <h2 id="guias-title">Respuestas claras a dudas frecuentes</h2>
+      </div>
+      <div class="guide-list">
+        {GUIDES.map(g => (
+          <a class="guide-card" href={href(g.path)}><strong>{g.title}</strong><span>{g.description}</span></a>
+        ))}
+      </div>
+    </div>
+  </section>
 </Layout>
+
+<script is:inline>
+  (function () {
+    var d = new Date(), md = (d.getMonth() + 1) * 100 + d.getDate();
+    var next = md >= 1216 || md <= 415 ? 4 : md <= 815 ? 8 : 12;
+    var chip = document.querySelector('#decimo-dates [data-month="' + next + '"]');
+    if (chip) { chip.classList.add('next'); chip.insertAdjacentHTML('beforeend', '<span style="display:block;color:var(--brand-2);font-weight:700">Próxima</span>'); }
+  })();
+</script>

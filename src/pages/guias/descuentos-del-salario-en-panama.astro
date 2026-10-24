@@ -1,0 +1,71 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import Faq from '../../components/Faq.astro';
+import LegalSources from '../../components/LegalSources.astro';
+import RelatedCalculators from '../../components/RelatedCalculators.astro';
+import { GUIDES } from '../../data/site';
+import { calculateNetSalary } from '../../lib/calculations';
+import { formatMoney } from '../../lib/format';
+
+const guide = GUIDES[0];
+const base = import.meta.env.BASE_URL;
+const fortnight = calculateNetSalary({ grossPerPay: 600, frequency: 'fortnightly' });
+const rows = [700, 846.15, 1000, 1500, 2500, 3846.15, 5000].map(g => ({ g, r: calculateNetSalary({ grossPerPay: g, frequency: 'monthly' }) }));
+const faq = [
+  { q: '¿Cuánto es el descuento del Seguro Social en Panamá?', a: 'El 9.75% del salario para el trabajador. El empleador aporta aparte su propia cuota, que la Ley 462 de 2025 está aumentando de forma escalonada; ese aumento no se descuenta del trabajador.' },
+  { q: '¿El décimo tercer mes tiene Seguro Educativo?', a: 'No. Sobre el décimo se descuenta una contribución especial de 7.25% de Seguro Social y, si corresponde, ISR, pero no Seguro Educativo.' },
+  { q: '¿Cuánto debo ganar para pagar impuesto sobre la renta?', a: 'Más de B/.11,000 al año. Con 13 pagos (12 salarios y el décimo), equivale a un salario mensual fijo superior a B/.846.15.' }
+];
+---
+<Layout title="Descuentos del salario en Panamá 2026: CSS 9.75%, Seguro Educativo e ISR" description="Qué te descuentan del salario en Panamá y por qué: Seguro Social 9.75%, Seguro Educativo 1.25% e impuesto sobre la renta. Tabla de salario neto y ejemplo quincenal." canonicalPath={guide.path}>
+  <header class="page-head container">
+    <Breadcrumbs items={[{ label: 'Guías', path: '/guias/' }, { label: 'Descuentos del salario', path: guide.path }]} />
+    <span class="eyebrow">Guía</span>
+    <h1>{guide.title}</h1>
+    <p>Tres descuentos explican casi todo tu talonario. Aquí verás cuánto es cada uno, sobre qué se calcula y desde qué salario empiezas a pagar impuesto.</p>
+  </header>
+  <article class="container article">
+    <h2>Resumen rápido</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th scope="col">Descuento</th><th scope="col">Tasa</th><th scope="col">¿Aplica al décimo?</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Seguro Social (CSS)</th><td>9.75%</td><td>7.25%</td></tr>
+          <tr><th scope="row">Seguro Educativo</th><td>1.25%</td><td>No</td></tr>
+          <tr><th scope="row">Impuesto sobre la renta</th><td>0% · 15% · 25%</td><td>Sí</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <AdSlot name="inArticle" />
+    <h2>Seguro Social: 9.75%</h2>
+    <p>Es la cuota del empleado que fija el artículo 101 de la Ley 51 de 2005 desde 2013. Financia salud, maternidad, invalidez, vejez y muerte. Se aplica a todo el salario, incluidas las comisiones y el sobretiempo. La reforma de la Ley 462 de 2025 aumentó la cuota del <em>empleador</em>, no la tuya.</p>
+    <h2>Seguro Educativo: 1.25%</h2>
+    <p>Se calcula sobre el salario de cada pago. No se descuenta del décimo tercer mes. Desde 2010 ya no es deducible del impuesto sobre la renta.</p>
+    <h2>Impuesto sobre la renta (ISR)</h2>
+    <p>El empleador proyecta tu ingreso del año, 12 salarios más el décimo, y aplica la tarifa del artículo 700 del Código Fiscal:</p>
+    <ul>
+      <li>Hasta <strong>B/.11,000</strong> al año: exento.</li>
+      <li>De B/.11,000 a B/.50,000: <strong>15%</strong> sobre lo que exceda de B/.11,000.</li>
+      <li>Más de B/.50,000: <strong>B/.5,850 + 25%</strong> sobre lo que exceda de B/.50,000.</li>
+    </ul>
+    <p>Las cuotas de CSS y Seguro Educativo <strong>no</strong> reducen la base del impuesto. Por eso un salario fijo de hasta <strong>B/.846.15</strong> al mes (11,000 ÷ 13) no paga ISR, y el tramo de 25% empieza con salarios superiores a <strong>B/.3,846.15</strong> al mes (50,000 ÷ 13).</p>
+    <h2>Ejemplo quincenal</h2>
+    <p>Con B/.600 por quincena (B/.1,200 al mes): Seguro Social {formatMoney(fortnight.socialSecurity)}, Seguro Educativo {formatMoney(fortnight.educationalInsurance)} e ISR {formatMoney(fortnight.incomeTax)}. Neto por quincena: <strong>{formatMoney(fortnight.net)}</strong>.</p>
+    <h2>Tabla de salario neto mensual</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th scope="col">Bruto</th><th scope="col">Descuentos</th><th scope="col">Neto</th></tr></thead>
+        <tbody>{rows.map(({ g, r }) => <tr><th scope="row">{formatMoney(g)}</th><td>{formatMoney(r.totalDeductions)}</td><td><strong>{formatMoney(r.net)}</strong></td></tr>)}</tbody>
+        <caption>Un empleador, sin deducciones personales, con el décimo en la proyección.</caption>
+      </table>
+    </div>
+    <p>Prueba con tu salario exacto en la <a href={`${base}calculadoras/salario-neto/`}>calculadora de salario neto</a>.</p>
+    <h2>Otros descuentos que pueden aparecer</h2>
+    <p>Préstamos y descuentos directos autorizados, cuotas sindicales, pensiones alimenticias o embargos ordenados por un juez. No dependen de la ley tributaria, sino de tu situación particular.</p>
+    <Faq items={faq} />
+    <LegalSources sources={['css', 'incomeTax']} />
+  </article>
+  <div class="container"><RelatedCalculators /></div>
+</Layout>

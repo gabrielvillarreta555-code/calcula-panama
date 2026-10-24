@@ -1,4 +1,27 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import { SITE } from '../data/site';
 ---
-<Layout title="Contacto | Calcula Panamá" description="Información de contacto y reporte de correcciones para Calcula Panamá." canonicalPath="/contacto/"><header class="page-head"><div class="container"><span class="eyebrow">Contacto</span><h1>Ayúdanos a mantener los cálculos claros.</h1></div></header><article class="container article"><div class="notice"><strong>Canal de contacto pendiente.</strong> No publicamos un correo, teléfono o dirección inventados. El responsable del sitio deberá añadir aquí un medio real antes del lanzamiento público.</div><h2>Qué información ayuda en un reporte</h2><p>Indica la calculadora, los datos de ejemplo sin información personal, el resultado esperado y una fuente oficial que sustente la corrección. No envíes cédula, ficha de Seguro Social, comprobantes de pago ni datos sensibles.</p><h2>Consultas personales</h2><p>Para casos individuales, utiliza los canales oficiales de MITRADEL, CSS o DGI, o consulta a un profesional idóneo.</p></article></Layout>
+<Layout title="Contacto y reporte de errores | Calcula Panamá" description="Cómo reportar un error o sugerir una mejora en las calculadoras de Calcula Panamá." canonicalPath="/contacto/">
+  <header class="page-head container">
+    <Breadcrumbs items={[{ label: 'Contacto', path: '/contacto/' }]} />
+    <span class="eyebrow">Contacto</span>
+    <h1>Ayúdanos a mantener los cálculos correctos</h1>
+  </header>
+  <article class="container article">
+    <div class="notice">
+      <p><strong>Canal público de reportes:</strong> abre una incidencia en el repositorio del proyecto en GitHub. Es público, así que cualquiera puede leer lo que escribas.</p>
+      <p style="margin:0"><a class="button primary" href={SITE.issuesUrl} target="_blank" rel="noopener noreferrer">Reportar un error o sugerencia</a></p>
+    </div>
+    <h2>Qué información ayuda en un reporte</h2>
+    <ul>
+      <li>La calculadora y los datos de ejemplo que usaste (sin información personal).</li>
+      <li>El resultado que esperabas y por qué.</li>
+      <li>La norma o fuente oficial que respalda la corrección, si la tienes.</li>
+    </ul>
+    <p><strong>No publiques</strong> tu cédula, número de Seguro Social, talonarios, nombres de empresas ni otros datos sensibles.</p>
+    <h2>Consultas sobre tu caso personal</h2>
+    <p>No damos asesoría individual. Para revisar tu caso, acude al Ministerio de Trabajo y Desarrollo Laboral (MITRADEL), a la Caja de Seguro Social, a la Dirección General de Ingresos o a un abogado o contador idóneo.</p>
+  </article>
+</Layout>

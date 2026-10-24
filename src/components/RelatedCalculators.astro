@@ -1,0 +1,19 @@
+---
+import { CALCULATORS } from '../data/site';
+import Icon from './Icon.astro';
+interface Props { current?: string; title?: string }
+const { current, title = 'Otras calculadoras' } = Astro.props;
+const base = import.meta.env.BASE_URL;
+const href = (path: string) => `${base}${path.replace(/^\//, '')}`;
+---
+<section class="related" aria-labelledby="related-title">
+  <h2 id="related-title">{title}</h2>
+  <div class="related-grid">
+    {CALCULATORS.filter(c => c.path !== current).map(c => (
+      <a class="related-card" href={href(c.path)}>
+        <span class={`related-icon icon-${c.icon}`}><Icon name={c.icon} size={22} /></span>
+        <span><strong>{c.label}</strong><small>{c.description}</small></span>
+      </a>
+    ))}
+  </div>
+</section>

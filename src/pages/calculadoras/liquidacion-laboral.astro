@@ -1,20 +1,255 @@
 ---
-import Layout from '../../layouts/Layout.astro';import LegalSources from '../../components/LegalSources.astro';import AdSlot from '../../components/AdSlot.astro';
+import Layout from '../../layouts/Layout.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import Faq from '../../components/Faq.astro';
+import Icon from '../../components/Icon.astro';
+import LegalSources from '../../components/LegalSources.astro';
+import RelatedCalculators from '../../components/RelatedCalculators.astro';
+
+const path = '/calculadoras/liquidacion-laboral/';
+const base = import.meta.env.BASE_URL;
+const faq = [
+  { q: '¿Qué incluye una liquidación laboral en Panamá?', a: 'Siempre: las vacaciones pendientes y el décimo tercer mes proporcional. En contratos por tiempo indefinido, además, la prima de antigüedad, sea cual sea el motivo de la terminación. La indemnización solo corresponde en despido injustificado, renuncia con causa justificada, causa económica o terminación anticipada de un contrato definido sin justa causa.' },
+  { q: 'Si renuncio, ¿me pagan prima de antigüedad?', a: 'Sí, si tu contrato es por tiempo indefinido. El artículo 224 la reconoce a la terminación de todo contrato indefinido, cualquiera que sea la causa: una semana de salario por cada año trabajado, proporcional por fracción.' },
+  { q: '¿Cuánto es la indemnización por despido injustificado?', a: 'Para relaciones que empezaron después de la Ley 44 de 1995: 3.4 semanas de salario por cada año en los primeros diez años y una semana por cada año posterior, con parte proporcional por fracción (art. 225, acápite C). Se calcula con el salario promedio de los últimos seis meses o de los últimos 30 días, el que sea más favorable (art. 149).' },
+  { q: '¿Y si mi contrato era por tiempo definido?', a: 'Si el empleador lo termina antes del vencimiento sin justa causa, debe pagar los salarios que habrías recibido durante el tiempo restante del contrato (art. 227). Indica la fecha pactada de vencimiento para estimarlo.' },
+  { q: '¿Por qué el resultado es orientativo?', a: 'El monto final puede cambiar por salarios variables, preaviso, recargos, fueros (maternidad, sindical, riesgo profesional), acuerdos o lo que resuelva una autoridad. Para un caso concreto, acude a MITRADEL.' }
+];
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: 'Calculadora de liquidación laboral Panamá',
+  applicationCategory: 'FinanceApplication',
+  operatingSystem: 'Web',
+  inLanguage: 'es-PA',
+  isAccessibleForFree: true,
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' }
+};
 ---
-<Layout title="Calculadora de liquidación laboral Panamá | Calcula Panamá" description="Estima vacaciones, décimo proporcional, prima de antigüedad e indemnización según contrato y motivo de terminación en Panamá." canonicalPath="/calculadoras/liquidacion-laboral/">
-<header class="page-head"><div class="container"><span class="eyebrow">Terminación laboral</span><h1>Calculadora de liquidación</h1><p>Separa los conceptos según tu contrato y motivo de terminación; no asume que todos reciben lo mismo.</p></div></header>
-<div class="container calculator-shell"><form class="panel" id="termination-form"><h2>Datos de la relación laboral</h2><div class="form-grid">
-<div class="field"><label for="salary">Salario mensual</label><input id="salary" name="salary" type="number" min="0.01" step="0.01" inputmode="decimal" required /></div>
-<div class="field"><label for="contract">Tipo de contrato</label><select id="contract" name="contract"><option value="indefinite">Indefinido</option><option value="fixed">Por tiempo definido</option><option value="specific-work">Por obra determinada</option></select></div>
-<div class="field"><label for="start">Fecha de ingreso</label><input id="start" name="start" type="date" required /></div><div class="field"><label for="end">Fecha de terminación</label><input id="end" name="end" type="date" required /></div>
-<div class="field full"><label for="reason">Motivo de terminación</label><select id="reason" name="reason"><option value="resignation">Renuncia</option><option value="mutual">Mutuo acuerdo</option><option value="justified">Despido justificado</option><option value="unjustified">Despido injustificado</option><option value="expiry">Vencimiento / conclusión</option></select></div>
-<div class="field"><label for="vacationDays">Días de vacaciones pendientes</label><input id="vacationDays" name="vacationDays" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Si los conoces" /><small>Déjalo vacío para estimar acumulación total no disfrutada.</small></div>
-<div class="field"><label for="periodEarnings">Remuneración desde última partida de décimo</label><input id="periodEarnings" name="periodEarnings" type="number" min="0" step="0.01" inputmode="decimal" value="0" /><small>Total real devengado en el período actual.</small></div>
-</div><p class="form-error" id="termination-error" role="alert"></p><button class="calculate">Estimar liquidación</button></form>
-<section class="panel results" aria-live="polite"><div id="termination-empty" class="empty-state">Completa los datos para ver qué conceptos podrían aplicar.</div><div id="termination-result" hidden><div class="result-hero"><div class="label">Total bruto orientativo</div><div class="amount" data-out="total"></div></div><ul class="breakdown"><li><span>Vacaciones pendientes</span><strong data-out="vacation"></strong></li><li><span>Décimo proporcional</span><strong data-out="thirteenth"></strong></li><li><span>Prima de antigüedad</span><strong data-out="seniorityPremium"></strong></li><li><span>Indemnización</span><strong data-out="indemnity"></strong></li><li><span>Tiempo computado</span><strong><span data-text="years"></span> años</strong></li></ul><p id="termination-limit" class="callout-warning" hidden></p><p class="muted">No incluye salarios ya adeudados, preaviso, descuentos, préstamos, fueros, recargos ni acuerdos particulares.</p></div><AdSlot /></section></div>
-<article class="container article"><h2>Qué conceptos se incluyen</h2><p><strong>Vacaciones:</strong> si indicas días pendientes, se valoran usando salario diario. Si no los conoces, la herramienta estima toda la acumulación del vínculo como no disfrutada; corrige ese dato si ya tomaste vacaciones.</p><p><strong>Décimo proporcional:</strong> divide entre doce la remuneración real acumulada desde la última partida.</p><p><strong>Prima de antigüedad:</strong> se estima para contratos indefinidos a razón de una semana de salario por cada año trabajado, proporcional por fracción.</p><p><strong>Indemnización:</strong> solo se activa automáticamente para despido injustificado en contrato indefinido: 3.4 semanas por año durante los primeros diez años y una semana por cada año posterior, proporcionalmente.</p><h2>Decisiones conservadoras</h2><p>En contrato definido u obra determinada, un despido anticipado puede depender del tiempo faltante y de circunstancias jurídicas. La herramienta no atribuye una cifra automática. Tampoco aplica indemnización a renuncia, mutuo acuerdo, causa justificada o vencimiento.</p><section class="faq"><h2>Preguntas frecuentes</h2><details><summary>¿La prima de antigüedad es una indemnización?</summary><p>No. Son conceptos distintos y su procedencia se muestra por separado.</p></details><details><summary>¿Por qué el total puede ser alto si dejé vacíos los días?</summary><p>Porque, al no conocer vacaciones disfrutadas, se estima toda la acumulación como pendiente. Introduce el saldo real para mejorar el resultado.</p></details><details><summary>¿Contempla fueros o reintegro?</summary><p>No. Embarazo, fuero sindical, riesgos profesionales y otras protecciones requieren evaluación particular.</p></details></section><LegalSources /></article>
-<script>
-import { calculateTermination } from '../../lib/calculations';const money=new Intl.NumberFormat('es-PA',{style:'currency',currency:'PAB'});const form=document.querySelector<HTMLFormElement>('#termination-form')!,err=document.querySelector('#termination-error')!,empty=document.querySelector<HTMLElement>('#termination-empty')!,result=document.querySelector<HTMLElement>('#termination-result')!,limit=document.querySelector<HTMLElement>('#termination-limit')!;form.addEventListener('submit',e=>{e.preventDefault();const d=new FormData(form),salary=Number(d.get('salary')),start=String(d.get('start')),end=String(d.get('end')),rawDays=String(d.get('vacationDays')||'');if(!(salary>0)||!start||!end||Date.parse(end)<Date.parse(start)){err.textContent='Revisa el salario y las fechas; la terminación debe ser posterior al ingreso.';return}err.textContent='';try{const out=calculateTermination({monthlySalary:salary,startDate:start,endDate:end,contractType:d.get('contract') as any,reason:d.get('reason') as any,unusedVacationDays:rawDays===''?undefined:Number(rawDays),currentPeriodEarnings:Number(d.get('periodEarnings')||0)});['vacation','thirteenth','seniorityPremium','indemnity','total'].forEach(k=>document.querySelectorAll<HTMLElement>(`[data-out="${k}"]`).forEach(el=>el.textContent=money.format((out as any)[k])));document.querySelector<HTMLElement>('[data-text="years"]')!.textContent=String(out.years);limit.hidden=!out.limitation;limit.textContent=out.limitation||'';empty.hidden=true;result.hidden=false}catch(ex){err.textContent=ex instanceof Error?ex.message:'No fue posible calcular.'}}
-);
-</script>
+<Layout title="Calculadora de liquidación laboral Panamá: prima, indemnización y vacaciones" description="Estima tu liquidación en Panamá: vacaciones, décimo proporcional, prima de antigüedad e indemnización según tu contrato y el motivo (renuncia, despido injustificado, mutuo acuerdo o causa económica)." canonicalPath={path} schema={schema}>
+  <header class="page-head container">
+    <Breadcrumbs items={[{ label: 'Liquidación laboral', path }]} />
+    <span class="eyebrow">Terminación laboral</span>
+    <h1>Calculadora de liquidación laboral</h1>
+    <p>Separa cada concepto según tu contrato y el motivo de terminación. No todos los trabajadores reciben lo mismo, y aquí verás por qué.</p>
+  </header>
+
+  <div class="container calculator-shell">
+    <form class="panel" id="termination-form" novalidate>
+      <h2>La relación laboral</h2>
+      <div class="form-grid">
+        <div class="field full">
+          <label for="salary">Salario mensual</label>
+          <div class="input-wrap"><span class="prefix">B/.</span><input id="salary" name="salary" type="number" min="0.01" step="0.01" inputmode="decimal" required placeholder="1,000.00" /></div>
+          <small>Si cobras comisiones o sobretiempo, usa el promedio de los últimos 6 meses o el de los últimos 30 días, el que sea mayor (art. 149).</small>
+        </div>
+        <div class="field">
+          <label for="start">Fecha de ingreso</label>
+          <input id="start" name="start" type="date" required />
+        </div>
+        <div class="field">
+          <label for="end">Último día de trabajo</label>
+          <input id="end" name="end" type="date" required />
+        </div>
+        <div class="field">
+          <label for="contract">Tipo de contrato</label>
+          <select id="contract" name="contract">
+            <option value="indefinite">Por tiempo indefinido</option>
+            <option value="fixed">Por tiempo definido</option>
+            <option value="specific-work">Por obra determinada</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="reason">Motivo de terminación</label>
+          <select id="reason" name="reason">
+            <option value="resignation">Renuncia voluntaria</option>
+            <option value="mutual">Mutuo acuerdo</option>
+            <option value="unjustified">Despido injustificado</option>
+            <option value="justified">Despido con causa justificada</option>
+            <option value="justified-resignation">Renuncia con causa justificada (art. 223)</option>
+            <option value="economic">Causa económica (art. 213 C)</option>
+            <option value="expiry">Vencimiento del contrato o fin de la obra</option>
+          </select>
+        </div>
+        <div class="field full" data-show="agreed" hidden>
+          <label for="agreed">Fecha pactada de vencimiento o conclusión</label>
+          <input id="agreed" name="agreed" type="date" />
+          <small>Para calcular los salarios del tiempo restante (art. 227).</small>
+        </div>
+        <details class="more field full">
+          <summary>Ajustar vacaciones, décimo y prima</summary>
+          <div class="form-grid">
+            <div class="field">
+              <label for="vacationDays">Días de vacaciones pendientes</label>
+              <input id="vacationDays" name="vacationDays" type="number" min="0" step="0.5" inputmode="decimal" placeholder="Estimar" />
+              <small>Vacío: se estiman solo las del año de servicio en curso.</small>
+            </div>
+            <div class="field">
+              <label for="periodEarnings">Devengado desde el último décimo</label>
+              <div class="input-wrap"><span class="prefix">B/.</span><input id="periodEarnings" name="periodEarnings" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Estimar" /></div>
+              <small>Vacío: se estima con tu salario desde el día 16 del último mes de pago.</small>
+            </div>
+            <div class="field full">
+              <label for="average5">Promedio mensual de los últimos 5 años</label>
+              <div class="input-wrap"><span class="prefix">B/.</span><input id="average5" name="average5" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Igual al salario" /></div>
+              <small>La prima de antigüedad se calcula con este promedio (art. 226).</small>
+            </div>
+          </div>
+        </details>
+      </div>
+      <p class="form-error" id="termination-error" role="alert"></p>
+      <button class="calculate" type="submit">Calcular liquidación</button>
+    </form>
+
+    <section class="panel results" aria-live="polite" aria-label="Resultado">
+      <div id="termination-empty" class="empty-state"><Icon name="termination" size={40} /><p>Completa salario, fechas, contrato y motivo para ver qué conceptos te corresponden.</p></div>
+      <div id="termination-result" hidden>
+        <div class="result-hero">
+          <div class="label">Liquidación bruta estimada</div>
+          <div class="amount" data-out="total"></div>
+          <div class="sub"><span data-out="tenure"></span> de servicio</div>
+        </div>
+        <div id="termination-bar"></div>
+        <ul class="breakdown">
+          <li><span>Vacaciones <small data-out="vacationNote"></small></span><strong data-out="vacation"></strong></li>
+          <li><span>Décimo tercer mes proporcional <small data-out="thirteenthNote"></small></span><strong data-out="thirteenth"></strong></li>
+          <li><span>Prima de antigüedad <small data-out="primaNote"></small></span><strong data-out="seniorityPremium"></strong></li>
+          <li><span>Indemnización <small data-out="indemnityNote"></small></span><strong data-out="indemnity"></strong></li>
+          <li class="total"><span>Total bruto</span><strong data-out="total"></strong></li>
+        </ul>
+        <div class="notes" id="termination-notes"></div>
+        <p class="callout info">No incluye salarios adeudados, preaviso, recargos, horas extra pendientes ni descuentos (CSS sobre vacaciones y décimo, préstamos o ISR).</p>
+        <div class="result-actions">
+          <button class="button secondary" type="button" id="termination-share"><Icon name="share" size={18} />Compartir</button>
+          <a class="button secondary" href={`${base}guias/prima-de-antiguedad-e-indemnizacion/`}>Entender la prima</a>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="container"><AdSlot name="afterResult" /></div>
+
+  <article class="container article">
+    <h2>¿Qué te corresponde según el motivo?</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th scope="col">Motivo (contrato indefinido)</th><th scope="col">Vacac. y décimo</th><th scope="col">Prima</th><th scope="col">Indemn.</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Renuncia voluntaria</th><td>Sí</td><td>Sí</td><td>No</td></tr>
+          <tr><th scope="row">Mutuo acuerdo</th><td>Sí</td><td>Sí</td><td>No*</td></tr>
+          <tr><th scope="row">Despido justificado</th><td>Sí</td><td>Sí</td><td>No</td></tr>
+          <tr><th scope="row">Despido injustificado</th><td>Sí</td><td>Sí</td><td>Sí</td></tr>
+          <tr><th scope="row">Renuncia justificada (art. 223)</th><td>Sí</td><td>Sí</td><td>Sí</td></tr>
+          <tr><th scope="row">Causa económica (art. 213 C)</th><td>Sí</td><td>Sí</td><td>Sí</td></tr>
+        </tbody>
+        <caption>* Salvo que el acuerdo incluya una suma adicional. En contratos definidos o por obra no hay prima de antigüedad; la terminación anticipada sin justa causa obliga a pagar el tiempo restante (art. 227).</caption>
+      </table>
+    </div>
+
+    <h2>Cómo calculamos cada concepto</h2>
+    <h3>Vacaciones (art. 54)</h3>
+    <p>Un día por cada 11 trabajados, valorado a salario mensual ÷ 30. Si no indicas los días pendientes, estimamos solo los del año de servicio en curso (máximo 30), suponiendo que ya disfrutaste los anteriores.</p>
+    <h3>Décimo tercer mes proporcional</h3>
+    <p>Lo devengado desde el inicio de la partida en curso (16 de diciembre, 16 de abril o 16 de agosto) dividido entre 12.</p>
+    <h3>Prima de antigüedad (arts. 224 y 226)</h3>
+    <p class="formula">Prima = (salario promedio de los últimos 5 años × 12 ÷ 52) × años trabajados</p>
+    <h3>Indemnización (arts. 225 y 149)</h3>
+    <p class="formula">Indemnización = salario semanal × (3.4 × años hasta 10 + 1 × años después de 10)</p>
+    <p>Usa el salario de los últimos seis meses o de los últimos 30 días, el más favorable. Si la relación empezó antes de la Ley 44 de 1995, se aplican escalas anteriores combinadas que esta herramienta no automatiza.</p>
+    <h3>Ejemplo</h3>
+    <p>Contrato indefinido, B/.1,000 mensuales, del 1 de enero de 2021 al 31 de diciembre de 2025 (5 años), despido injustificado: salario semanal B/.230.77; prima ≈ B/.1,154.48; indemnización ≈ 230.77 × 5 × 3.4 = <strong>B/.3,925.23</strong>. A eso se suman las vacaciones y el décimo pendientes.</p>
+    <Faq items={faq} />
+    <LegalSources sources={['laborCode', 'thirteenth', 'mitradel']} />
+  </article>
+
+  <div class="container"><RelatedCalculators current={path} /></div>
 </Layout>
+
+<script>
+  import { calculateTermination, type ContractType, type TerminationReason } from '../../lib/calculations';
+  import { formatMoney, formatNumber } from '../../lib/format';
+  import { $, bindCalculator, bindShare, readNumber, readText, renderBar, setOutputs } from '../../lib/ui';
+
+  const form = $<HTMLFormElement>('#termination-form');
+  const result = $('#termination-result');
+  const agreedField = $('[data-show="agreed"]', form);
+  let summary = '';
+
+  const syncAgreed = () => {
+    const data = new FormData(form);
+    agreedField.hidden = !(readText(data, 'contract') !== 'indefinite' && readText(data, 'reason') === 'unjustified');
+  };
+  form.addEventListener('change', syncAgreed);
+  syncAgreed();
+
+  const tenureText = (days: number) => {
+    const years = Math.floor(days / 365);
+    const months = Math.floor((days % 365) / 30.4);
+    const parts = [];
+    if (years) parts.push(`${years} ${years === 1 ? 'año' : 'años'}`);
+    if (months) parts.push(`${months} ${months === 1 ? 'mes' : 'meses'}`);
+    return parts.length ? parts.join(' y ') : `${days} días`;
+  };
+
+  bindCalculator({
+    form,
+    error: $('#termination-error'),
+    empty: $('#termination-empty'),
+    result,
+    run(data) {
+      const salary = readNumber(data, 'salary');
+      if (salary === undefined || !(salary > 0)) return 'Escribe tu salario mensual.';
+      const start = readText(data, 'start');
+      const end = readText(data, 'end');
+      if (!start || !end) return 'Indica la fecha de ingreso y el último día de trabajo.';
+      if (end < start) return 'El último día de trabajo debe ser posterior a la fecha de ingreso.';
+      const vacationDays = readNumber(data, 'vacationDays');
+      const periodEarnings = readNumber(data, 'periodEarnings');
+      const average5 = readNumber(data, 'average5');
+      if ([vacationDays, periodEarnings, average5].some(v => v !== undefined && !(v >= 0))) return 'Revisa los valores opcionales: no pueden ser negativos.';
+      const contractType = readText(data, 'contract') as ContractType;
+      const reason = readText(data, 'reason') as TerminationReason;
+      const agreed = readText(data, 'agreed') || undefined;
+
+      const out = calculateTermination({
+        monthlySalary: salary, startDate: start, endDate: end, contractType, reason,
+        unusedVacationDays: vacationDays, currentPeriodEarnings: periodEarnings,
+        averageSalaryLastFiveYears: average5, agreedEndDate: agreed
+      });
+
+      const indemnityNote = {
+        'not-applicable': 'no corresponde por este motivo',
+        calculated: contractType === 'indefinite' ? 'art. 225' : 'art. 227, tiempo restante',
+        'needs-review': 'requiere revisión'
+      }[out.indemnityStatus];
+      setOutputs(result, {
+        total: formatMoney(out.total),
+        tenure: tenureText(out.days),
+        vacation: formatMoney(out.vacation),
+        vacationNote: `${formatNumber(out.vacationDays)} días${out.vacationEstimated ? ' · estimado' : ''}`,
+        thirteenth: formatMoney(out.thirteenth),
+        thirteenthNote: out.thirteenthEstimated ? 'estimado con tu salario' : 'devengado ÷ 12',
+        seniorityPremium: formatMoney(out.seniorityPremium),
+        primaNote: contractType === 'indefinite' ? `${formatNumber(out.years)} años × 1 semana` : 'solo contratos indefinidos',
+        indemnity: out.indemnityStatus === 'needs-review' ? 'Revisar' : formatMoney(out.indemnity),
+        indemnityNote
+      });
+      renderBar($('#termination-bar'), [
+        { label: 'Vacaciones', value: out.vacation, tone: 'c' },
+        { label: 'Décimo', value: out.thirteenth, tone: 'b' },
+        { label: 'Prima', value: out.seniorityPremium, tone: 'a' },
+        { label: 'Indemnización', value: out.indemnity, tone: 'd' }
+      ], formatMoney);
+      const notes = $('#termination-notes');
+      notes.replaceChildren(...out.notes.map(note => {
+        const p = document.createElement('p');
+        p.className = `callout ${note.kind}`;
+        p.textContent = note.text;
+        return p;
+      }));
+      summary = `Liquidación estimada: ${formatMoney(out.total)} (vacaciones ${formatMoney(out.vacation)}, décimo ${formatMoney(out.thirteenth)}, prima ${formatMoney(out.seniorityPremium)}, indemnización ${formatMoney(out.indemnity)}). Calculado en Calcula Panamá.`;
+    }
+  });
+  bindShare($<HTMLButtonElement>('#termination-share'), () => summary);
+</script>

@@ -1,0 +1,14 @@
+---
+import Layout from '../layouts/Layout.astro';
+import RelatedCalculators from '../components/RelatedCalculators.astro';
+const base = import.meta.env.BASE_URL;
+---
+<Layout title="Página no encontrada | Calcula Panamá" description="La página que buscas no existe. Elige una de nuestras calculadoras laborales." noindex>
+  <header class="page-head container">
+    <span class="eyebrow">Error 404</span>
+    <h1>No encontramos esa página</h1>
+    <p>Puede que el enlace haya cambiado. Estas son nuestras calculadoras:</p>
+    <p><a class="button primary" href={base}>Ir al inicio</a></p>
+  </header>
+  <div class="container"><RelatedCalculators title="Calculadoras" /></div>
+</Layout>
