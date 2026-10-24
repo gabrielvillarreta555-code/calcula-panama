@@ -1,4 +1,35 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import { SITE, isAdsenseEnabled } from '../data/site';
+const ads = isAdsenseEnabled();
 ---
-<Layout title="Política de privacidad | Calcula Panamá" description="Política de privacidad de Calcula Panamá y tratamiento local de datos de las calculadoras." canonicalPath="/privacidad/"><header class="page-head"><div class="container"><span class="eyebrow">Legal</span><h1>Política de privacidad</h1><p>Última actualización: 23 de octubre de 2026.</p></div></header><article class="container article"><h2>Datos de las calculadoras</h2><p>Los valores de salario, fechas y remuneraciones se procesan localmente en tu navegador. La versión actual no los envía ni almacena en servidores.</p><h2>Preferencias técnicas</h2><p>El modo claro u oscuro puede guardarse en el almacenamiento local de tu dispositivo. Puedes borrarlo desde la configuración del navegador.</p><h2>Analítica y publicidad</h2><p>No hay anuncios de Google AdSense ni identificadores publicitarios configurados. Si en el futuro se integran analítica, cookies o publicidad, esta política y el mecanismo de consentimiento se actualizarán antes de activarlos.</p><h2>Enlaces externos</h2><p>Los enlaces a instituciones oficiales tienen sus propias políticas. Calcula Panamá no controla esos sitios.</p><h2>Contacto</h2><p>El canal del responsable está pendiente de configuración y deberá publicarse antes del lanzamiento final.</p></article></Layout>
+<Layout title="Política de privacidad | Calcula Panamá" description="Cómo trata Calcula Panamá los datos: cálculos locales en el navegador, preferencias guardadas en tu dispositivo y uso de publicidad." canonicalPath="/privacidad/">
+  <header class="page-head container">
+    <Breadcrumbs items={[{ label: 'Privacidad', path: '/privacidad/' }]} />
+    <span class="eyebrow">Legal</span>
+    <h1>Política de privacidad</h1>
+    <p>Última actualización: 24 de octubre de 2026.</p>
+  </header>
+  <article class="container article">
+    <h2>Datos que escribes en las calculadoras</h2>
+    <p>Los salarios, fechas y montos se procesan en tu navegador. No se envían a ningún servidor ni se almacenan. Si usas el botón «Compartir», tú decides con quién compartes el resumen.</p>
+    <h2>Preferencias guardadas en tu dispositivo</h2>
+    <p>Si eliges el modo claro u oscuro, esa preferencia se guarda en el almacenamiento local de tu navegador. Puedes borrarla desde su configuración.</p>
+    <h2>Alojamiento</h2>
+    <p>El sitio se publica en GitHub Pages. Como cualquier servidor web, GitHub puede registrar datos técnicos de la conexión (por ejemplo, la dirección IP) para operar y proteger el servicio, según su propia política de privacidad. El sitio no carga fuentes ni scripts de terceros para mostrar las calculadoras.</p>
+    <h2>Publicidad</h2>
+    {ads ? (
+      <>
+        <p>Este sitio muestra anuncios de Google AdSense. Google y sus socios pueden usar cookies u otros identificadores para mostrar anuncios basados en tus visitas a este y otros sitios web. Puedes desactivar la publicidad personalizada en la <a href="https://adssettings.google.com/" target="_blank" rel="noopener noreferrer">configuración de anuncios de Google</a>.</p>
+        <p>Más información: <a href="https://policies.google.com/technologies/partner-sites" target="_blank" rel="noopener noreferrer">cómo utiliza Google la información de los sitios que usan sus servicios</a>.</p>
+      </>
+    ) : (
+      <p>Actualmente no se muestran anuncios ni se usan cookies publicitarias o de analítica. Si en el futuro se activan, esta política se actualizará antes, con la información sobre cookies de terceros y las opciones para desactivarlas.</p>
+    )}
+    <h2>Enlaces externos</h2>
+    <p>Los enlaces a instituciones oficiales y a otros sitios tienen sus propias políticas. Calcula Panamá no controla esos sitios.</p>
+    <h2>Contacto</h2>
+    <p>Para dudas sobre esta política, usa el <a href={SITE.issuesUrl} target="_blank" rel="noopener noreferrer">canal público de reportes</a> sin incluir datos personales.</p>
+  </article>
+</Layout>

@@ -1,22 +1,221 @@
 ---
-import Layout from '../../layouts/Layout.astro';import LegalSources from '../../components/LegalSources.astro';import AdSlot from '../../components/AdSlot.astro';
-const schema={'@context':'https://schema.org','@type':'SoftwareApplication',name:'Calculadora de salario neto Panamá',applicationCategory:'FinanceApplication',operatingSystem:'Web',offers:{'@type':'Offer',price:'0',priceCurrency:'PAB'}};
----
-<Layout title="Calculadora de salario neto Panamá 2026 | Calcula Panamá" description="Estima tu salario neto en Panamá con Seguro Social, Seguro Educativo e impuesto sobre la renta. Desglose por frecuencia de pago." canonicalPath="/calculadoras/salario-neto/" schema={schema}>
-<header class="page-head"><div class="container"><span class="eyebrow">Calculadora laboral</span><h1>Calculadora de salario neto</h1><p>Convierte tu salario bruto en una estimación clara de lo que recibes por pago.</p></div></header>
-<div class="container calculator-shell">
-  <form class="panel" id="salary-form" novalidate><h2>Datos del salario</h2><div class="form-grid">
-    <div class="field"><label for="gross">Salario bruto por pago</label><input id="gross" name="gross" type="number" min="0.01" step="0.01" inputmode="decimal" required placeholder="Ej. 1500" /><small>En balboas (B/.), antes de descuentos.</small></div>
-    <div class="field"><label for="frequency">Frecuencia de pago</label><select id="frequency" name="frequency"><option value="monthly">Mensual (12 pagos)</option><option value="fortnightly">Quincenal (24 pagos)</option><option value="biweekly">Cada 2 semanas (26 pagos)</option><option value="weekly">Semanal (52 pagos)</option></select></div>
-    <div class="field full"><label for="other">Otros ingresos gravables por pago <span class="muted">(opcional)</span></label><input id="other" name="other" type="number" min="0" step="0.01" inputmode="decimal" value="0" /><small>Comisiones, bonificaciones u otros pagos sujetos a cuotas e ISR.</small></div>
-  </div><p class="form-error" id="salary-error" role="alert"></p><button class="calculate" type="submit">Calcular salario neto</button></form>
-  <section class="panel results" aria-live="polite"><div id="salary-empty" class="empty-state">Completa tus datos para ver el desglose.</div><div id="salary-result" hidden><div class="result-hero"><div class="label">Salario neto estimado por pago</div><div class="amount" data-out="net">B/. 0.00</div></div><ul class="breakdown"><li><span>Ingreso bruto</span><strong data-out="gross"></strong></li><li><span>Seguro Social (9.75%)</span><strong data-out="socialSecurity"></strong></li><li><span>Seguro Educativo (1.25%)</span><strong data-out="educationalInsurance"></strong></li><li><span>ISR estimado</span><strong data-out="incomeTax"></strong></li><li><span>Ingreso bruto anualizado</span><strong data-out="annualGross"></strong></li><li><span>Renta gravable anual estimada</span><strong data-out="taxableAnnual"></strong></li></ul></div><AdSlot /></section>
-</div>
-<article class="container article"><h2>¿Cómo se calcula?</h2><p>La herramienta anualiza la remuneración según la frecuencia elegida. Aplica 9.75% de cuota obrera de Seguro Social y 1.25% de Seguro Educativo. Para el ISR resta estas cuotas del ingreso anual y aplica la tarifa de persona natural: 0% hasta B/.11,000; 15% sobre el excedente hasta B/.50,000; y B/.5,850 más 25% sobre el excedente de B/.50,000.</p><p class="formula">Neto por pago = ingreso bruto − Seguro Social − Seguro Educativo − ISR estimado</p><h2>Ejemplo general</h2><p>Con B/.800 mensuales, sin otros ingresos, la estimación descuenta B/.78 de Seguro Social y B/.10 de Seguro Educativo. La renta gravable anual queda bajo B/.11,000, por lo que no estima ISR.</p><h2>Supuestos y límites</h2><p>No contempla gastos deducibles personales, créditos fiscales, topes o tratamientos especiales, ingresos de otros empleadores ni regularizaciones del empleador. La retención real puede variar.</p><section class="faq"><h2>Preguntas frecuentes</h2><details><summary>¿Balboa y dólar son equivalentes?</summary><p>El balboa mantiene paridad uno a uno con el dólar estadounidense. Mostramos B/. como moneda de cálculo.</p></details><details><summary>¿Se guarda mi salario?</summary><p>No. El cálculo ocurre localmente en tu navegador y no se envía a un servidor.</p></details><details><summary>¿El resultado reemplaza mi comprobante?</summary><p>No. Es orientativo y debe contrastarse con planilla, la DGI y la CSS.</p></details></section><LegalSources /></article>
-<script>
+import Layout from '../../layouts/Layout.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import Faq from '../../components/Faq.astro';
+import Icon from '../../components/Icon.astro';
+import LegalSources from '../../components/LegalSources.astro';
+import RelatedCalculators from '../../components/RelatedCalculators.astro';
 import { calculateNetSalary } from '../../lib/calculations';
-const money=new Intl.NumberFormat('es-PA',{style:'currency',currency:'PAB',minimumFractionDigits:2});
-const form=document.querySelector<HTMLFormElement>('#salary-form')!,error=document.querySelector('#salary-error')!,empty=document.querySelector<HTMLElement>('#salary-empty')!,result=document.querySelector<HTMLElement>('#salary-result')!;
-form.addEventListener('submit',e=>{e.preventDefault();const data=new FormData(form),gross=Number(data.get('gross')),other=Number(data.get('other')||0);if(!Number.isFinite(gross)||gross<=0||other<0){error.textContent='Introduce un salario mayor que cero y valores válidos.';return}error.textContent='';const out=calculateNetSalary(gross,data.get('frequency') as any,other);Object.entries(out).forEach(([key,value])=>document.querySelectorAll<HTMLElement>(`[data-out="${key}"]`).forEach(el=>el.textContent=money.format(value)));empty.hidden=true;result.hidden=false});
-</script>
+import { formatMoney } from '../../lib/format';
+
+const path = '/calculadoras/salario-neto/';
+const examples = [650, 800, 1000, 1200, 1500, 2000, 3000, 5000].map(grossPerPay => calculateNetSalary({ grossPerPay, frequency: 'monthly' }));
+const faq = [
+  { q: '¿Cuánto me descuentan del salario en Panamá?', a: 'El trabajador aporta 9.75% de Seguro Social y 1.25% de Seguro Educativo sobre su salario. Además, si su ingreso anual proyectado (incluido el décimo tercer mes) supera B/.11,000, el empleador retiene impuesto sobre la renta.' },
+  { q: '¿A partir de qué salario se paga impuesto sobre la renta?', a: 'Con 13 pagos al año (12 salarios más el décimo), un salario mensual fijo de hasta B/.846.15 queda por debajo de B/.11,000 anuales y no genera ISR. A partir de ahí se paga 15% sobre el excedente, y 25% sobre lo que supere B/.50,000 al año.' },
+  { q: '¿Por qué la calculadora multiplica por 13 y no por 12?', a: 'El décimo tercer mes es renta gravable para el ISR, así que la proyección anual del empleador lo incluye. Si en tu caso no corresponde (por ejemplo, empezaste a mitad de año), desmarca la opción y verás la estimación sin él.' },
+  { q: '¿Las cuotas de Seguro Social reducen el ISR?', a: 'No. Las cuotas del Seguro Social no son deducibles para el impuesto sobre la renta y la deducción del Seguro Educativo fue derogada en 2010 (Decreto Ejecutivo 98). Por eso el ISR se calcula sobre el ingreso bruto.' },
+  { q: '¿Qué deducciones reducen el ISR de un asalariado?', a: 'Las que declares a tu empleador y él compruebe (Código Fiscal, arts. 704 y 709): B/.800 si declaras en forma conjunta con tu cónyuge, intereses hipotecarios de tu vivienda principal, intereses de préstamos educativos, primas de seguro de hospitalización y aportes a fondos de pensiones. Puedes indicarlas en «Comisiones, deducciones y opciones».' },
+  { q: '¿El ISR anual y la retención de cada pago son lo mismo?', a: 'No exactamente. La retención es un anticipo: el empleador reparte el impuesto anual estimado entre los pagos. Si tu salario cambia, tus comisiones varían o trabajas solo parte del año, el empleador recalcula y, al cierre, la diferencia se ajusta como crédito o como retención adicional (Decreto Ejecutivo 170 de 1993).' },
+  { q: '¿Por qué mi talonario no coincide exactamente?', a: 'La retención real sigue las tablas e instrucciones de la DGI y puede reflejar ajustes de meses anteriores, aumentos, otros empleadores, redondeos o descuentos voluntarios como préstamos y cuotas sindicales.' },
+  { q: '¿Se guarda mi salario?', a: 'No. El cálculo ocurre en tu teléfono o computadora y no se envía a ningún servidor.' }
+];
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: 'Calculadora de salario neto Panamá',
+  applicationCategory: 'FinanceApplication',
+  operatingSystem: 'Web',
+  inLanguage: 'es-PA',
+  isAccessibleForFree: true,
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' }
+};
+---
+<Layout title="Calculadora de salario neto Panamá 2026: CSS, Seguro Educativo e ISR" description="Calcula tu salario neto en Panamá: descuento de Seguro Social (9.75%), Seguro Educativo (1.25%) e ISR con el décimo incluido. Mensual, quincenal o semanal, con desglose y gráfico." canonicalPath={path} schema={schema}>
+  <header class="page-head container">
+    <Breadcrumbs items={[{ label: 'Salario neto', path }]} />
+    <span class="eyebrow">Calculadora laboral</span>
+    <h1>Calculadora de salario neto</h1>
+    <p>Descubre cuánto recibes de verdad después de Seguro Social, Seguro Educativo e impuesto sobre la renta.</p>
+  </header>
+
+  <div class="container calculator-shell">
+    <form class="panel" id="salary-form" novalidate>
+      <h2>Tu salario</h2>
+      <div class="form-grid">
+        <div class="field full">
+          <span class="field-label" id="frequency-label">Frecuencia de pago</span>
+          <fieldset class="segmented" aria-labelledby="frequency-label" aria-describedby="frequency-help">
+            <label><input type="radio" name="frequency" value="monthly" checked />Mensual</label>
+            <label><input type="radio" name="frequency" value="fortnightly" />Quincenal</label>
+            <label><input type="radio" name="frequency" value="biweekly" />Bisemanal</label>
+            <label><input type="radio" name="frequency" value="weekly" />Semanal</label>
+          </fieldset>
+        </div>
+        <div class="field full">
+          <label for="gross">Salario bruto por pago</label>
+          <div class="input-wrap"><span class="prefix">B/.</span><input id="gross" name="gross" type="number" min="0.01" step="0.01" inputmode="decimal" required placeholder="1,500.00" autocomplete="off" /></div>
+          <small id="frequency-help">Lo que dice tu contrato antes de descuentos. Quincenal = 24 pagos al año; bisemanal = 26 (cada dos semanas).</small>
+        </div>
+        <details class="more field full">
+          <summary>Comisiones, deducciones y opciones</summary>
+          <div class="form-grid">
+            <div class="field full">
+              <label for="other">Ingresos variables promedio por pago</label>
+              <div class="input-wrap"><span class="prefix">B/.</span><input id="other" name="other" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" /></div>
+              <small>Comisiones o sobretiempo habituales. Usa un promedio: la calculadora supone que se repiten en cada pago. No incluyas bonos únicos.</small>
+            </div>
+            <label class="check field full"><input type="checkbox" name="joint" /><span><strong>Declaro en forma conjunta con mi cónyuge.</strong> Resta B/.800 al año antes de calcular el ISR (Código Fiscal, art. 709).</span></label>
+            <div class="field full">
+              <label for="deductions">Otras deducciones anuales declaradas a tu empleador</label>
+              <div class="input-wrap"><span class="prefix">B/.</span><input id="deductions" name="deductions" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" /></div>
+              <small>Intereses hipotecarios de tu vivienda, intereses de préstamos educativos, seguro de hospitalización o aportes a fondos de pensiones. Solo cuentan si el empleador los comprueba.</small>
+            </div>
+            <label class="check field full"><input type="checkbox" name="thirteenth" checked /><span><strong>Incluir el décimo tercer mes en la proyección del ISR.</strong> Es lo habitual en la planilla; desmárcalo si este año no recibirás las tres partidas.</span></label>
+          </div>
+        </details>
+      </div>
+      <p class="form-error" id="salary-error" role="alert"></p>
+      <button class="calculate" type="submit">Calcular salario neto</button>
+    </form>
+
+    <section class="panel results" id="salary-results" aria-live="polite" aria-label="Resultado">
+      <div id="salary-empty" class="empty-state"><Icon name="salary" size={40} /><p>Escribe tu salario bruto y pulsa <strong>Calcular</strong> para ver el desglose.</p></div>
+      <div id="salary-result" hidden>
+        <div class="result-hero">
+          <div class="label">Salario neto estimado <span data-out="frequencyLabel"></span></div>
+          <div class="amount" data-out="net">B/. 0.00</div>
+          <div class="sub">Te descuentan <strong data-out="totalDeductions"></strong> (<span data-out="deductionRate"></span> del bruto)</div>
+        </div>
+        <div id="salary-bar"></div>
+        <ul class="breakdown">
+          <li><span>Salario bruto</span><strong data-out="gross"></strong></li>
+          <li class="minus"><span>Seguro Social <small>9.75% (CSS)</small></span><strong data-out="socialSecurity"></strong></li>
+          <li class="minus"><span>Seguro Educativo <small>1.25%</small></span><strong data-out="educationalInsurance"></strong></li>
+          <li class="minus"><span>Impuesto sobre la renta <small data-out="isrNote"></small></span><strong data-out="incomeTax"></strong></li>
+          <li class="total"><span>Neto por pago</span><strong data-out="net"></strong></li>
+        </ul>
+        <div class="mini-stats">
+          <div><span>Neto mensual equivalente</span><strong data-out="netMonthlyEquivalent"></strong></div>
+          <div><span>Ingreso anual proyectado</span><strong data-out="projectedAnnualIncome"></strong></div>
+          <div><span>Renta gravable anual</span><strong data-out="taxableAnnual"></strong></div>
+          <div><span>ISR anual estimado</span><strong data-out="annualIncomeTax"></strong></div>
+          <div><span>Tasa marginal de ISR</span><strong data-out="marginalTaxRate"></strong></div>
+          <div><span>Deducciones aplicadas</span><strong data-out="annualDeductions"></strong></div>
+        </div>
+        <div class="result-actions">
+          <button class="button secondary" type="button" id="salary-share"><Icon name="share" size={18} />Compartir</button>
+          <a class="button secondary" href="#como-se-calcula">Ver fórmula</a>
+        </div>
+        <p class="callout info">Estimación orientativa para un solo empleador y un ingreso estable todo el año. La retención real sigue las tablas de la DGI, se recalcula si cambia tu salario y se ajusta al cierre del año.</p>
+      </div>
+    </section>
+  </div>
+
+  <div class="container"><AdSlot name="afterResult" /></div>
+
+  <article class="container article">
+    <h2 id="como-se-calcula">¿Cómo se calcula el salario neto en Panamá?</h2>
+    <p>Del salario bruto se restan tres conceptos. Los dos primeros son porcentajes fijos de cada pago; el tercero depende de lo que ganarás en todo el año.</p>
+    <ol>
+      <li><strong>Seguro Social (CSS): 9.75%</strong> del salario, incluidas comisiones y sobretiempo (Ley 51 de 2005, texto único de 2025, arts. 85 y 96). La reforma de la Ley 462 de 2025 subió la cuota del empleador, no la del trabajador.</li>
+      <li><strong>Seguro Educativo: 1.25%</strong> de los «salarios básicos recibidos» (Ley 13 de 1987). No se aplica al décimo tercer mes. La calculadora lo aplica también a los ingresos variables, como suele hacerse en planilla; si tu empleador lo calcula solo sobre el salario base, la diferencia es pequeña.</li>
+      <li><strong>Impuesto sobre la renta (ISR):</strong> el empleador proyecta tu ingreso del año (12 salarios más el décimo, que también es renta gravable), resta las deducciones que le hayas declarado y aplica la tarifa del artículo 700 del Código Fiscal. El artículo 704 le ordena retener «aplicando proporcionalmente la tarifa», así que el impuesto anual se reparte en proporción a cada pago.</li>
+    </ol>
+    <p class="formula">ISR anual = tarifa del art. 700 sobre (ingreso proyectado − deducciones): 0 hasta B/.11,000 · 15% del excedente hasta B/.50,000 · B/.5,850 + 25% del excedente de B/.50,000</p>
+    <p class="formula">ISR por pago = bruto del pago × ISR anual ÷ ingreso anual proyectado</p>
+    <p>Las cuotas de Seguro Social y Seguro Educativo <strong>no</strong> se restan de la base del ISR: no figuran entre las deducciones del artículo 709 y la deducción del Seguro Educativo fue derogada por el Decreto Ejecutivo 98 de 2010.</p>
+
+    <h3>Impuesto anual y retención de cada pago</h3>
+    <p>El ISR es anual y la retención es un anticipo. Con un salario fijo todo el año, la suma de las retenciones coincide con el impuesto anual. Si recibes aumentos, comisiones que cambian cada mes o trabajas solo parte del año, el empleador recalcula la retención y, al terminar el año o la relación laboral, compara lo retenido con el impuesto causado: devuelve el exceso como crédito o retiene la diferencia (Decreto Ejecutivo 170 de 1993). Por eso, con ingresos variables, esta calculadora da una <strong>estimación orientativa</strong> basada en tu promedio.</p>
+
+    <h3>Ejemplo con B/.1,500 mensuales</h3>
+    <p>Ingreso anual proyectado: 1,500 × 13 = B/.19,500. Excedente sobre B/.11,000: B/.8,500. ISR anual: 15% de 8,500 = B/.1,275, que equivale a B/.98.08 por cada pago de B/.1,500. Con B/.146.25 de Seguro Social y B/.18.75 de Seguro Educativo, el neto queda en <strong>B/.1,236.92</strong>.</p>
+
+    <h2>Tabla de salario neto mensual en Panamá</h2>
+    <p>Estimaciones para un salario mensual fijo, con el décimo incluido en la proyección del ISR y sin deducciones personales.</p>
+    <div class="table-wrap">
+      <table>
+        <caption>Calculado con los parámetros vigentes revisados en esta página.</caption>
+        <thead><tr><th scope="col">Bruto</th><th scope="col">CSS</th><th scope="col">S. Educ.</th><th scope="col">ISR</th><th scope="col">Neto</th></tr></thead>
+        <tbody>
+          {examples.map(row => (
+            <tr><th scope="row">{formatMoney(row.gross)}</th><td>{formatMoney(row.socialSecurity)}</td><td>{formatMoney(row.educationalInsurance)}</td><td>{formatMoney(row.incomeTax)}</td><td><strong>{formatMoney(row.net)}</strong></td></tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Lo que esta calculadora no incluye</h2>
+    <ul>
+      <li>Bonificaciones únicas o pagos ocasionales: cambian la proyección anual de un modo que depende del procedimiento del empleador.</li>
+      <li>Ingresos de otros empleadores, gastos de representación, que tienen su propia retención, ni ajustes de la declaración anual.</li>
+      <li>Redondeos de la tabla de retención de la DGI, que pueden variar unos centavos.</li>
+      <li>Descuentos voluntarios o judiciales: préstamos, cuotas sindicales, pensiones alimenticias o embargos.</li>
+      <li>Topes, exenciones o tratamientos especiales de casos particulares.</li>
+    </ul>
+
+    <Faq items={faq} />
+    <LegalSources sources={['css', 'educationalInsurance', 'incomeTax', 'incomeTaxRegulation']} />
+  </article>
+
+  <div class="container"><RelatedCalculators current={path} /></div>
 </Layout>
+
+<script>
+  import { calculateNetSalary, type Frequency } from '../../lib/calculations';
+  import { formatMoney, formatPercent } from '../../lib/format';
+  import { $, bindCalculator, bindShare, readNumber, readText, renderBar, setOutputs } from '../../lib/ui';
+
+  const labels: Record<Frequency, string> = { monthly: 'por mes', fortnightly: 'por quincena', biweekly: 'cada dos semanas', weekly: 'por semana' };
+  const result = $('#salary-result');
+  let summary = '';
+
+  bindCalculator({
+    form: $<HTMLFormElement>('#salary-form'),
+    error: $('#salary-error'),
+    empty: $('#salary-empty'),
+    result,
+    run(data) {
+      const gross = readNumber(data, 'gross');
+      const other = readNumber(data, 'other') ?? 0;
+      const deductions = readNumber(data, 'deductions') ?? 0;
+      if (gross === undefined || !(gross > 0)) return 'Escribe un salario bruto mayor que cero.';
+      if (!(other >= 0)) return 'Los ingresos variables no pueden ser negativos.';
+      if (!(deductions >= 0)) return 'Las deducciones no pueden ser negativas.';
+      const frequency = readText(data, 'frequency') as Frequency;
+      const out = calculateNetSalary({
+        grossPerPay: gross, frequency, otherPerPay: other,
+        includeThirteenth: data.get('thirteenth') === 'on',
+        jointFiling: data.get('joint') === 'on',
+        otherAnnualDeductions: deductions
+      });
+      setOutputs(result, {
+        frequencyLabel: labels[frequency],
+        net: formatMoney(out.net),
+        totalDeductions: formatMoney(out.totalDeductions),
+        deductionRate: formatPercent(out.totalDeductions / out.gross),
+        gross: formatMoney(out.gross),
+        socialSecurity: formatMoney(out.socialSecurity),
+        educationalInsurance: formatMoney(out.educationalInsurance),
+        incomeTax: formatMoney(out.incomeTax),
+        isrNote: out.incomeTax > 0 ? `${formatPercent(out.effectiveTaxRate)} efectivo` : 'renta gravable anual de hasta B/.11,000',
+        netMonthlyEquivalent: formatMoney(out.netMonthlyEquivalent),
+        projectedAnnualIncome: formatMoney(out.projectedAnnualIncome),
+        annualIncomeTax: formatMoney(out.annualIncomeTax),
+        marginalTaxRate: formatPercent(out.marginalTaxRate),
+        taxableAnnual: formatMoney(out.taxableAnnual),
+        annualDeductions: formatMoney(out.annualDeductions)
+      });
+      renderBar($('#salary-bar'), [
+        { label: 'Neto', value: out.net, tone: 'net' },
+        { label: 'Seguro Social', value: out.socialSecurity, tone: 'css' },
+        { label: 'Seguro Educativo', value: out.educationalInsurance, tone: 'edu' },
+        { label: 'ISR', value: out.incomeTax, tone: 'isr' }
+      ], formatMoney);
+      summary = `Salario bruto ${formatMoney(out.gross)} ${labels[frequency]} → neto estimado ${formatMoney(out.net)} (CSS ${formatMoney(out.socialSecurity)}, Seguro Educativo ${formatMoney(out.educationalInsurance)}, ISR ${formatMoney(out.incomeTax)}). Calculado en Calcula Panamá.`;
+    }
+  });
+  bindShare($<HTMLButtonElement>('#salary-share'), () => summary);
+</script>

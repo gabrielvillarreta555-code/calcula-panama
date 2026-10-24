@@ -1,0 +1,190 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import Faq from '../../components/Faq.astro';
+import Icon from '../../components/Icon.astro';
+import LegalSources from '../../components/LegalSources.astro';
+import RelatedCalculators from '../../components/RelatedCalculators.astro';
+
+const path = '/calculadoras/vacaciones/';
+const faq = [
+  { q: '¿Cuántos días de vacaciones tengo en Panamá?', a: 'Treinta días por cada once meses continuos de trabajo, a razón de un día por cada once días al servicio del empleador (Código de Trabajo, art. 54).' },
+  { q: '¿Cómo se pagan las vacaciones?', a: 'Con un mes de salario si se pactó por mes, o cuatro semanas y un tercio si se pactó por semana. Si el salario incluye comisiones u otras sumas variables, o hubo aumentos, se paga el promedio de los últimos once meses o el último salario, lo que sea más favorable para el trabajador.' },
+  { q: '¿Me pagan vacaciones proporcionales si termino antes de los once meses?', a: 'Sí. Si la relación termina antes de completar el período, se pagan en efectivo los días proporcionales: un día por cada once días trabajados.' },
+  { q: '¿Las vacaciones tienen descuentos?', a: 'Sí. La Ley Orgánica de la CSS considera salario las vacaciones, incluidas las proporcionales y vencidas (texto único de 2025, art. 85), así que llevan Seguro Social (9.75%), Seguro Educativo (1.25%) y, si corresponde, impuesto sobre la renta.' },
+  { q: '¿Cuándo deben pagarme las vacaciones?', a: 'El Código de Trabajo establece que se liquidan y pagan con tres días de anticipación a la fecha en que empiezas a disfrutar el descanso.' }
+];
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: 'Calculadora de vacaciones Panamá',
+  applicationCategory: 'FinanceApplication',
+  operatingSystem: 'Web',
+  inLanguage: 'es-PA',
+  isAccessibleForFree: true,
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' }
+};
+---
+<Layout title="Calculadora de vacaciones Panamá: días acumulados y pago proporcional" description="Calcula cuántos días de vacaciones acumulaste y cuánto te deben pagar en Panamá: 30 días por cada 11 meses, pago proporcional, promedio de salarios variables y descuentos." canonicalPath={path} schema={schema}>
+  <header class="page-head container">
+    <Breadcrumbs items={[{ label: 'Vacaciones', path }]} />
+    <span class="eyebrow">Descanso anual</span>
+    <h1>Calculadora de vacaciones</h1>
+    <p>Calcula los días que has acumulado y el pago de vacaciones completas o proporcionales según el artículo 54 del Código de Trabajo.</p>
+  </header>
+
+  <div class="container calculator-shell">
+    <form class="panel" id="vacation-form" novalidate>
+      <h2>Datos</h2>
+      <div class="form-grid">
+        <div class="field full">
+          <label for="salary">Último salario mensual</label>
+          <div class="input-wrap"><span class="prefix">B/.</span><input id="salary" name="salary" type="number" min="0.01" step="0.01" inputmode="decimal" required placeholder="1,000.00" /></div>
+        </div>
+        <div class="field full">
+          <span class="field-label" id="vmode-label">¿Qué sabes de tus vacaciones?</span>
+          <fieldset class="segmented" aria-labelledby="vmode-label">
+            <label><input type="radio" name="mode" value="dates" checked />Fechas trabajadas</label>
+            <label><input type="radio" name="mode" value="days" />Días pendientes</label>
+          </fieldset>
+        </div>
+        <div class="field" data-mode="dates">
+          <label for="from">Desde</label>
+          <input id="from" name="from" type="date" />
+          <small>Inicio del período sin vacaciones (o tu fecha de ingreso).</small>
+        </div>
+        <div class="field" data-mode="dates">
+          <label for="to">Hasta</label>
+          <input id="to" name="to" type="date" />
+        </div>
+        <div class="field full" data-mode="dates">
+          <label for="taken">Días de vacaciones ya disfrutados en ese período</label>
+          <input id="taken" name="taken" type="number" min="0" step="0.5" inputmode="decimal" placeholder="0" />
+          <small>Se restan de los días acumulados para obtener los pendientes.</small>
+        </div>
+        <div class="field full" data-mode="days" hidden>
+          <label for="pending">Días de vacaciones pendientes</label>
+          <input id="pending" name="pending" type="number" min="0" step="0.5" inputmode="decimal" placeholder="30" />
+        </div>
+        <details class="more field full">
+          <summary>Tengo comisiones o aumentos</summary>
+          <div class="form-grid">
+            <div class="field full">
+              <label for="average">Promedio mensual de los últimos 11 meses</label>
+              <div class="input-wrap"><span class="prefix">B/.</span><input id="average" name="average" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" /></div>
+              <small>Incluye salario, comisiones y sobretiempo. Se usará si es mayor que tu último salario.</small>
+            </div>
+          </div>
+        </details>
+      </div>
+      <p class="form-error" id="vacation-error" role="alert"></p>
+      <button class="calculate" type="submit">Calcular vacaciones</button>
+    </form>
+
+    <section class="panel results" aria-live="polite" aria-label="Resultado">
+      <div id="vacation-empty" class="empty-state"><Icon name="vacation" size={40} /><p>Escribe tu salario y el período trabajado para ver tus días y el pago.</p></div>
+      <div id="vacation-result" hidden>
+        <div class="result-hero">
+          <div class="label">Pago bruto de vacaciones</div>
+          <div class="amount" data-out="gross"></div>
+          <div class="sub"><strong data-out="days"></strong> días de vacaciones</div>
+        </div>
+        <ul class="breakdown">
+          <li><span>Salario base <small data-out="baseNote"></small></span><strong data-out="base"></strong></li>
+          <li><span>Valor de un día <small>base ÷ 30</small></span><strong data-out="dailyRate"></strong></li>
+          <li data-row="service"><span>Días trabajados en el período</span><strong data-out="serviceDays"></strong></li>
+          <li data-row="service"><span>Días de vacaciones acumulados <small>días trabajados ÷ 11</small></span><strong data-out="accruedDays"></strong></li>
+          <li data-row="taken" class="minus"><span>Días ya disfrutados</span><strong data-out="takenDays"></strong></li>
+          <li class="minus"><span>Seguro Social <small>9.75%</small></span><strong data-out="socialSecurity"></strong></li>
+          <li class="minus"><span>Seguro Educativo <small>1.25%</small></span><strong data-out="educationalInsurance"></strong></li>
+          <li class="total"><span>Neto antes de ISR</span><strong data-out="net"></strong></li>
+        </ul>
+        <p class="callout info">Si tu salario anual supera B/.11,000, el empleador también puede retener ISR sobre este pago.</p>
+        <div class="result-actions"><button class="button secondary" type="button" id="vacation-share"><Icon name="share" size={18} />Compartir</button></div>
+      </div>
+    </section>
+  </div>
+
+  <div class="container"><AdSlot name="afterResult" /></div>
+
+  <article class="container article">
+    <h2>¿Cómo se calculan las vacaciones en Panamá?</h2>
+    <p>El artículo 54 del Código de Trabajo concede <strong>30 días de descanso por cada 11 meses continuos de trabajo</strong>, a razón de un día por cada 11 días al servicio del empleador. Los descansos semanales, los días feriados y las licencias autorizadas cuentan como tiempo servido.</p>
+    <p class="formula">Días de vacaciones = días trabajados ÷ 11 &nbsp;·&nbsp; Pago = días × (salario mensual ÷ 30)</p>
+    <p>Las vacaciones completas se pagan con un mes de salario. Si cobras comisiones o tuviste aumentos, la ley ordena usar el promedio de los últimos once meses o el último salario, el que te convenga más.</p>
+    <h3>Ejemplo</h3>
+    <p>Trabajaste 165 días desde tus últimas vacaciones con B/.1,000 al mes: 165 ÷ 11 = 15 días. Pago: 15 × (1,000 ÷ 30) = <strong>B/.500</strong> brutos, menos B/.48.75 de Seguro Social y B/.6.25 de Seguro Educativo.</p>
+    <h3>Supuestos</h3>
+    <ul>
+      <li>Para trabajadores pagados por hora o por día, la ley usa el total devengado en los últimos once meses dividido entre las jornadas servidas. Esta herramienta parte de un salario mensual.</li>
+      <li>No contempla convenciones colectivas ni acuerdos que mejoren el mínimo legal.</li>
+    </ul>
+    <Faq items={faq} />
+    <LegalSources sources={['laborCode', 'css', 'educationalInsurance', 'mitradel']} />
+  </article>
+
+  <div class="container"><RelatedCalculators current={path} /></div>
+</Layout>
+
+<script>
+  import { calculateVacationPay, daysInclusive } from '../../lib/calculations';
+  import { formatMoney, formatNumber } from '../../lib/format';
+  import { $, bindCalculator, bindShare, readNumber, readText, setOutputs, toggleRows } from '../../lib/ui';
+
+  const form = $<HTMLFormElement>('#vacation-form');
+  const result = $('#vacation-result');
+  let summary = '';
+
+  const syncMode = () => {
+    const mode = readText(new FormData(form), 'mode');
+    form.querySelectorAll<HTMLElement>('[data-mode]').forEach(el => { el.hidden = el.dataset.mode !== mode; });
+  };
+  form.addEventListener('change', event => { if ((event.target as HTMLInputElement).name === 'mode') syncMode(); });
+  syncMode();
+
+  bindCalculator({
+    form,
+    error: $('#vacation-error'),
+    empty: $('#vacation-empty'),
+    result,
+    run(data) {
+      const salary = readNumber(data, 'salary');
+      if (salary === undefined || !(salary > 0)) return 'Escribe tu salario mensual.';
+      const average = readNumber(data, 'average');
+      if (average !== undefined && !(average >= 0)) return 'El promedio no es válido.';
+      let serviceDays: number | undefined;
+      let pendingDays: number | undefined;
+      let takenDays = 0;
+      if (readText(data, 'mode') === 'dates') {
+        const from = readText(data, 'from');
+        const to = readText(data, 'to');
+        if (!from || !to) return 'Indica las fechas del período trabajado.';
+        if (to < from) return 'La fecha final debe ser posterior a la inicial.';
+        serviceDays = daysInclusive(from, to);
+        takenDays = readNumber(data, 'taken') ?? 0;
+        if (!(takenDays >= 0)) return 'Los días disfrutados no pueden ser negativos.';
+      } else {
+        pendingDays = readNumber(data, 'pending');
+        if (pendingDays === undefined || !(pendingDays >= 0)) return 'Escribe los días pendientes.';
+      }
+      const out = calculateVacationPay({ monthlySalary: salary, averageLastElevenMonths: average, serviceDays, pendingDays, takenDays });
+      setOutputs(result, {
+        gross: formatMoney(out.gross),
+        days: formatNumber(out.days),
+        base: formatMoney(out.base),
+        baseNote: out.usedAverage ? 'promedio de 11 meses' : 'último salario',
+        dailyRate: formatMoney(out.dailyRate),
+        serviceDays: serviceDays === undefined ? '' : formatNumber(serviceDays),
+        accruedDays: out.accruedDays === null ? '' : formatNumber(out.accruedDays),
+        takenDays: formatNumber(out.takenDays),
+        socialSecurity: formatMoney(out.socialSecurity),
+        educationalInsurance: formatMoney(out.educationalInsurance),
+        net: formatMoney(out.netBeforeIncomeTax)
+      });
+      toggleRows(result, { service: serviceDays !== undefined, taken: out.takenDays > 0 });
+      summary = `Vacaciones: ${formatNumber(out.days)} días, pago bruto ${formatMoney(out.gross)} (neto antes de ISR ${formatMoney(out.netBeforeIncomeTax)}). Calculado en Calcula Panamá.`;
+    }
+  });
+  bindShare($<HTMLButtonElement>('#vacation-share'), () => summary);
+</script>

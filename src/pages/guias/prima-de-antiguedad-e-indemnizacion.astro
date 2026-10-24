@@ -1,0 +1,79 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import Faq from '../../components/Faq.astro';
+import LegalSources from '../../components/LegalSources.astro';
+import RelatedCalculators from '../../components/RelatedCalculators.astro';
+import { GUIDES } from '../../data/site';
+import { calculateTermination } from '../../lib/calculations';
+import { formatMoney } from '../../lib/format';
+
+const guide = GUIDES[2];
+const base = import.meta.env.BASE_URL;
+const end = '2026-06-30';
+const tenures = [1, 3, 5, 10, 15, 20].map(years => {
+  const start = `${2026 - years}-07-01`;
+  const r = calculateTermination({ monthlySalary: 1000, startDate: start, endDate: end, contractType: 'indefinite', reason: 'unjustified', unusedVacationDays: 0, currentPeriodEarnings: 0 });
+  return { years, prima: r.seniorityPremium, indemnity: r.indemnity };
+});
+const faq = [
+  { q: '¿La prima de antigüedad se paga si me despiden con causa justificada?', a: 'Sí. El artículo 224 la reconoce a la terminación de todo contrato por tiempo indefinido, cualquiera que sea la causa.' },
+  { q: '¿Puedo cobrar prima e indemnización a la vez?', a: 'Sí. La indemnización del artículo 225 se paga «sin perjuicio» de la prima del artículo 224: son conceptos distintos y se suman.' },
+  { q: '¿Qué es el fondo de cesantía?', a: 'Es un fondo que el empleador debe constituir para los contratos indefinidos, con aportes trimestrales para pagar la prima de antigüedad y la indemnización (art. 229-A y siguientes). Garantiza el pago, pero no cambia el monto al que tienes derecho.' },
+  { q: '¿La indemnización puede pagarse en especie?', a: 'No. El artículo 225 prohíbe pagar en especie la prima de antigüedad, la indemnización y sus recargos.' }
+];
+---
+<Layout title="Prima de antigüedad e indemnización en Panamá: cálculo y diferencias" description="Diferencias entre prima de antigüedad (art. 224) e indemnización por despido injustificado (art. 225) en Panamá: quién cobra cada una, semanas por año, salario base y tabla de ejemplos." canonicalPath={guide.path}>
+  <header class="page-head container">
+    <Breadcrumbs items={[{ label: 'Guías', path: '/guias/' }, { label: 'Prima e indemnización', path: guide.path }]} />
+    <span class="eyebrow">Guía</span>
+    <h1>{guide.title}</h1>
+    <p>Se confunden a menudo, pero tienen reglas distintas. La prima la cobra casi todo trabajador con contrato indefinido; la indemnización, solo en ciertos casos.</p>
+  </header>
+  <article class="container article">
+    <h2>Diferencias en una tabla</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th scope="col"></th><th scope="col">Prima de antigüedad</th><th scope="col">Indemnización</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Norma</th><td>Art. 224 y 226</td><td>Art. 225 y 149</td></tr>
+          <tr><th scope="row">Contrato</th><td>Indefinido</td><td>Indefinido*</td></tr>
+          <tr><th scope="row">Motivo</th><td>Cualquiera</td><td>Despido injustificado, renuncia justificada o causa económica</td></tr>
+          <tr><th scope="row">Monto</th><td>1 semana por año</td><td>3.4 semanas por año (10 primeros) + 1 semana por año adicional</td></tr>
+          <tr><th scope="row">Salario base</th><td>Promedio de los últimos 5 años</td><td>Promedio de 6 meses o de 30 días, el mayor</td></tr>
+        </tbody>
+        <caption>* En contratos definidos o por obra, la terminación anticipada sin justa causa obliga a pagar los salarios del tiempo restante (art. 227).</caption>
+      </table>
+    </div>
+    <AdSlot name="inArticle" />
+    <h2>Prima de antigüedad</h2>
+    <p>El artículo 224 del Código de Trabajo establece que, a la terminación de todo contrato por tiempo indefinido y <strong>cualquiera que sea la causa</strong>, el trabajador recibe una semana de salario por cada año laborado desde el inicio de la relación, con la parte proporcional de los años incompletos. El artículo 226 indica que se calcula con el promedio de lo percibido en los últimos cinco años.</p>
+    <p class="formula">Prima = (promedio mensual de 5 años × 12 ÷ 52) × años de servicio</p>
+    <h2>Indemnización por despido injustificado</h2>
+    <p>Para relaciones iniciadas desde la Ley 44 de 1995, el artículo 225 (acápite C) fija <strong>3.4 semanas de salario por cada año en los primeros diez años</strong> y <strong>una semana por cada año posterior</strong>, con proporcionalidad por fracción. También se paga cuando renuncias con causa justificada (art. 223) y en los despidos por causa económica del artículo 213 C, que deben autorizarse previamente ante la autoridad de trabajo (art. 215).</p>
+    <p class="formula">Indemnización = salario semanal × (3.4 × años hasta 10 + 1 × años después de 10)</p>
+    <h2>Preaviso en despidos con menos de dos años</h2>
+    <p>El artículo 211 prohíbe despedir sin causa justificada a un trabajador con contrato indefinido, pero el artículo 212 exceptúa, entre otros, a quienes tienen menos de dos años de servicio continuo, a los trabajadores domésticos y a los de empresas muy pequeñas. En esos casos el empleador debe pagar la indemnización y, además, avisar con 30 días de anticipación o pagar ese preaviso.</p>
+    <h2>¿Pagan impuestos?</h2>
+    <p>No pagan cuotas de la CSS (Ley 51, art. 86). Para el ISR no se suman al salario del año: se resta un 1% por cada año completo de servicio y B/.5,000, y solo el saldo paga la tarifa normal (Decreto Ejecutivo 170 de 1993, art. 119). Con salarios habituales, el resultado suele ser cero.</p>
+    <h2>Ejemplos con B/.1,000 al mes</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th scope="col">Antigüedad</th><th scope="col">Prima</th><th scope="col">Indemnización</th><th scope="col">Suma</th></tr></thead>
+        <tbody>{tenures.map(t => <tr><th scope="row">{t.years} {t.years === 1 ? 'año' : 'años'}</th><td>{formatMoney(t.prima)}</td><td>{formatMoney(t.indemnity)}</td><td><strong>{formatMoney(t.prima + t.indemnity)}</strong></td></tr>)}</tbody>
+        <caption>Contrato indefinido, despido injustificado, salario constante. Sin vacaciones ni décimo pendientes.</caption>
+      </table>
+    </div>
+    <h2>Casos que requieren revisión</h2>
+    <ul>
+      <li>Relaciones iniciadas antes de la Ley 44 de 1995: la indemnización combina escalas anteriores (art. 225, acápites A y B) y la prima del período previo al fondo de cesantía exige 10 años de servicio continuo.</li>
+      <li>Trabajadores con fuero de maternidad, sindical o por riesgo profesional, que pueden tener derecho al reintegro.</li>
+      <li>Despidos en los que se discute la causa: el juez puede ordenar el reintegro o la indemnización, más recargos.</li>
+    </ul>
+    <p><a class="button primary" href={`${base}calculadoras/liquidacion-laboral/`}>Calcular mi liquidación</a></p>
+    <Faq items={faq} />
+    <LegalSources sources={['laborCode', 'css', 'incomeTaxRegulation', 'mitradel']} />
+  </article>
+  <div class="container"><RelatedCalculators /></div>
+</Layout>
