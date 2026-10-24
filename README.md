@@ -38,6 +38,13 @@ npm run build
 
 Los flujos compilan con `SITE_URL=https://calculapanama.com/` y `BASE_PATH=/`, así que los CSS, JS, enlaces, canonical, sitemap y `robots.txt` apuntan a la raíz del dominio. Si algún día vuelves a publicar en `https://<usuario>.github.io/calcula-panama/` sin dominio propio, cambia esas dos variables en `.github/workflows/deploy.yml` y `ci.yml` a esa URL y a `/calcula-panama/`; si no, la página se verá sin estilos.
 
+## Sitemap y Google Search Console
+
+- `https://calculapanama.com/sitemap.xml` se genera en cada build desde `src/pages/sitemap.xml.ts` con las URL canónicas de todas las páginas públicas (una página nueva entra sola; la 404 queda fuera). `@astrojs/sitemap` sigue generando `sitemap-index.xml` por compatibilidad.
+- `robots.txt` permite todo el sitio y enlaza `sitemap.xml`.
+- `npm run verify:seo` (también en GitHub Actions, después del build) falla si el sitemap no es XML válido, si alguna URL no es del dominio propio, no coincide con su canonical, no existe o es `noindex`, o si `robots.txt` no enlaza el sitemap.
+- En Search Console envía `https://calculapanama.com/sitemap.xml` en **Sitemaps**.
+
 ## Activar Google AdSense (cuando la cuenta esté aprobada)
 
 No hay anuncios ni identificadores inventados. Mientras `ADSENSE.client` esté vacío, no se carga ningún script de Google ni se muestra ningún espacio vacío.
