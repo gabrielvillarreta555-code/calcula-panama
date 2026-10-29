@@ -7,6 +7,14 @@ export const SITE = {
   issuesUrl: 'https://github.com/gabrielvillarreta555-code/calcula-panama/issues'
 } as const;
 
+/** Estudio que publica Calcula Panamá. El @id coincide con el de su web para que Google los relacione. */
+export const STUDIO = {
+  '@type': 'Organization',
+  '@id': 'https://gabrielvillarreta555-code.github.io/#estudio',
+  name: 'Blue Lab Studios',
+  url: 'https://gabrielvillarreta555-code.github.io/'
+} as const;
+
 /**
  * Google AdSense.
  *
