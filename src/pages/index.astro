@@ -1,7 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Icon from '../components/Icon.astro';
-import { CALCULATORS, GUIDES, SITE } from '../data/site';
+import { CALCULATORS, GUIDES, SITE, STUDIO } from '../data/site';
 import { calculateNetSalary } from '../lib/calculations';
 import { formatMoney } from '../lib/format';
 
@@ -16,7 +16,8 @@ const schema = [
     name: SITE.name,
     description: SITE.description,
     inLanguage: 'es-PA',
-    url: new URL(base, Astro.site ?? Astro.url.origin).toString()
+    url: new URL(base, Astro.site ?? Astro.url.origin).toString(),
+    publisher: STUDIO
   },
   {
     '@context': 'https://schema.org',
