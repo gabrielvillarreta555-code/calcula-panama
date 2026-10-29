@@ -404,6 +404,7 @@ caption { caption-side: bottom; padding: 10px 12px; text-align: left; color: var
 .footer-grid a:not(.brand) { display: block; color: var(--muted); text-decoration: none; padding: 6px 0; }
 .footer-grid a:not(.brand):hover { color: var(--text); }
 .footer-grid p { margin-top: 12px; }
+.footer-bottom .footer-author { display: inline; padding: 0; color: inherit; text-decoration: underline; text-underline-offset: 2px; }
 .footer-bottom { border-top: 1px solid var(--line); margin: 24px 0 0; padding-top: 18px; color: var(--muted); font-size: .84rem; }
 
 @media (prefers-reduced-motion: reduce) {
