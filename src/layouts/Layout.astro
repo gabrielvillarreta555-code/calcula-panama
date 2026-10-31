@@ -10,9 +10,10 @@ interface Props {
   canonicalPath?: string;
   schema?: Record<string, unknown> | Record<string, unknown>[];
   noindex?: boolean;
+  blueShowcase?: boolean;
 }
 
-const { title, description, schema, noindex = false } = Astro.props;
+const { title, description, schema, noindex = false, blueShowcase = false } = Astro.props;
 const base = import.meta.env.BASE_URL;
 const href = (path: string) => `${base}${path.replace(/^\//, '')}`;
 // La ruta de Astro incluye la base (/calcula-panama/); se elimina para no duplicarla en la URL canónica.
@@ -50,7 +51,7 @@ const adsense = isAdsenseEnabled();
   <script is:inline>try{var t=localStorage.getItem('cp-theme');if(t==='dark'||t==='light')document.documentElement.dataset.theme=t}catch(e){}</script>
   {adsense && <script async src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE.client}`} crossorigin="anonymous"></script>}
 </head>
-<body>
+<body class:list={[{ 'blue-showcase': blueShowcase }]}>
   <a class="skip" href="#contenido">Saltar al contenido</a>
   <header class="site-header">
     <nav class="nav container" aria-label="Navegación principal">
