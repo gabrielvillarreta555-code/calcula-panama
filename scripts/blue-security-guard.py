@@ -68,18 +68,10 @@ def run(root: Path, tools: Path, private_sink: Callable[[dict], None] | None = N
                 return 2
             if private_sink is not None:
                 # Exclusiva lista blanca: no exporta rutas, líneas, fragmentos ni secretos.
-                rules = {}
-                for finding in sdata:
-                    if not isinstance(finding, dict):
-                        return 2
-                    rule = finding.get('RuleID', '')
-                    if not isinstance(rule, str) or not re.fullmatch(r'[a-zA-Z0-9_.-]{1,80}', rule):
-                        rule = 'other'
-                    rules[rule] = rules.get(rule, 0) + 1
                 ids = sorted({v['id'] for v in dep_findings
                               if re.fullmatch(r'(?:GHSA-[a-zA-Z0-9-]{4,80}|CVE-[0-9]{4}-[0-9]{4,12})', v['id'])})
                 private_sink({'config_attention': config_attention, 'secret_count': len(sdata),
-                              'secret_rules': rules, 'dependency_count': len(dep_findings),
+                              'dependency_count': len(dep_findings),
                               'dependency_ids': ids})
             return 1 if config_attention or sdata or dep_findings else 0
     except (OSError, UnicodeError, ValueError, subprocess.TimeoutExpired):
