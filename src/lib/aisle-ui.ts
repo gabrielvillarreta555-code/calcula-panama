@@ -55,7 +55,13 @@ export function mountAisleMode(root: HTMLElement): () => void {
     input.inputMode = inputMode;
     input.autocomplete = 'off';
     input.setAttribute('aria-label', label);
-    input.addEventListener('change', () => onChange(input.value), options);
+    input.addEventListener('change', () => {
+      try { onChange(input.value); }
+      catch (cause) {
+        announceError(cause instanceof Error ? cause.message : 'Revisa el dato del producto.');
+        renderItems();
+      }
+    }, options);
     wrapper.append(text, input);
     return wrapper;
   }
@@ -163,7 +169,7 @@ export function mountAisleMode(root: HTMLElement): () => void {
 
   budgetInput.addEventListener('change', () => {
     try { parseBudget(); announceError(); renderSummary(); }
-    catch (cause) { announceError(cause instanceof Error ? cause.message : 'Revisa el presupuesto.'); }
+    catch (cause) { budgetCents = null; renderSummary(); announceError(cause instanceof Error ? cause.message : 'Revisa el presupuesto.'); }
   }, options);
 
   clear.addEventListener('click', () => {
