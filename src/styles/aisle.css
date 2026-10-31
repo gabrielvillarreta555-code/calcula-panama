@@ -4,6 +4,7 @@
 .aisle-intro { max-width: 760px; }
 .aisle-intro h1 { margin: 6px 0; font-size: clamp(2.1rem, 7vw, 3.3rem); letter-spacing: -.045em; }
 .aisle-intro p { margin: 0; color: var(--muted); }
+.aisle-page .eyebrow::before { background: #238be5; }
 .aisle-shell { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; max-width: 760px; align-items: start; }
 .aisle-panel { min-width: 0; padding: clamp(18px, 4vw, 28px); border: 1px solid color-mix(in srgb, var(--brand-2) 22%, var(--line)); border-radius: 26px; background: color-mix(in srgb, var(--surface) 92%, #b5dbff); box-shadow: 0 16px 42px #0a356319, inset 0 1px #ffffff66; }
 @supports (backdrop-filter: blur(12px)) { .aisle-panel { backdrop-filter: blur(12px); } }
@@ -44,7 +45,7 @@
 .aisle-stepper input { text-align: center; font-weight: 800; }
 .aisle-add { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; min-height: 56px; margin-top: 8px; border: 0; border-radius: 999px; background: linear-gradient(120deg, #1555bb, #1384e4); color: #fff; font: inherit; font-weight: 800; box-shadow: 0 9px 22px #176ac04d; cursor: pointer; }
 .aisle-add span { font-size: 1.45rem; line-height: 1; }
-.aisle-error { min-height: 1.5rem; color: var(--accent); font-weight: 700; font-size: .9rem; margin: .65rem 0 0; }
+.aisle-error { min-height: 1.5rem; color: var(--brand-2); font-weight: 700; font-size: .9rem; margin: .65rem 0 0; }
 .aisle-no-tax, .aisle-privacy { color: var(--muted); font-size: .82rem; }
 .aisle-no-tax { margin: 14px 0 0; }.aisle-privacy { margin: 12px 0 0; }
 .aisle-list { display: grid; gap: 10px; list-style: none; padding: 0; margin: 0; }
