@@ -42,6 +42,8 @@ test('valida entradas y muestra presupuesto excedido a 375 px', async ({ page })
   await expect(page.locator('#aisle-mode')).toHaveClass(/is-over-budget/);
   await expect(page.locator('[data-aisle-balance]')).toContainText(/Excedido.*1[,.]00/);
   await expect(page.locator('#aisle-meter')).toBeVisible();
+  await page.locator('#aisle-name').focus();
+  await page.evaluate(() => scrollTo(0, 0));
   await page.screenshot({ path: 'test-results/screenshots/modo-pasillo-375.png', fullPage: true });
 });
 
