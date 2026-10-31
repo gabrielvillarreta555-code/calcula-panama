@@ -154,10 +154,10 @@ export function mountAisleMode(root: HTMLElement): () => void {
       announceError();
       render();
       nameInput.focus();
-      root.dispatchEvent(new CustomEvent('calculator:result', { bubbles: true, detail: { status: 'success' } }));
+      form.dispatchEvent(new CustomEvent('calculator:result', { bubbles: true, detail: { status: 'success' } }));
     } catch (cause) {
       announceError(cause instanceof Error ? cause.message : 'Revisa los datos del producto.');
-      root.dispatchEvent(new CustomEvent('calculator:result', { bubbles: true, detail: { status: 'invalid' } }));
+      form.dispatchEvent(new CustomEvent('calculator:result', { bubbles: true, detail: { status: 'invalid' } }));
     }
   }, options);
 
