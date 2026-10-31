@@ -27,13 +27,18 @@ export function mountAisleMode(root: HTMLElement): () => void {
   const priceInput = root.querySelector<HTMLInputElement>('#aisle-price');
   const quantityInput = root.querySelector<HTMLInputElement>('#aisle-quantity');
   const clear = root.querySelector<HTMLButtonElement>('#aisle-clear');
+  const submit = form?.querySelector<HTMLButtonElement>('button[type="submit"]');
   const meter = root.querySelector<HTMLProgressElement>('#aisle-meter');
+  const decrease = root.querySelector<HTMLButtonElement>('#aisle-decrease');
+  const increase = root.querySelector<HTMLButtonElement>('#aisle-increase');
+  const blueHint = root.querySelector<HTMLElement>('[data-aisle-hint]');
   if (!form || !list || !empty || !error || !total || !count || !balance || !budgetInput || !nameInput || !priceInput || !quantityInput || !clear || !meter) return () => {};
 
   const meterElement = meter;
   let items: ShoppingItem[] = [];
   let budgetCents: number | null = null;
   let nextId = 1;
+  let feedbackTimer = 0;
   const abort = new AbortController();
   const options = { signal: abort.signal };
 
@@ -118,6 +123,8 @@ export function mountAisleMode(root: HTMLElement): () => void {
   function renderSummary() {
     try {
       const summary = summarizeShopping(items, budgetCents);
+      const nearBudget = summary.budgetCents !== null && summary.budgetCents > 0 && summary.subtotalCents >= summary.budgetCents * 0.9;
+      if (blueHint) blueHint.textContent = summary.overBudget ? 'Tu presupuesto está excedido.' : nearBudget ? 'Tu presupuesto está cerca del límite.' : 'Blue te acompaña en tu compra.';
       total!.textContent = formatMoney(summary.subtotalCents / 100);
       count!.textContent = `${summary.lineCount} ${summary.lineCount === 1 ? 'producto' : 'productos'} · ${quantityText(summary.quantityMilli)} unidades`;
       root.classList.toggle('is-over-budget', summary.overBudget);
@@ -159,13 +166,35 @@ export function mountAisleMode(root: HTMLElement): () => void {
       quantityInput.value = '1';
       announceError();
       render();
-      nameInput.focus();
+      priceInput.focus({ preventScroll: true });
+      root.classList.remove('aisle-added');
+      void root.offsetWidth;
+      root.classList.add('aisle-added');
+      window.clearTimeout(feedbackTimer);
+      feedbackTimer = window.setTimeout(() => root.classList.remove('aisle-added'), 700);
       form.dispatchEvent(new CustomEvent('calculator:result', { bubbles: true, detail: { status: 'success' } }));
     } catch (cause) {
       announceError(cause instanceof Error ? cause.message : 'Revisa los datos del producto.');
       form.dispatchEvent(new CustomEvent('calculator:result', { bubbles: true, detail: { status: 'invalid' } }));
     }
   }, options);
+  if (submit) submit.disabled = false;
+
+  function stepQuantity(direction: -1 | 1) {
+    try {
+      const current = parseQuantityToMilli(quantityInput!.value);
+      const next = direction === 1 ? current + 1000 : current > 1000 ? current - 1000 : current;
+      const value = String(next / 1000);
+      parseQuantityToMilli(value);
+      quantityInput!.value = value;
+      announceError();
+    } catch (cause) {
+      announceError(cause instanceof Error ? cause.message : 'Revisa la cantidad.');
+      quantityInput!.focus({ preventScroll: true });
+    }
+  }
+  decrease?.addEventListener('click', () => stepQuantity(-1), options);
+  increase?.addEventListener('click', () => stepQuantity(1), options);
 
   budgetInput.addEventListener('change', () => {
     try { parseBudget(); announceError(); renderSummary(); }
@@ -181,5 +210,5 @@ export function mountAisleMode(root: HTMLElement): () => void {
   }, options);
 
   render();
-  return () => { abort.abort(); items = []; };
+  return () => { window.clearTimeout(feedbackTimer); abort.abort(); items = []; };
 }

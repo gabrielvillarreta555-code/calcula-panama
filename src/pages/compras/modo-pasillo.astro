@@ -16,42 +16,51 @@ const schema = {
 ---
 <Layout title="Modo Pasillo: calculadora de compras y presupuesto | Calcula Panamá" description="Suma productos, cantidades y precios mientras compras. Controla tu presupuesto en el teléfono sin guardar ni enviar tus datos." canonicalPath="/compras/modo-pasillo/" schema={schema}>
   <div class="aisle-page" id="aisle-mode">
-    <header class="page-head">
+    <header class="page-head aisle-head">
       <div class="container aisle-intro">
         <Breadcrumbs items={[{ label: 'Compras y gastos', path: '/compras/' }, { label: 'Modo Pasillo', path: '/compras/modo-pasillo/' }]} />
         <span class="eyebrow">Compras y gastos</span>
         <h1>Modo Pasillo</h1>
-        <p>Controla el carrito mientras recorres el supermercado. Todo se calcula en este teléfono y desaparece al cerrar o recargar la página.</p>
+        <p>Tu compra, clara y bajo control.</p>
       </div>
     </header>
 
-    <BlueHelp guide={BLUE_GUIDES.aisle} />
-
     <div class="container aisle-shell">
+      <section class="aisle-summary aisle-panel" aria-label="Resumen de la compra" aria-live="polite">
+        <div class="aisle-summary-top">
+          <div><span class="aisle-summary-label">Total de tu compra</span><strong class="aisle-total" data-aisle-total>B/.0.00</strong></div>
+          <span class="aisle-summary-icon" aria-hidden="true">✦</span>
+        </div>
+        <div class="aisle-summary-grid">
+          <div class="aisle-summary-cell"><span>Productos</span><strong data-aisle-count>0 productos · 0 unidades</strong></div>
+          <div class="aisle-summary-cell"><label for="aisle-budget">Presupuesto <small>(opcional)</small></label><div class="aisle-budget-wrap"><span aria-hidden="true">B/.</span><input id="aisle-budget" name="budget" form="aisle-form" type="text" inputmode="decimal" autocomplete="off" placeholder="0.00" aria-describedby="budget-help" /></div></div>
+          <div class="aisle-summary-cell aisle-budget-state"><span>Saldo</span><strong data-aisle-balance>Añade un presupuesto para ver el saldo</strong></div>
+        </div>
+        <small class="sr-only" id="budget-help">Opcional. Puedes cambiarlo durante la compra.</small>
+        <progress class="aisle-meter" id="aisle-meter" max="1" value="0" hidden aria-label="Presupuesto utilizado"></progress>
+        <div class="aisle-blue-companion"><img src={`${import.meta.env.BASE_URL}blue-flotante.webp`} alt="" width="360" height="432" /><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h2l2 11h11l2-8H6"/><circle cx="9" cy="19" r="1"/><circle cx="17" cy="19" r="1"/></svg><span data-aisle-hint>Blue te acompaña en tu compra.</span></div>
+      </section>
+
       <section class="aisle-panel aisle-entry" aria-labelledby="aisle-add-title">
-        <h2 id="aisle-add-title">Agregar producto</h2>
+        <div class="aisle-section-heading"><div><span class="aisle-kicker">Tu lista</span><h2 id="aisle-add-title">Añadir producto</h2></div><span class="aisle-heading-icon" aria-hidden="true">+</span></div>
         <form id="aisle-form" novalidate>
           <div class="aisle-fields">
-            <div class="aisle-field full">
-              <label for="aisle-budget">Presupuesto <span class="muted">(opcional)</span></label>
-              <input id="aisle-budget" name="budget" type="text" inputmode="decimal" autocomplete="off" placeholder="Ej. 50.00" aria-describedby="budget-help" />
-              <span class="aisle-help" id="budget-help">No se guarda. Puedes cambiarlo durante la compra.</span>
+            <div class="aisle-field full aisle-price-field">
+              <label for="aisle-price">Precio unitario</label>
+              <div class="aisle-price-wrap"><span aria-hidden="true">B/.</span><input id="aisle-price" name="price" type="text" inputmode="decimal" autocomplete="off" required placeholder="0.00" /></div>
             </div>
             <div class="aisle-field full">
               <label for="aisle-name">Nombre <span class="muted">(opcional)</span></label>
               <input id="aisle-name" name="name" type="text" maxlength="80" autocomplete="off" placeholder="Ej. Arroz" />
             </div>
-            <div class="aisle-field">
-              <label for="aisle-price">Precio unitario</label>
-              <input id="aisle-price" name="price" type="text" inputmode="decimal" autocomplete="off" required placeholder="0.00" />
-            </div>
-            <div class="aisle-field">
+            <div class="aisle-field full">
               <label for="aisle-quantity">Cantidad</label>
-              <input id="aisle-quantity" name="quantity" type="text" inputmode="decimal" autocomplete="off" required value="1" />
+              <div class="aisle-stepper"><button type="button" id="aisle-decrease" aria-label="Disminuir cantidad">−</button><input id="aisle-quantity" name="quantity" type="text" inputmode="decimal" autocomplete="off" required value="1" /><button type="button" id="aisle-increase" aria-label="Aumentar cantidad">+</button></div>
             </div>
           </div>
           <p class="aisle-error" id="aisle-error" role="alert" aria-live="assertive"></p>
-          <button class="aisle-add" type="submit">Agregar a la lista</button>
+          <button class="aisle-add" type="submit" disabled><span aria-hidden="true">+</span> Añadir producto</button>
+          <noscript><p class="aisle-error">Activa JavaScript para añadir productos. Los datos se calculan en tu navegador.</p></noscript>
           <p class="aisle-no-tax">No se aplica ITBMS, descuento ni recargo automáticamente.</p>
         </form>
         <p class="aisle-privacy"><strong>Privado por diseño:</strong> productos, precios y presupuesto permanecen únicamente en la memoria de esta pestaña. No usamos almacenamiento local ni servidores.</p>
@@ -59,20 +68,13 @@ const schema = {
 
       <section class="aisle-panel aisle-cart" aria-labelledby="aisle-cart-title">
         <div class="aisle-toolbar">
-          <h2 id="aisle-cart-title">Tu compra</h2>
+          <div><span class="aisle-kicker">En tu carrito</span><h2 id="aisle-cart-title">Tu compra</h2></div>
           <button id="aisle-clear" type="button" hidden>Vaciar lista</button>
-        </div>
-        <div class="aisle-summary" aria-live="polite">
-          <div class="aisle-stat"><span>Total</span><strong data-aisle-total>B/.0.00</strong></div>
-          <div class="aisle-stat"><span>Productos</span><strong data-aisle-count>0 productos · 0 unidades</strong></div>
-          <div class="aisle-stat aisle-budget-state">
-            <span>Presupuesto</span><strong data-aisle-balance>Añade un presupuesto para ver el saldo</strong>
-            <progress class="aisle-meter" id="aisle-meter" max="1" value="0" hidden aria-label="Presupuesto utilizado"></progress>
-          </div>
         </div>
         <p class="aisle-empty" id="aisle-empty">Agrega tu primer producto para comenzar.</p>
         <ul class="aisle-list" id="aisle-list" aria-label="Productos de la compra"></ul>
       </section>
+      <BlueHelp guide={BLUE_GUIDES.aisle} />
     </div>
   </div>
   <script>

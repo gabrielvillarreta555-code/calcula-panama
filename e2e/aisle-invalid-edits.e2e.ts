@@ -7,7 +7,7 @@ test('ediciones inválidas no producen errores ni muestran un saldo anterior', a
   await page.locator('#aisle-budget').fill('10');
   await page.locator('#aisle-budget').press('Tab');
   await page.locator('#aisle-price').fill('2');
-  await page.getByRole('button', { name: 'Agregar a la lista' }).click();
+  await page.getByRole('button', { name: 'Añadir producto' }).click();
   await expect(page.locator('[data-aisle-balance]')).toContainText('8.00');
 
   const quantity = page.locator('.aisle-item').first().getByLabel('Cantidad');
