@@ -1,0 +1,36 @@
+---
+interface Props { id: string }
+const { id } = Astro.props;
+const blueImage = `${import.meta.env.BASE_URL}blue-flotante.webp`;
+---
+<span class="blue-avatar-shell" aria-hidden="true">
+      <img class="blue-help-avatar" src={blueImage} alt="" width="80" height="96" />
+      <svg class="blue-rig" viewBox="0 0 360 432" focusable="false" aria-hidden="true">
+        <defs>
+          <clipPath id={`${id}-body-clip`}><path d="M0 302H360V432H0Z" /></clipPath>
+          <clipPath id={`${id}-head-clip`}><path d="M0 0H360V302H0Z" /></clipPath>
+          <clipPath id={`${id}-eye-left-clip`}><ellipse cx="165" cy="237" rx="35" ry="38" transform="rotate(13 165 237)" /></clipPath>
+          <clipPath id={`${id}-eye-right-clip`}><ellipse cx="256" cy="259" rx="23" ry="33" transform="rotate(20 256 259)" /></clipPath>
+          <mask id={`${id}-head-mask`} maskUnits="userSpaceOnUse" x="0" y="0" width="360" height="432">
+            <rect width="360" height="432" fill="white" />
+            <ellipse cx="165" cy="237" rx="35" ry="38" transform="rotate(13 165 237)" fill="black" />
+            <ellipse cx="256" cy="259" rx="23" ry="33" transform="rotate(20 256 259)" fill="black" />
+          </mask>
+          <linearGradient id={`${id}-eyelid`} x1="0" y1="0" x2="0" y2="1"><stop stop-color="#42a8f0" /><stop offset="1" stop-color="#9ce3ff" /></linearGradient>
+        </defs>
+        <g class="blue-rig-body"><image href={blueImage} width="360" height="432" clip-path={`url(#${id}-body-clip)`} /></g>
+        <g class="blue-rig-head">
+          <g clip-path={`url(#${id}-head-clip)`}>
+            <ellipse cx="165" cy="237" rx="35" ry="38" transform="rotate(13 165 237)" fill={`url(#${id}-eyelid)`} />
+            <ellipse cx="256" cy="259" rx="23" ry="33" transform="rotate(20 256 259)" fill={`url(#${id}-eyelid)`} />
+            <image href={blueImage} width="360" height="432" mask={`url(#${id}-head-mask)`} />
+            <g class="blue-rig-eye blue-rig-eye-left"><image href={blueImage} width="360" height="432" clip-path={`url(#${id}-eye-left-clip)`} /></g>
+            <g class="blue-rig-eye blue-rig-eye-right"><image href={blueImage} width="360" height="432" clip-path={`url(#${id}-eye-right-clip)`} /></g>
+            <g class="blue-rig-lids" fill="none" stroke="#143f87" stroke-width="4" stroke-linecap="round">
+              <path d="M138 239 Q165 255 191 239" />
+              <path d="M239 259 Q255 273 273 256" />
+            </g>
+          </g>
+        </g>
+      </svg>
+    </span>
