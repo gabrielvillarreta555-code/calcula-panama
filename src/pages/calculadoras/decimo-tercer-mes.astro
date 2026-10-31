@@ -92,7 +92,7 @@ const schema = {
       <div id="thirteenth-empty" class="empty-state"><Icon name="thirteenth" size={40} /><p>Elige la partida, escribe tu salario y pulsa <strong>Calcular</strong>.</p></div>
       <div id="thirteenth-result" hidden>
         <div class="result-hero">
-          <div class="label">Décimo neto estimado · <span data-out="periodLabel"></span></div>
+          <div class="label"><span data-out="netLabel"></span> · <span data-out="periodLabel"></span></div>
           <div class="amount" data-out="net"></div>
           <div class="sub">Se paga el <strong data-out="payDate"></strong></div>
         </div>
@@ -103,7 +103,7 @@ const schema = {
           <li class="minus"><span>Seguro Social <small>7.25% (contribución especial)</small></span><strong data-out="socialSecurity"></strong></li>
           <li class="minus" data-row="isr"><span>ISR estimado <small data-out="isrNote"></small></span><strong data-out="incomeTax"></strong></li>
           <li class="muted-row" data-row="noIsr"><span>ISR</span><strong>Indica tu salario habitual</strong></li>
-          <li class="total"><span>Neto estimado</span><strong data-out="net"></strong></li>
+          <li class="total"><span data-out="netLabel"></span><strong data-out="net"></strong></li>
         </ul>
         <p class="callout info" data-row="prorated">Prorrateado: <span data-out="workedDays"></span> de <span data-out="periodDays"></span> días del período, con cortes el día 15.</p>
         <p class="callout info">Resultado orientativo: sigue la práctica de planilla (devengado ÷ 12). Si tu empleador corta los períodos a fin de mes o tuviste variables, usa el modo «Con lo devengado».</p>
@@ -205,6 +205,7 @@ const schema = {
 
       const out = calculateThirteenthMonth({ ordinaryEarnings: ordinary, variableEarnings: variable, regularMonthlySalary: regular });
       setOutputs(result, {
+        netLabel: out.incomeTax === null ? 'Neto antes de ISR' : 'Neto estimado',
         periodLabel: `${period.label} ${period.year}`,
         payDate: formatDate(period.payDate),
         net: formatMoney(out.net),
@@ -219,11 +220,11 @@ const schema = {
       });
       toggleRows(result, { isr: out.incomeTax !== null, noIsr: out.incomeTax === null, prorated: prorated !== null });
       renderBar($('#thirteenth-bar'), [
-        { label: 'Neto', value: out.net, tone: 'net' },
+        { label: out.incomeTax === null ? 'Neto antes de ISR' : 'Neto estimado', value: out.net, tone: 'net' },
         { label: 'Seguro Social', value: out.socialSecurity, tone: 'css' },
         { label: 'ISR', value: out.incomeTax ?? 0, tone: 'isr' }
       ], formatMoney);
-      summary = `Décimo tercer mes (${period.label.toLowerCase()} ${period.year}, pago ${formatDate(period.payDate)}): bruto ${formatMoney(out.gross)}, neto estimado ${formatMoney(out.net)}. Calculado en Calcula Panamá.`;
+      summary = `Décimo tercer mes (${period.label.toLowerCase()} ${period.year}, pago ${formatDate(period.payDate)}): bruto ${formatMoney(out.gross)}, ${out.incomeTax === null ? 'neto antes de ISR' : 'neto estimado'} ${formatMoney(out.net)}. Calculado en Calcula Panamá.`;
     }
   });
   bindShare($<HTMLButtonElement>('#thirteenth-share'), () => summary);

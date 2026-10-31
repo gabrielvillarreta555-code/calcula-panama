@@ -115,7 +115,7 @@ const schema = {
       <div id="termination-empty" class="empty-state"><Icon name="termination" size={40} /><p>Completa salario, fechas, contrato y motivo para ver qué conceptos te corresponden.</p></div>
       <div id="termination-result" hidden>
         <div class="result-hero">
-          <div class="label">Liquidación bruta estimada</div>
+          <div class="label" data-out="grossLabel"></div>
           <div class="amount" data-out="total"></div>
           <div class="sub"><span data-out="tenure"></span> de servicio</div>
         </div>
@@ -126,7 +126,7 @@ const schema = {
           <li><span>Prima de antigüedad <small data-out="primaNote"></small></span><strong data-out="seniorityPremium"></strong></li>
           <li><span>Indemnización <small data-out="indemnityNote"></small></span><strong data-out="indemnity"></strong></li>
           <li data-row="preaviso"><span>Preaviso <small>30 días, art. 212</small></span><strong data-out="preaviso"></strong></li>
-          <li class="total"><span>Total bruto</span><strong data-out="total"></strong></li>
+          <li class="total"><span data-out="grossTotalLabel"></span><strong data-out="total"></strong></li>
         </ul>
         <h3 class="breakdown-title">Descuentos estimados</h3>
         <ul class="breakdown">
@@ -134,7 +134,7 @@ const schema = {
           <li class="minus"><span>Seguro Educativo sobre vacaciones <small>1.25%</small></span><strong data-out="vacationEducationalInsurance"></strong></li>
           <li class="minus"><span>Seguro Social sobre el décimo <small>7.25%</small></span><strong data-out="thirteenthSocialSecurity"></strong></li>
           <li class="minus"><span>ISR sobre prima, indemnización y preaviso <small data-out="terminationTaxNote"></small></span><strong data-out="terminationIncomeTax"></strong></li>
-          <li class="total"><span>Neto estimado</span><strong data-out="netEstimate"></strong></li>
+          <li class="total"><span data-out="netLabel"></span><strong data-out="netEstimate"></strong></li>
         </ul>
         <div class="notes" id="termination-notes"></div>
         <p class="callout info">Resultado orientativo. El neto no incluye el ISR ordinario sobre vacaciones y décimo, que depende de tu ingreso anual, ni salarios adeudados, recargos, horas extra pendientes o préstamos. La prima, la indemnización y el preaviso no pagan cuotas de la CSS (Ley 51, art. 86).</p>
@@ -256,6 +256,9 @@ const schema = {
         'needs-review': 'requiere revisión'
       }[out.indemnityStatus];
       setOutputs(result, {
+        grossLabel: out.indemnityStatus === 'needs-review' ? 'Liquidación bruta parcial' : 'Liquidación bruta estimada',
+        grossTotalLabel: out.indemnityStatus === 'needs-review' ? 'Total bruto parcial' : 'Total bruto',
+        netLabel: out.indemnityStatus === 'needs-review' ? 'Neto parcial estimado' : 'Neto estimado',
         total: formatMoney(out.total),
         tenure: tenureText(out.fullYears, out.years, out.days),
         vacation: formatMoney(out.vacation),
@@ -290,7 +293,7 @@ const schema = {
         p.textContent = note.text;
         return p;
       }));
-      summary = `Liquidación estimada: ${formatMoney(out.total)} (vacaciones ${formatMoney(out.vacation)}, décimo ${formatMoney(out.thirteenth)}, prima ${formatMoney(out.seniorityPremium)}, indemnización ${formatMoney(out.indemnity)}${out.preaviso > 0 ? `, preaviso ${formatMoney(out.preaviso)}` : ''}; neto estimado ${formatMoney(out.netEstimate)}). Calculado en Calcula Panamá.`;
+      summary = `Liquidación ${out.indemnityStatus === 'needs-review' ? 'parcial' : 'estimada'}: ${formatMoney(out.total)} (vacaciones ${formatMoney(out.vacation)}, décimo ${formatMoney(out.thirteenth)}, prima ${formatMoney(out.seniorityPremium)}, indemnización ${out.indemnityStatus === 'needs-review' ? 'requiere revisión y no está incluida' : formatMoney(out.indemnity)}${out.preaviso > 0 ? `, preaviso ${formatMoney(out.preaviso)}` : ''}; neto ${out.indemnityStatus === 'needs-review' ? 'parcial estimado' : 'estimado'} ${formatMoney(out.netEstimate)}). Calculado en Calcula Panamá.`;
     }
   });
   bindShare($<HTMLButtonElement>('#termination-share'), () => summary);
