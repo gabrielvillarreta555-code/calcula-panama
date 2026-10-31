@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from typing import Callable
 import re
 import subprocess
 import sys
@@ -10,7 +11,7 @@ import tempfile
 from pathlib import Path
 
 
-def run(root: Path, tools: Path) -> int:
+def run(root: Path, tools: Path, private_sink: Callable[[dict], None] | None = None) -> int:
     root = root.resolve()
     gitleaks = tools / 'gitleaks'; osv = tools / 'osv-scanner'
     lock = root / 'package-lock.json'
@@ -65,6 +66,13 @@ def run(root: Path, tools: Path) -> int:
                     dep_findings.extend(package.get('vulnerabilities', []))
             if (dependencies.returncode == 1) != bool(dep_findings):
                 return 2
+            if private_sink is not None:
+                # Exclusiva lista blanca: no exporta rutas, líneas, fragmentos ni secretos.
+                ids = sorted({v['id'] for v in dep_findings
+                              if re.fullmatch(r'(?:GHSA-[a-zA-Z0-9-]{4,80}|CVE-[0-9]{4}-[0-9]{4,12})', v['id'])})
+                private_sink({'config_attention': config_attention, 'secret_count': len(sdata),
+                              'dependency_count': len(dep_findings),
+                              'dependency_ids': ids})
             return 1 if config_attention or sdata or dep_findings else 0
     except (OSError, UnicodeError, ValueError, subprocess.TimeoutExpired):
         return 2
