@@ -59,6 +59,15 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
+      - name: Guardar capturas de Mi Quincena (datos de ejemplo)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mi-quincena-capturas
+          path: test-results/mi-quincena/*.png
+          if-no-files-found: warn
+          retention-days: 14
+
       - name: Guardar captura de Blue Interactivo
         if: always()
         uses: actions/upload-artifact@v4

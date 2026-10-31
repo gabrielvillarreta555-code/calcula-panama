@@ -11,9 +11,10 @@ interface Props {
   schema?: Record<string, unknown> | Record<string, unknown>[];
   noindex?: boolean;
   blueShowcase?: boolean;
+  disableAds?: boolean;
 }
 
-const { title, description, schema, noindex = false, blueShowcase = false } = Astro.props;
+const { title, description, schema, noindex = false, blueShowcase = false, disableAds = false } = Astro.props;
 const base = import.meta.env.BASE_URL;
 const href = (path: string) => `${base}${path.replace(/^\//, '')}`;
 // La ruta de Astro incluye la base (/calcula-panama/); se elimina para no duplicarla en la URL canónica.
@@ -23,7 +24,7 @@ const siteRoot = Astro.site ?? new URL(base, Astro.url.origin);
 const canonical = new URL(relativePath.replace(/^\//, ''), siteRoot).toString();
 const isCurrent = (path: string) => (path === '/' ? relativePath === '/' : relativePath.startsWith(path));
 const schemas = schema ? (Array.isArray(schema) ? schema : [schema]) : [];
-const adsense = isAdsenseEnabled();
+const adsense = !disableAds && isAdsenseEnabled();
 ---
 <!doctype html>
 <html lang="es-PA">
@@ -33,6 +34,7 @@ const adsense = isAdsenseEnabled();
   <meta name="theme-color" content="#1555bb" media="(prefers-color-scheme: light)" />
   <meta name="theme-color" content="#071426" media="(prefers-color-scheme: dark)" />
   <meta name="color-scheme" content="light dark" />
+  {disableAds && <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'none'; form-action 'none'; object-src 'none'; base-uri 'self'" />}
   <title>{title}</title>
   <meta name="description" content={description} />
   <link rel="canonical" href={canonical} />
