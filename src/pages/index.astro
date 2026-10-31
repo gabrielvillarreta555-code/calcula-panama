@@ -43,23 +43,33 @@ const schema = [
           <li><Icon name="check" size={18} />Basado en el Código de Trabajo</li>
         </ul>
       </div>
-      <aside class="hero-preview" aria-label="Ejemplo de cálculo">
-        <h2 class="preview-title">Ejemplo de salario neto</h2>
-        <div class="preview-head"><small>Salario de {formatMoney(example.gross)} al mes</small><small>Estimación</small></div>
-        <div class="preview-amount">{formatMoney(example.net)}</div>
-        <small>neto estimado por mes</small>
-        <div class="stack-bar" role="img" aria-label={`Neto ${share(example.net)}, Seguro Social ${share(example.socialSecurity)}, Seguro Educativo ${share(example.educationalInsurance)}, ISR ${share(example.incomeTax)}`} style="margin-top:14px">
-          <span class="tone-net" style={`width:${share(example.net)}`}></span>
-          <span class="tone-css" style={`width:${share(example.socialSecurity)}`}></span>
-          <span class="tone-edu" style={`width:${share(example.educationalInsurance)}`}></span>
-          <span class="tone-isr" style={`width:${share(example.incomeTax)}`}></span>
+      <div class="hero-example">
+        <aside class="hero-preview" aria-label="Ejemplo de cálculo">
+          <h2 class="preview-title">Ejemplo de salario neto</h2>
+          <div class="preview-head"><small>Salario de {formatMoney(example.gross)} al mes</small><small>Estimación</small></div>
+          <div class="preview-amount">{formatMoney(example.net)}</div>
+          <small>neto estimado por mes</small>
+          <div class="stack-bar" role="img" aria-label={`Neto ${share(example.net)}, Seguro Social ${share(example.socialSecurity)}, Seguro Educativo ${share(example.educationalInsurance)}, ISR ${share(example.incomeTax)}`} style="margin-top:14px">
+            <span class="tone-net" style={`width:${share(example.net)}`}></span>
+            <span class="tone-css" style={`width:${share(example.socialSecurity)}`}></span>
+            <span class="tone-edu" style={`width:${share(example.educationalInsurance)}`}></span>
+            <span class="tone-isr" style={`width:${share(example.incomeTax)}`}></span>
+          </div>
+          <ul class="breakdown">
+            <li class="minus"><span>Seguro Social 9.75%</span><strong>{formatMoney(example.socialSecurity)}</strong></li>
+            <li class="minus"><span>Seguro Educativo 1.25%</span><strong>{formatMoney(example.educationalInsurance)}</strong></li>
+            <li class="minus"><span>ISR estimado</span><strong>{formatMoney(example.incomeTax)}</strong></li>
+          </ul>
+        </aside>
+        <div class="blue-example-guide">
+          <img src={href('/blue-orienta.webp')} alt="" width="88" height="106" />
+          <div>
+            <strong>Blue te orienta</strong>
+            <p>Conoce cómo se calcula el salario neto y qué descuentos se aplican.</p>
+            <a href={href('/calculadoras/salario-neto/#como-se-calcula')}>Entender este cálculo <Icon name="arrow" size={16} /></a>
+          </div>
         </div>
-        <ul class="breakdown">
-          <li class="minus"><span>Seguro Social 9.75%</span><strong>{formatMoney(example.socialSecurity)}</strong></li>
-          <li class="minus"><span>Seguro Educativo 1.25%</span><strong>{formatMoney(example.educationalInsurance)}</strong></li>
-          <li class="minus"><span>ISR estimado</span><strong>{formatMoney(example.incomeTax)}</strong></li>
-        </ul>
-      </aside>
+      </div>
     </div>
   </section>
 

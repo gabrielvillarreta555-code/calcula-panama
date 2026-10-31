@@ -207,6 +207,12 @@ p { margin: 0 0 1em; }
 .hero-preview .preview-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 12px; }
 .hero-preview .preview-amount { font-size: 2rem; font-weight: 800; letter-spacing: -.03em; color: var(--tone-net); }
 .hero-preview small { color: var(--muted); }
+.blue-example-guide { display: flex; align-items: center; gap: 12px; margin-top: 14px; color: var(--muted); font-size: .875rem; line-height: 1.4; }
+.blue-example-guide img { width: 88px; height: 106px; object-fit: contain; flex: none; }
+.blue-example-guide strong { color: var(--text); }
+.blue-example-guide p { margin: 3px 0 5px; }
+.blue-example-guide a { display: inline-flex; align-items: center; gap: 5px; color: var(--brand-2); font-weight: 700; text-underline-offset: 3px; }
+#como-se-calcula { scroll-margin-top: calc(var(--header-h) + 12px); }
 
 @media (min-width: 900px) {
   .hero { padding: 72px 0 56px; }
