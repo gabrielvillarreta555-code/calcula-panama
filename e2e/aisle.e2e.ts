@@ -9,7 +9,7 @@ test('Modo Pasillo calcula, edita y elimina en 320 px', async ({ page }) => {
   await page.locator('#aisle-name').fill('Leche');
   await page.locator('#aisle-price').fill('3.25');
   await page.locator('#aisle-quantity').fill('2');
-  await page.getByRole('button', { name: 'Agregar a la lista' }).click();
+  await page.getByRole('button', { name: 'Añadir producto' }).click();
 
   await expect(page.locator('[data-aisle-total]')).toHaveText(/6[,.]50/);
   await expect(page.locator('[data-aisle-balance]')).toContainText(/13[,.]50/);
@@ -33,12 +33,12 @@ test('valida entradas y muestra presupuesto excedido a 375 px', async ({ page })
   await page.locator('#aisle-budget').fill('5');
   await page.locator('#aisle-budget').press('Tab');
   await page.locator('#aisle-price').fill('-1');
-  await page.getByRole('button', { name: 'Agregar a la lista' }).click();
+  await page.getByRole('button', { name: 'Añadir producto' }).click();
   await expect(page.locator('#aisle-error')).not.toBeEmpty();
 
   await page.locator('#aisle-price').fill('3.00');
   await page.locator('#aisle-quantity').fill('2');
-  await page.getByRole('button', { name: 'Agregar a la lista' }).click();
+  await page.getByRole('button', { name: 'Añadir producto' }).click();
   await expect(page.locator('#aisle-mode')).toHaveClass(/is-over-budget/);
   await expect(page.locator('[data-aisle-balance]')).toContainText(/Excedido.*1[,.]00/);
   await expect(page.locator('#aisle-meter')).toBeVisible();
@@ -51,7 +51,7 @@ test('mantiene datos solo en memoria y Blue ofrece ayuda determinista', async ({
   await page.goto('/compras/modo-pasillo/');
   await page.locator('#aisle-name').fill('Arroz');
   await page.locator('#aisle-price').fill('2.50');
-  await page.getByRole('button', { name: 'Agregar a la lista' }).click();
+  await page.getByRole('button', { name: 'Añadir producto' }).click();
   await expect(page.locator('.aisle-item')).toHaveCount(1);
   expect(await page.evaluate(() => Object.keys(localStorage).filter(key => /aisle|pasillo|product|budget/i.test(key)))).toEqual([]);
 
@@ -66,7 +66,7 @@ test('acepta nombre opcional, coma decimal y cantidad fraccionaria', async ({ pa
   await page.goto('/compras/modo-pasillo/');
   await page.locator('#aisle-price').fill('1,99');
   await page.locator('#aisle-quantity').fill('0,5');
-  await page.getByRole('button', { name: 'Agregar a la lista' }).click();
+  await page.getByRole('button', { name: 'Añadir producto' }).click();
   await expect(page.locator('.aisle-item')).toContainText('Producto sin nombre');
   await expect(page.locator('[data-aisle-total]')).toHaveText(/1[,.]00/);
 });
