@@ -4,6 +4,8 @@ interface Props { guide: BlueGuide }
 const { guide } = Astro.props;
 const blueImage = `${import.meta.env.BASE_URL}blue-flotante.webp`;
 ---
+<div class="container blue-help-area">
+<button class="blue-visibility" type="button" hidden>Ocultar a Blue</button>
 <details class="blue-help" id="blue-help">
   <summary aria-label="¿Necesitas ayuda? Abrir guía de Blue">
     <span class="blue-help-bubble" aria-hidden="true">¿Necesitas ayuda?</span>
@@ -27,9 +29,14 @@ const blueImage = `${import.meta.env.BASE_URL}blue-flotante.webp`;
     <a class="blue-help-sources" href="#fuentes">Consultar fuentes y vigencia</a>
   </section>
 </details>
+</div>
 <script>
+  import { mountBlue } from '../lib/blue/living';
   const guide = document.querySelector<HTMLDetailsElement>('#blue-help');
   if (guide) {
+    let unmount = mountBlue(guide);
+    window.addEventListener('pagehide', () => unmount());
+    window.addEventListener('pageshow', event => { if (event.persisted) unmount = mountBlue(guide); });
     const trigger = guide.querySelector<HTMLElement>(':scope > summary');
     const close = guide.querySelector<HTMLButtonElement>('.blue-help-close');
     const context = guide.querySelector<HTMLElement>('.blue-help-context');
