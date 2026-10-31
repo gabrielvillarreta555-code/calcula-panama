@@ -30,6 +30,7 @@ export function mountAisleMode(root: HTMLElement): () => void {
   const meter = root.querySelector<HTMLProgressElement>('#aisle-meter');
   if (!form || !list || !empty || !error || !total || !count || !balance || !budgetInput || !nameInput || !priceInput || !quantityInput || !clear || !meter) return () => {};
 
+  const meterElement = meter;
   let items: ShoppingItem[] = [];
   let budgetCents: number | null = null;
   let nextId = 1;
@@ -116,14 +117,14 @@ export function mountAisleMode(root: HTMLElement): () => void {
       root.classList.toggle('is-over-budget', summary.overBudget);
       if (summary.balanceCents === null) {
         balance!.textContent = 'Añade un presupuesto para ver el saldo';
-        meter.hidden = true;
+        meterElement.hidden = true;
       } else {
         balance!.textContent = summary.overBudget
           ? `Excedido por ${formatMoney(Math.abs(summary.balanceCents) / 100)}`
           : `Disponible: ${formatMoney(summary.balanceCents / 100)}`;
-        meter.hidden = false;
-        meter.max = Math.max(1, summary.budgetCents ?? 1);
-        meter.value = Math.min(summary.subtotalCents, meter.max);
+        meterElement.hidden = false;
+        meterElement.max = Math.max(1, summary.budgetCents ?? 1);
+        meterElement.value = Math.min(summary.subtotalCents, meterElement.max);
       }
     } catch (cause) {
       announceError(cause instanceof Error ? cause.message : 'No se pudo calcular el total.');
