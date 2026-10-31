@@ -1,12 +1,16 @@
 ---
-interface Props { guidance: string }
-const { guidance } = Astro.props;
+interface Props { guidance: string; steps: string[] }
+const { guidance, steps } = Astro.props;
 const blueImage = `${import.meta.env.BASE_URL}blue-referencia.jpg`;
 ---
 <details class="blue-help">
-  <summary><span class="blue-help-avatar" style={`background-image: url('${blueImage}')`} aria-hidden="true"></span><span>Blue te ayuda con estos datos</span></summary>
+  <summary>
+    <span class="blue-help-avatar" style={`background-image: url('${blueImage}')`} aria-hidden="true"></span>
+    <span class="blue-help-label"><strong>¿Necesitas ayuda?</strong><small>Blue te guía para llenar este formulario</small></span>
+  </summary>
   <div class="blue-help-content">
     <p>{guidance}</p>
+    <ol class="blue-help-steps">{steps.map(step => <li>{step}</li>)}</ol>
     <p>El resultado es orientativo y puede variar según tu situación. <a href="#fuentes">Revisa las fuentes y su vigencia</a>.</p>
   </div>
 </details>
