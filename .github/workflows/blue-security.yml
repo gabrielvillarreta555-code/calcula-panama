@@ -1,0 +1,47 @@
+name: Blue Security Lab
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  schedule:
+    - cron: '23 10 * * 1'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  blue-guard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Obtener el código sin conservar credenciales
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Comprobar el adaptador sin red
+        run: python3 -m unittest discover -s tests -p 'test_blue_security_guard.py' -v
+      - name: Instalar versiones verificadas de herramientas
+        run: sh scripts/blue-security-install.sh "$RUNNER_TEMP/blue-security-tools"
+      - name: Ejecutar comprobaciones y clasificar el resultado
+        shell: bash
+        run: |
+          set +e
+          python3 scripts/blue-security-guard.py . "$RUNNER_TEMP/blue-security-tools"
+          status=$?
+          set -e
+          case "$status" in
+            0)
+              echo "Blue Security Lab: ejecución completa sin señales que requieran revisión."
+              ;;
+            1)
+              echo "::warning::Blue Security Lab terminó correctamente y requiere revisión privada. No se publican detalles."
+              ;;
+            2)
+              echo "::error::Blue Security Lab no pudo completar el análisis. Esto es un error operativo, no un hallazgo."
+              exit 2
+              ;;
+            *)
+              echo "::error::Blue Security Lab devolvió un estado no reconocido ($status)."
+              exit 2
+              ;;
+          esac
