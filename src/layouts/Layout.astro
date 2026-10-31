@@ -60,6 +60,7 @@ const adsense = isAdsenseEnabled();
       </a>
       <div class="nav-links" id="menu">
         {CALCULATORS.map(item => <a href={href(item.path)} aria-current={isCurrent(item.path) ? 'page' : undefined}>{item.label}</a>)}
+        <a href={href('/compras/')} aria-current={isCurrent('/compras/') ? 'page' : undefined}>Compras</a>
         <a href={href('/guias/')} aria-current={isCurrent('/guias/') ? 'page' : undefined}>Guías</a>
       </div>
       <button class="icon-button theme-button" type="button" aria-label="Cambiar entre modo claro y oscuro"><Icon name="theme" size={20} /></button>
@@ -82,6 +83,7 @@ const adsense = isAdsenseEnabled();
         </div>
         <div>
           <h2>Información</h2>
+          <a href={href('/compras/')}>Compras y gastos</a>
           <a href={href('/guias/')}>Guías</a>
           <a href={href('/sobre-nosotros/')}>Sobre nosotros</a>
           <a href={href('/contacto/')}>Contacto</a>
