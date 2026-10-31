@@ -4,7 +4,7 @@ import { createBlueState } from './state';
 import { createMotion } from './motion';
 
 const preferenceKey = 'cp-blue-visible';
-const size: Size = { width: 124, height: 128 };
+const size: Size = { width: 148, height: 166 };
 const pauseMs = 10000;
 
 /** Mejora progresiva: si falta JS, la guía sigue funcionando en el documento. */
@@ -12,9 +12,10 @@ export function mountBlue(guide: HTMLDetailsElement): () => void {
   const area = guide.closest<HTMLElement>('.blue-help-area');
   const summary = guide.querySelector<HTMLElement>(':scope > summary');
   const avatar = guide.querySelector<HTMLImageElement>('.blue-help-avatar');
+  const sprite = guide.querySelector<HTMLElement>('.blue-avatar-shell');
   const panel = guide.querySelector<HTMLElement>('.blue-help-content');
   const toggle = area?.querySelector<HTMLButtonElement>('.blue-visibility');
-  if (!area || !summary || !avatar || !panel || !toggle) return () => {};
+  if (!area || !summary || !avatar || !sprite || !panel || !toggle) return () => {};
 
   const state = createBlueState();
   const reduce = matchMedia('(prefers-reduced-motion: reduce)');
@@ -28,20 +29,20 @@ export function mountBlue(guide: HTMLDetailsElement): () => void {
     position = point;
     guide.style.transform = `translate3d(${point.x}px, ${point.y}px, 0)`;
     const lean = Math.sin(Math.PI * progress) * 3;
-    avatar.style.transform = `rotate(${lean}deg) scale(${1 + Math.sin(Math.PI * progress) * .015}, ${1 - Math.sin(Math.PI * progress) * .01})`;
+    sprite.style.transform = `rotate(${lean}deg) scale(${1 + Math.sin(Math.PI * progress) * .015}, ${1 - Math.sin(Math.PI * progress) * .01})`;
   }, () => {
     state.transition('landing');
-    avatar.style.transform = '';
-    avatar.classList.add('blue-landing');
+    sprite.style.transform = '';
+    sprite.classList.add('blue-landing');
     landingTimer = window.setTimeout(() => {
-      avatar.classList.remove('blue-landing');
+      sprite.classList.remove('blue-landing');
       state.transition('idle');
       scheduleFlight();
     }, 300);
   });
   function clearFlight() {
     window.clearTimeout(timer); window.clearTimeout(landingTimer); timer = 0; landingTimer = 0;
-    motion.cancel(); avatar!.style.transform = ''; avatar!.classList.remove('blue-landing');
+    motion.cancel(); sprite!.style.transform = ''; sprite!.classList.remove('blue-landing');
     if (state.value === 'flying' || state.value === 'landing') state.transition('idle');
   }
   function inline() {
@@ -125,11 +126,17 @@ export function mountBlue(guide: HTMLDetailsElement): () => void {
   }, opts);
   document.addEventListener('focusin', event => {
     const el = event.target;
-    if (el instanceof HTMLElement && el.closest('form')) inline();
+    if (el instanceof HTMLElement && el.closest('form')) { area.classList.add('blue-paused'); inline(); }
     else if (guide.contains(el as Node)) { clearFlight(); if (state.value === 'flying') state.transition('idle'); }
   }, opts);
-  document.addEventListener('focusout', () => requestRefresh(), opts);
-  document.addEventListener('visibilitychange', () => { if (document.hidden) inline(); else requestRefresh(); }, opts);
+  document.addEventListener('focusout', () => {
+    queueMicrotask(() => {
+      if (destroyed) return;
+      area.classList.toggle('blue-paused', document.hidden || !!document.activeElement?.closest('form'));
+      requestRefresh();
+    });
+  }, opts);
+  document.addEventListener('visibilitychange', () => { area.classList.toggle('blue-paused', document.hidden); if (document.hidden) inline(); else requestRefresh(); }, opts);
   window.addEventListener('scroll', layoutChanged, { ...opts, passive: true });
   window.addEventListener('resize', layoutChanged, opts);
   window.visualViewport?.addEventListener('resize', layoutChanged, opts);

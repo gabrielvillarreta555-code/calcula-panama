@@ -96,11 +96,13 @@ export function bindCalculator(options: {
         result.hidden = true;
         empty.hidden = false;
       }
+      if (reveal) form.dispatchEvent(new CustomEvent('calculator:result', { bubbles: true, detail: { status: 'invalid' } }));
       return;
     }
     error.textContent = '';
     empty.hidden = true;
     result.hidden = false;
+    if (reveal) form.dispatchEvent(new CustomEvent('calculator:result', { bubbles: true, detail: { status: 'success' } }));
     if (reveal && window.matchMedia('(max-width: 899px)').matches) {
       const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       result.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });

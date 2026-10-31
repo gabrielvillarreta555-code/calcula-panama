@@ -96,3 +96,44 @@ test('vuela entre zonas seguras y se suspende al ocultar la página', async ({ p
   await page.evaluate(() => { Object.defineProperty(document, 'hidden', { configurable: true, value: true }); document.dispatchEvent(new Event('visibilitychange')); });
   await expect(guide).not.toHaveClass(/blue-help-floating/);
 });
+
+test('las capas de ojos y cabeza se animan y se detienen al usar el formulario', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.setViewportSize({ width: 375, height: 850 });
+  await page.goto('/calculadoras/vacaciones/');
+  await expect(page.locator('.blue-rig-body')).toHaveCount(1);
+  await expect(page.locator('.blue-rig-head')).toHaveCount(1);
+  await expect(page.locator('.blue-rig-eye')).toHaveCount(2);
+  await expect(page.locator('.blue-rig-eye').first()).toHaveCSS('animation-name', 'blue-blink');
+  const animatedTransform = await page.locator('.blue-rig-eye').first().evaluate(el => {
+    const animation = el.getAnimations()[0];
+    if (!animation) return 'missing';
+    animation.pause();
+    animation.currentTime = 7600;
+    return getComputedStyle(el).transform;
+  });
+  expect(animatedTransform).not.toBe('none');
+  expect(animatedTransform).not.toContain('matrix(1, 0, 0, 1,');
+  await page.locator('#salary').focus();
+  await expect(page.locator('.blue-rig-eye').first()).toHaveCSS('animation-name', 'none');
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.locator('#salary').blur();
+  await expect(page.locator('.blue-rig-eye').first()).toHaveCSS('animation-name', 'none');
+});
+
+test('Blue ofrece sugerencias según el resultado real sin repetirlas al editar', async ({ page }) => {
+  await page.goto('/calculadoras/salario-neto/');
+  const form = page.locator('#salary-form');
+  const guide = page.locator('#blue-help');
+  await form.locator('button[type=submit]').click();
+  await expect(guide.locator('.blue-help-bubble')).toHaveText('Revisa este dato');
+  await guide.locator(':scope > summary').click();
+  await expect(guide.locator('.blue-help-context')).toContainText('Revisa los datos');
+  await guide.locator('.blue-help-close').click();
+  await page.locator('#gross').fill('1500');
+  await form.locator('button[type=submit]').click();
+  await expect(page.locator('#salary-result')).toContainText('1,236.92');
+  await expect(guide.locator('.blue-help-bubble')).toHaveText('Revisa el resultado');
+  await guide.locator(':scope > summary').click();
+  await expect(guide.locator('.blue-help-context')).toContainText('desglose de descuentos');
+});

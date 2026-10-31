@@ -1,15 +1,15 @@
 ---
 import type { BlueGuide } from '../data/blue-help';
+import BlueCharacter from './BlueCharacter.astro';
 interface Props { guide: BlueGuide }
 const { guide } = Astro.props;
-const blueImage = `${import.meta.env.BASE_URL}blue-flotante.webp`;
 ---
 <div class="container blue-help-area">
 <button class="blue-visibility" type="button" hidden>Ocultar a Blue</button>
-<details class="blue-help" id="blue-help">
+<details class="blue-help" id="blue-help" data-result-hint={guide.resultHint}>
   <summary aria-label="¿Necesitas ayuda? Abrir guía de Blue">
     <span class="blue-help-bubble" aria-hidden="true">¿Necesitas ayuda?</span>
-    <img class="blue-help-avatar" src={blueImage} alt="" width="80" height="96" />
+    <BlueCharacter id="blue-help-character" />
   </summary>
   <section class="blue-help-content" aria-label={guide.title}>
     <div class="blue-help-header"><div><strong>Blue te orienta</strong><span>{guide.title}</span></div><button class="blue-help-close" type="button" aria-label="Cerrar ayuda de Blue" hidden>×</button></div>
@@ -40,6 +40,7 @@ const blueImage = `${import.meta.env.BASE_URL}blue-flotante.webp`;
     const trigger = guide.querySelector<HTMLElement>(':scope > summary');
     const close = guide.querySelector<HTMLButtonElement>('.blue-help-close');
     const context = guide.querySelector<HTMLElement>('.blue-help-context');
+    const bubble = guide.querySelector<HTMLElement>('.blue-help-bubble');
     if (close) {
       close.hidden = false;
       close.addEventListener('click', () => { guide.open = false; trigger?.focus(); });
@@ -63,6 +64,16 @@ const blueImage = `${import.meta.env.BASE_URL}blue-flotante.webp`;
       if (!(target instanceof HTMLElement) || !target.id || !context) return;
       const topic = Array.from(guide.querySelectorAll<HTMLElement>('[data-blue-field]')).find((item) => item.dataset.blueField === target.id);
       context.textContent = topic?.dataset.blueHint || '';
+      context.hidden = !context.textContent;
+    });
+    document.querySelector('form')?.addEventListener('calculator:result', (event) => {
+      if (!(event instanceof CustomEvent) || !context || !bubble || !trigger) return;
+      const success = event.detail?.status === 'success';
+      if (!success && event.detail?.status !== 'invalid') return;
+      const label = success ? 'Revisa el resultado' : 'Revisa este dato';
+      bubble.textContent = label;
+      trigger.setAttribute('aria-label', `${label}. Abrir guía de Blue`);
+      context.textContent = success ? guide.dataset.resultHint ?? '' : 'Revisa los datos indicados en el formulario antes de continuar.';
       context.hidden = !context.textContent;
     });
   }

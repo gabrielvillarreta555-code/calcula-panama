@@ -9,6 +9,7 @@ export interface BlueTopic {
 export interface BlueGuide {
   title: string;
   intro: string;
+  resultHint: string;
   topics: BlueTopic[];
 }
 
@@ -17,6 +18,7 @@ export const BLUE_GUIDES: Record<'salary' | 'thirteenth' | 'vacation' | 'termina
   salary: {
     title: 'Guía de salario neto',
     intro: 'Te ayudo a identificar los datos que pide esta calculadora.',
+    resultHint: 'Revisa el desglose de descuentos y los supuestos usados para estimar el ISR.',
     topics: [
       { title: '1. Salario bruto por pago', text: 'Es el importe antes de descuentos que recibes en cada pago. Puedes consultarlo en tu contrato o comprobante.', target: 'gross', targetLabel: 'Ir al salario bruto', focusHint: 'Aquí va el importe antes de descuentos, correspondiente a cada pago.' },
       { title: '2. Frecuencia de pago', text: 'Elige la frecuencia que corresponda al importe escrito. La herramienta usa 24 pagos al año para quincenal y 26 para bisemanal; mensual y semanal son opciones distintas.' },
@@ -27,6 +29,7 @@ export const BLUE_GUIDES: Record<'salary' | 'thirteenth' | 'vacation' | 'termina
   thirteenth: {
     title: 'Guía del décimo tercer mes',
     intro: 'Primero elige el período que quieres estimar; después escoge cómo aportar tus datos.',
+    resultHint: 'Revisa la partida, el período y los descuentos estimados del resultado.',
     topics: [
       { title: '1. Partida y año', text: 'Selecciona abril, agosto o diciembre y el año de pago. La calculadora mostrará el período correspondiente.', target: 'period', targetLabel: 'Ir a la partida', focusHint: 'Elige la partida que deseas consultar; el año se indica en el campo siguiente.' },
       { title: '2. Salario fijo o devengado', text: 'Usa «salario fijo» para una estimación con tu salario mensual. Usa «lo devengado» si conoces los salarios y otros ingresos recibidos en ese período.' },
@@ -37,6 +40,7 @@ export const BLUE_GUIDES: Record<'salary' | 'thirteenth' | 'vacation' | 'termina
   vacation: {
     title: 'Guía de vacaciones',
     intro: 'Puedes calcular con las fechas trabajadas o con los días pendientes que ya conoces.',
+    resultHint: 'Revisa los días y el pago bruto; el neto mostrado es antes de ISR.',
     topics: [
       { title: '1. Último salario mensual', text: 'Escribe tu último salario mensual. Si tienes comisiones o aumentos, la sección de opciones permite indicar el promedio de los últimos 11 meses.', target: 'salary', targetLabel: 'Ir al salario mensual', focusHint: 'Indica tu último salario mensual; el promedio de 11 meses está en las opciones.' },
       { title: '2. Fechas trabajadas', text: 'Elige «Fechas trabajadas» si quieres estimar los días acumulados de un período. Indica desde cuándo hasta cuándo trabajaste y los días ya disfrutados en ese mismo período.' },
@@ -47,6 +51,7 @@ export const BLUE_GUIDES: Record<'salary' | 'thirteenth' | 'vacation' | 'termina
   termination: {
     title: 'Guía de liquidación',
     intro: 'Reúne los datos de la relación laboral antes de empezar; algunos conceptos requieren revisión adicional.',
+    resultHint: 'Revisa el desglose y sus advertencias: algunos conceptos pueden requerir revisión adicional.',
     topics: [
       { title: '1. Salario y fechas', text: 'Indica el salario mensual que pide el formulario y las fechas de ingreso y último día de trabajo. Lee la indicación del campo si recibes comisiones o sobretiempo.', target: 'salary', targetLabel: 'Ir al salario mensual', focusHint: 'El formulario explica qué promedio usar si recibes comisiones o sobretiempo.' },
       { title: '2. Contrato y motivo', text: 'Elige el tipo de contrato y el motivo de terminación. Según la selección, pueden aparecer preguntas adicionales; la herramienta no determina por sí sola tu situación legal.', target: 'contract', targetLabel: 'Ir al tipo de contrato', focusHint: 'Selecciona el tipo de contrato; después indica el motivo de terminación.' },
