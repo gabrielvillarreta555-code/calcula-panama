@@ -278,18 +278,27 @@ p { margin: 0 0 1em; }
 @media (min-width: 640px) { .panel { padding: 28px; } }
 .panel > h2 { font-size: 1.25rem; }
 
-/* Blue flota por encima de la barra móvil; el contenido solo se abre a petición. */
-.blue-help { position: fixed; right: max(12px, env(safe-area-inset-right)); bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom) + 12px); z-index: 40; }
-.blue-help > summary { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 124px; margin-left: auto; cursor: pointer; list-style: none; }
+/* La guía funciona en el documento incluso sin JavaScript; solo flota si hay espacio. */
+.blue-help-area { min-height: 96px; padding-bottom: 8px; }
+.blue-visibility { color: var(--brand-2); background: transparent; border: 0; padding: 8px 4px; min-height: 44px; font: inherit; font-size: .8rem; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.blue-help { width: fit-content; max-width: 100%; }
+.blue-help > summary { display: flex; align-items: center; gap: 8px; min-height: 44px; cursor: pointer; list-style: none; }
 .blue-help > summary::-webkit-details-marker, .blue-help-topic > summary::-webkit-details-marker { display: none; }
-.blue-help > summary:focus-visible, .blue-help-close:focus-visible, .blue-help-topic > summary:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+.blue-help > summary:focus-visible, .blue-help-close:focus-visible, .blue-help-topic > summary:focus-visible, .blue-visibility:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
 .blue-help-bubble { color: #f5f9ff; background: #153761; border: 1px solid #598ac4; border-radius: 10px; padding: 5px 8px; font-size: .7rem; line-height: 1.2; font-weight: 700; box-shadow: 0 4px 16px #0003; white-space: nowrap; }
-.blue-help-avatar { display: block; width: 80px; height: 96px; object-fit: contain; }
+.blue-help-avatar { display: block; width: 32px; height: 38px; object-fit: contain; }
+.blue-character-hidden .blue-help-avatar, .blue-image-error .blue-help-avatar { display: none; }
+.blue-help-floating { position: fixed; top: 0; left: 0; z-index: 40; width: 124px; height: 128px; }
+.blue-help-floating > summary { flex-direction: column; justify-content: flex-start; gap: 4px; width: 124px; height: 128px; }
+.blue-help-floating .blue-help-avatar { width: 80px; height: 96px; }
 @media (prefers-reduced-motion: no-preference) {
-  .blue-help-avatar { animation: blue-float 4s ease-in-out infinite; }
+  .blue-help-floating .blue-help-avatar { animation: blue-float 4s ease-in-out infinite; }
+  .blue-help-floating .blue-help-avatar.blue-landing { animation: blue-land .3s ease-out; }
   @keyframes blue-float { 50% { transform: translateY(-5px); } }
+  @keyframes blue-land { 35% { transform: scale(1.025, .97); } 100% { transform: scale(1); } }
 }
-.blue-help-content { position: absolute; right: 0; bottom: calc(100% + 10px); width: min(360px, calc(100vw - 24px)); max-height: min(420px, calc(100dvh - var(--tabbar-h) - 210px)); overflow: auto; overscroll-behavior: contain; padding: 16px; border: 1px solid var(--line); border-radius: 18px; background: var(--surface); color: var(--text); box-shadow: 0 15px 45px #0005; font-size: .9rem; }
+.blue-help-content { width: min(360px, calc(100vw - 24px)); max-height: min(420px, 65dvh); overflow: auto; overscroll-behavior: contain; padding: 16px; border: 1px solid var(--line); border-radius: 18px; background: var(--surface); color: var(--text); box-shadow: 0 15px 45px #0005; font-size: .9rem; }
+.blue-help-floating .blue-help-content { position: absolute; }
 .blue-help-content p { margin: 0 0 .8rem; }
 .blue-help-header { display: flex; align-items: start; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
 .blue-help-header strong, .blue-help-header span { display: block; }
@@ -306,8 +315,7 @@ p { margin: 0 0 1em; }
 .blue-help-topic a { display: inline-block; margin: 0 12px 12px; color: var(--brand-2); font-weight: 700; }
 .blue-help-note { color: var(--muted); font-size: .8rem; }
 .blue-help-sources { color: var(--brand-2); font-size: .86rem; font-weight: 700; }
-@media (min-width: 900px) { .blue-help { bottom: 22px; } .blue-help-content { max-height: min(460px, calc(100dvh - 205px)); } }
-@media print { .blue-help { display: none !important; } }
+@media print { .blue-help-area { display: none !important; } }
 
 .form-grid { display: grid; gap: 16px; }
 @media (min-width: 560px) { .form-grid { grid-template-columns: 1fr 1fr; } .field.full { grid-column: 1 / -1; } }
