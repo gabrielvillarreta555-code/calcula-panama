@@ -1,10 +1,16 @@
 /* Shared visual language for the homepage and shopping hub. */
+/* En estas dos páginas los acentos y el ejemplo usan solo azules. */
+body.blue-showcase { --accent: #238be5; --ok: #135ca5; --tone-net: #135ca5; --tone-css: #2779c8; --tone-edu: #64a9e5; --tone-isr: #9ccdf3; }
+:root[data-theme='dark'] body.blue-showcase { --accent: #65c7ff; --ok: #8bd5ff; --tone-net: #8bd5ff; --tone-css: #56aff2; --tone-edu: #398bd0; --tone-isr: #b7ddfa; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) body.blue-showcase { --accent: #65c7ff; --ok: #8bd5ff; --tone-net: #8bd5ff; --tone-css: #56aff2; --tone-edu: #398bd0; --tone-isr: #b7ddfa; }
+}
 .hero-shopping-link { display: inline-flex; align-items: center; gap: 7px; margin-top: 16px; color: var(--brand-2); font-weight: 700; text-underline-offset: 4px; }
 .shopping-feature-section { padding-top: 20px; }
 .shopping-feature { position: relative; display: grid; gap: 4px; overflow: hidden; padding: clamp(24px,5vw,48px); border-radius: 28px; background: linear-gradient(120deg,#0c2d61,#1454a4 70%,#347dc1); color: #fff; box-shadow: 0 20px 45px #10386626; }
 .shopping-feature-copy { position: relative; z-index: 1; max-width: 590px; }
 .shopping-kicker { display: inline-flex; align-items: center; gap: 9px; color: #b6dcff; font-size: .79rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
-.shopping-kicker span { color: #ffc878; font-size: 1rem; }
+.shopping-kicker span { color: #a6dbff; font-size: 1rem; }
 .shopping-feature h2 { color: #fff; font-size: clamp(1.85rem,5vw,3.25rem); letter-spacing: -.045em; line-height: 1.08; margin: 14px 0; }
 .shopping-feature p { color: #e1efff; max-width: 530px; font-size: 1rem; line-height: 1.65; }
 .shopping-feature-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; margin: 24px 0 18px; }
@@ -15,22 +21,15 @@
 .shopping-scene-halo { position: absolute; width: 210px; height: 210px; border-radius: 50%; right: 14%; top: 0; background: #b8e4ff; opacity: .38; }
 .shopping-scene-cart { position: absolute; width: min(72%,310px); height: auto; right: 0; bottom: 0; }
 .shopping-scene-blue { position: absolute; width: clamp(100px,32%,145px); height: auto; left: 4%; bottom: 17px; filter: drop-shadow(0 10px 10px #07386b30); }
-.shopping-spark { position: absolute; color: #ffc978; font-size: 28px; font-weight: 800; }
+.shopping-spark { position: absolute; color: #88d5ff; font-size: 28px; font-weight: 800; }
 .shopping-spark-one { left: 8%; top: 12%; }.shopping-spark-two { right: 5%; top: 16%; font-size: 20px; }
 .labor-cards { display: grid; gap: 16px; }
-.labor-card { --art: #2868bc; position: relative; display: flex; flex-direction: column-reverse; justify-content: space-between; min-width: 0; overflow: hidden; text-decoration: none; color: var(--text); background: var(--surface); border: 1px solid var(--line); border-radius: 24px; padding: 22px; box-shadow: var(--shadow-sm); transition: transform .2s, border-color .2s, box-shadow .2s; }
+.labor-card { --art: #1d68b5; position: relative; display: flex; flex-direction: column-reverse; justify-content: space-between; min-width: 0; overflow: hidden; text-decoration: none; color: var(--text); background: linear-gradient(145deg, #fff, #e4f2ff); border: 1px solid #b9d9f7; border-radius: 24px; padding: 22px; box-shadow: 0 8px 26px #1d5ba211, inset 0 1px #fff; transition: transform .2s, border-color .2s, box-shadow .2s; }
 .labor-card:hover { transform: translateY(-3px); border-color: var(--art); box-shadow: var(--shadow); }
 .labor-card:focus-visible, .shopping-feature a:focus-visible { outline: 3px solid var(--focus); outline-offset: 4px; }
-.labor-card-thirteenth { --art: #ad5c76; }.labor-card-vacation { --art: #278178; }.labor-card-termination { --art: #6d64a7; }
-:root[data-theme='dark'] .labor-card-salary { --art: #8bc5ff; }
-:root[data-theme='dark'] .labor-card-thirteenth { --art: #f3a6ba; }
-:root[data-theme='dark'] .labor-card-vacation { --art: #7bd5ca; }
-:root[data-theme='dark'] .labor-card-termination { --art: #c7bafd; }
+:root[data-theme='dark'] .labor-card { --art: #a4dcff; background: linear-gradient(145deg, #143d74, #0b2854); border-color: #316aa4; box-shadow: inset 0 1px #77c7ff33, 0 8px 24px #00153866; }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) .labor-card-salary { --art: #8bc5ff; }
-  :root:not([data-theme='light']) .labor-card-thirteenth { --art: #f3a6ba; }
-  :root:not([data-theme='light']) .labor-card-vacation { --art: #7bd5ca; }
-  :root:not([data-theme='light']) .labor-card-termination { --art: #c7bafd; }
+  :root:not([data-theme='light']) .labor-card { --art: #a4dcff; background: linear-gradient(145deg, #143d74, #0b2854); border-color: #316aa4; box-shadow: inset 0 1px #77c7ff33, 0 8px 24px #00153866; }
 }
 .labor-card-copy { position: relative; z-index: 1; }
 .labor-card-label { display: block; color: var(--muted); font-size: .72rem; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; }
@@ -46,7 +45,7 @@
 .shopping-landing-copy > p { color: var(--muted); font-size: clamp(1.05rem,2vw,1.2rem); line-height: 1.65; }
 .shopping-landing-button { margin-top: 16px; min-height: 52px; }
 .shopping-landing-privacy { display: flex; align-items: center; gap: 7px; color: var(--muted); font-size: .86rem; margin-top: 16px; }
-.shopping-landing .shopping-scene { height: 250px; border-radius: 28px; background: linear-gradient(145deg,#d9ecff,#eaf7f3); }
+.shopping-landing .shopping-scene { height: 250px; border-radius: 28px; background: linear-gradient(145deg,#cbe7ff,#eaf6ff); }
 .shopping-landing .shopping-scene-blue { left: 12%; width: 32%; max-width: 150px; }
 .shopping-landing .shopping-scene-cart { right: 4%; }
 .shopping-steps { display: grid; gap: 14px; }
@@ -60,3 +59,13 @@
 @media (min-width: 900px) { .shopping-feature { grid-template-columns: 1.15fr .85fr; align-items: center; min-height: 350px; } .shopping-feature .shopping-scene { height: 300px; } .shopping-feature .shopping-scene-halo { width: 260px; height: 260px; } .shopping-feature .shopping-scene-blue { width: 36%; max-width: 175px; left: 0; } .labor-card { flex-direction: row; min-height: 215px; padding: 28px; } .calculator-art { flex: none; align-self: center; width: 175px; height: 150px; margin: 0 -16px 0 0; } .shopping-landing { padding: 50px 0 64px; } .shopping-landing-inner { grid-template-columns: 1fr .9fr; gap: 48px; } .shopping-landing .shopping-scene { height: 350px; } .shopping-landing .shopping-scene-cart { width: 75%; max-width: 360px; } .shopping-landing .shopping-scene-halo { width: 290px; height: 290px; right: 12%; top: 25px; } }
 @media (max-width: 420px) { .shopping-feature-button, .shopping-landing-button { width: 100%; } .shopping-feature-actions { align-items: flex-start; flex-direction: column; } .shopping-scene { height: 190px; } .shopping-landing .shopping-scene { height: 220px; } }
 @media (prefers-reduced-motion: reduce) { .labor-card { transition: none; } }
+
+/* Profundidad y brillo azules, respetando el modo claro u oscuro elegido. */
+body.blue-showcase .shopping-feature { border: 1px solid #6dbfff; box-shadow: inset 0 1px #d1efff66, 0 16px 40px #0b397f33; background: radial-gradient(ellipse at 85% 90%, #1878bf 0%, transparent 52%), linear-gradient(120deg, #08275a, #0d52a3 72%, #1684cf); }
+body.blue-showcase .hero-preview { border-color: color-mix(in srgb, var(--brand-2) 35%, var(--line)); box-shadow: inset 0 1px #9ad4ff30, var(--shadow); }
+body.blue-showcase .date-chip.next { box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand-2) 18%, transparent), 0 0 20px color-mix(in srgb, var(--brand-2) 20%, transparent); }
+body.blue-showcase .blue-example-guide img, body.blue-showcase .shopping-scene-blue { filter: drop-shadow(0 0 12px #45baff99); }
+body.blue-showcase .blue-example-guide img { width: 112px; height: auto; }
+body.blue-showcase .blue-example-guide { border: 1px solid color-mix(in srgb, var(--brand-2) 20%, var(--line)); border-radius: 20px; padding: 12px 16px; background: color-mix(in srgb, var(--surface) 92%, var(--brand-2)); }
+:root[data-theme='dark'] body.blue-showcase .hero { background: radial-gradient(ellipse at 84% 25%, #075d9e80, transparent 58%); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme='light']) body.blue-showcase .hero { background: radial-gradient(ellipse at 84% 25%, #075d9e80, transparent 58%); } }
