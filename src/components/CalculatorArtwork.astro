@@ -1,0 +1,41 @@
+---
+interface Props { type: 'salary' | 'thirteenth' | 'vacation' | 'termination' }
+const { type } = Astro.props;
+---
+<svg class="calculator-art" viewBox="0 0 220 150" fill="none" aria-hidden="true" focusable="false">
+  {type === 'salary' && <>
+    <circle cx="164" cy="43" r="29" fill="currentColor" opacity=".08" />
+    <rect x="34" y="38" width="126" height="81" rx="14" fill="var(--surface)" stroke="currentColor" stroke-width="3" />
+    <path d="M35 62h124" stroke="currentColor" stroke-width="3" opacity=".3" />
+    <rect x="48" y="76" width="48" height="8" rx="4" fill="currentColor" opacity=".22" />
+    <rect x="48" y="94" width="30" height="8" rx="4" fill="currentColor" opacity=".12" />
+    <circle cx="155" cy="96" r="29" fill="currentColor" />
+    <path d="M147 97l6 6 12-15" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+  </>}
+  {type === 'thirteenth' && <>
+    <circle cx="171" cy="44" r="26" fill="currentColor" opacity=".08" />
+    <rect x="42" y="28" width="126" height="100" rx="15" fill="var(--surface)" stroke="currentColor" stroke-width="3" />
+    <path d="M43 57h124M70 18v21M140 18v21" stroke="currentColor" stroke-width="4" stroke-linecap="round" />
+    <rect x="62" y="73" width="19" height="16" rx="4" fill="currentColor" opacity=".18" />
+    <rect x="92" y="73" width="19" height="16" rx="4" fill="currentColor" opacity=".18" />
+    <rect x="122" y="73" width="26" height="29" rx="7" fill="currentColor" />
+    <path d="M129 88l4 4 8-9" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+    <rect x="62" y="99" width="48" height="8" rx="4" fill="currentColor" opacity=".15" />
+  </>}
+  {type === 'vacation' && <>
+    <circle cx="160" cy="40" r="21" fill="#f4b84e" opacity=".8" />
+    <path d="M29 119c35-17 69-16 104 0s53 15 66 10" stroke="currentColor" stroke-width="3" stroke-linecap="round" opacity=".25" />
+    <path d="M106 61v62m0 0c1 10 15 10 15 0" stroke="currentColor" stroke-width="4" stroke-linecap="round" />
+    <path d="M48 68c2-32 28-46 58-46s56 14 58 46H48z" fill="var(--surface)" stroke="currentColor" stroke-width="3" stroke-linejoin="round" />
+    <path d="M77 68c0-28 12-46 29-46s29 18 29 46" stroke="currentColor" stroke-width="3" opacity=".4" />
+    <path d="M48 68c8 8 19 8 29 0 9 8 20 8 29 0 10 8 20 8 29 0 9 8 20 8 29 0" stroke="currentColor" stroke-width="3" />
+  </>}
+  {type === 'termination' && <>
+    <circle cx="168" cy="49" r="27" fill="currentColor" opacity=".08" />
+    <rect x="45" y="20" width="106" height="117" rx="12" fill="var(--surface)" stroke="currentColor" stroke-width="3" />
+    <path d="M65 47h61M65 64h52M65 81h36" stroke="currentColor" stroke-width="6" stroke-linecap="round" opacity=".2" />
+    <path d="M65 105h31" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
+    <circle cx="149" cy="104" r="27" fill="currentColor" />
+    <path d="M139 104l7 7 14-16" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+  </>}
+</svg>

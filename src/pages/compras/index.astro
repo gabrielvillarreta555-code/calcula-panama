@@ -2,29 +2,35 @@
 import Layout from '../../layouts/Layout.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import Icon from '../../components/Icon.astro';
+import ShoppingScene from '../../components/ShoppingScene.astro';
+import '../../styles/home-showcase.css';
 const base = import.meta.env.BASE_URL;
 const href = (path: string) => `${base}${path.replace(/^\//, '')}`;
 ---
-<Layout title="Compras y gastos | Calcula Panamá" description="Herramientas privadas para controlar compras y gastos cotidianos desde tu teléfono." canonicalPath="/compras/">
-  <header class="page-head">
-    <div class="container">
-      <Breadcrumbs items={[{ label: 'Compras y gastos', path: '/compras/' }]} />
-      <span class="eyebrow">Nuevo módulo</span>
-      <h1>Compras y gastos</h1>
-      <p>Herramientas sencillas para tomar decisiones cotidianas sin enviar tus datos a ningún servidor.</p>
-    </div>
-  </header>
-  <section class="section">
-    <div class="container">
-      <div class="cards">
-        <a class="card" href={href('/compras/modo-pasillo/')}>
-          <span class="card-icon icon-salary"><Icon name="salary" /></span>
-          <h2>Modo Pasillo</h2>
-          <p>Suma precios y cantidades mientras compras, compara el total con tu presupuesto y conoce el saldo al instante.</p>
-          <span class="card-link">Abrir herramienta <Icon name="arrow" size={16} /></span>
-        </a>
+<Layout title="Compras y gastos | Calcula Panamá" description="Organiza tus compras de supermercado y controla tu presupuesto con Modo Pasillo, una herramienta gratuita y privada." canonicalPath="/compras/">
+  <div class="container shopping-breadcrumb"><Breadcrumbs items={[{ label: 'Compras y gastos', path: '/compras/' }]} /></div>
+  <section class="shopping-landing" aria-labelledby="shopping-title">
+    <div class="container shopping-landing-inner">
+      <div class="shopping-landing-copy">
+        <span class="eyebrow">Compras y gastos</span>
+        <h1 id="shopping-title">Haz espacio para una compra más tranquila.</h1>
+        <p>Blue te acompaña mientras sumas lo que llevas y mantienes tu presupuesto a la vista.</p>
+        <a class="button primary shopping-landing-button" href={href('/compras/modo-pasillo/')}>Ir a Modo Pasillo <Icon name="arrow" size={19} /></a>
+        <span class="shopping-landing-privacy"><Icon name="shield" size={17} /> Gratis y sin guardar tu lista</span>
       </div>
-      <p class="notice" style="margin-top:1.5rem">Esta versión no aplica ITBMS, descuentos ni promociones automáticamente. Introduce el precio final que deseas sumar.</p>
+      <ShoppingScene />
+    </div>
+  </section>
+  <section class="section shopping-how" aria-labelledby="shopping-how-title">
+    <div class="container">
+      <div class="section-title"><span class="eyebrow">Modo Pasillo</span><h2 id="shopping-how-title">Del estante al carrito, sin perder la cuenta.</h2><p>Una herramienta sencilla para acompañarte durante tus compras.</p></div>
+      <div class="shopping-steps">
+        <div><span>01</span><h3>Añade productos</h3><p>Escribe el precio y la cantidad de lo que llevas.</p></div>
+        <div><span>02</span><h3>Ve tu total</h3><p>Consulta cuánto suman tus productos mientras compras.</p></div>
+        <div><span>03</span><h3>Cuida tu presupuesto</h3><p>Comprueba lo que te queda disponible o si te has excedido.</p></div>
+      </div>
+      <div class="shopping-bottom-cta"><div><strong>¿Lista o listo para empezar?</strong><p>Tu lista permanece en la memoria de esta pestaña.</p></div><a class="button primary" href={href('/compras/modo-pasillo/')}>Abrir Modo Pasillo <Icon name="arrow" size={18} /></a></div>
+      <p class="shopping-disclaimer">Modo Pasillo no aplica ITBMS, descuentos ni promociones automáticamente. Introduce el precio que deseas sumar.</p>
     </div>
   </section>
 </Layout>
