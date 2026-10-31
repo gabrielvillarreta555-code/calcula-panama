@@ -3,6 +3,7 @@ import Layout from '../../layouts/Layout.astro';
 import AdSlot from '../../components/AdSlot.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import BlueHelp from '../../components/BlueHelp.astro';
+import { BLUE_GUIDES } from '../../data/blue-help';
 import Faq from '../../components/Faq.astro';
 import Icon from '../../components/Icon.astro';
 import LegalSources from '../../components/LegalSources.astro';
@@ -36,10 +37,11 @@ const schema = {
     <p>Separa cada concepto según tu contrato y el motivo de terminación. No todos los trabajadores reciben lo mismo, y aquí verás por qué.</p>
   </header>
 
+  <BlueHelp guide={BLUE_GUIDES.termination} />
+
   <div class="container calculator-shell">
     <form class="panel" id="termination-form" novalidate>
       <h2>La relación laboral</h2>
-      <BlueHelp guidance="Reúne tu salario mensual, las fechas, el tipo de contrato y el motivo de terminación. Algunos conceptos necesitan revisión adicional." steps={["Escribe tu salario mensual y las fechas de ingreso y último día trabajado.", "Elige el tipo de contrato y el motivo de terminación.", "Si conoces los días pendientes, lo devengado o el promedio de cinco años, puedes indicarlos en las opciones."]} />
       <div class="form-grid">
         <div class="field full">
           <label for="salary">Salario mensual</label>

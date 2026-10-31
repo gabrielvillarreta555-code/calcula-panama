@@ -3,6 +3,7 @@ import Layout from '../../layouts/Layout.astro';
 import AdSlot from '../../components/AdSlot.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import BlueHelp from '../../components/BlueHelp.astro';
+import { BLUE_GUIDES } from '../../data/blue-help';
 import Faq from '../../components/Faq.astro';
 import Icon from '../../components/Icon.astro';
 import LegalSources from '../../components/LegalSources.astro';
@@ -41,10 +42,11 @@ const schema = {
     <p>Descubre cuánto recibes de verdad después de Seguro Social, Seguro Educativo e impuesto sobre la renta.</p>
   </header>
 
+  <BlueHelp guide={BLUE_GUIDES.salary} />
+
   <div class="container calculator-shell">
     <form class="panel" id="salary-form" novalidate>
       <h2>Tu salario</h2>
-      <BlueHelp guidance="Escribe el salario bruto que recibes en cada pago, antes de descuentos, y elige si es mensual, quincenal, bisemanal o semanal." steps={["Elige la frecuencia con la que recibes tu salario.", "Escribe el salario bruto de cada pago, antes de descuentos.", "Si corresponde, abre las opciones para indicar comisiones habituales o deducciones declaradas."]} />
       <div class="form-grid">
         <div class="field full">
           <span class="field-label" id="frequency-label">Frecuencia de pago</span>

@@ -3,6 +3,7 @@ import Layout from '../../layouts/Layout.astro';
 import AdSlot from '../../components/AdSlot.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import BlueHelp from '../../components/BlueHelp.astro';
+import { BLUE_GUIDES } from '../../data/blue-help';
 import Faq from '../../components/Faq.astro';
 import Icon from '../../components/Icon.astro';
 import LegalSources from '../../components/LegalSources.astro';
@@ -35,10 +36,11 @@ const schema = {
     <p>Calcula los días que has acumulado y el pago de vacaciones completas o proporcionales según el artículo 54 del Código de Trabajo.</p>
   </header>
 
+  <BlueHelp guide={BLUE_GUIDES.vacation} />
+
   <div class="container calculator-shell">
     <form class="panel" id="vacation-form" novalidate>
       <h2>Datos</h2>
-      <BlueHelp guidance="Indica tu último salario mensual y elige entre las fechas trabajadas o los días de vacaciones pendientes que ya conoces." steps={["Escribe tu último salario mensual.", "Elige si conoces las fechas trabajadas o los días de vacaciones pendientes.", "Completa las fechas y los días ya disfrutados, o indica directamente los días pendientes."]} />
       <div class="form-grid">
         <div class="field full">
           <label for="salary">Último salario mensual</label>

@@ -1,16 +1,62 @@
 ---
-interface Props { guidance: string; steps: string[] }
-const { guidance, steps } = Astro.props;
-const blueImage = `${import.meta.env.BASE_URL}blue-referencia.jpg`;
+import type { BlueGuide } from '../data/blue-help';
+interface Props { guide: BlueGuide }
+const { guide } = Astro.props;
+const blueImage = `${import.meta.env.BASE_URL}blue-flotante.webp`;
 ---
-<details class="blue-help">
-  <summary>
-    <span class="blue-help-avatar" style={`background-image: url('${blueImage}')`} aria-hidden="true"></span>
-    <span class="blue-help-label"><strong>¿Necesitas ayuda?</strong><small>Blue te guía para llenar este formulario</small></span>
+<details class="blue-help" id="blue-help">
+  <summary aria-label="¿Necesitas ayuda? Abrir guía de Blue">
+    <span class="blue-help-bubble" aria-hidden="true">¿Necesitas ayuda?</span>
+    <img class="blue-help-avatar" src={blueImage} alt="" width="80" height="96" />
   </summary>
-  <div class="blue-help-content">
-    <p>{guidance}</p>
-    <ol class="blue-help-steps">{steps.map(step => <li>{step}</li>)}</ol>
-    <p>El resultado es orientativo y puede variar según tu situación. <a href="#fuentes">Revisa las fuentes y su vigencia</a>.</p>
-  </div>
+  <section class="blue-help-content" aria-label={guide.title}>
+    <div class="blue-help-header"><div><strong>Blue te orienta</strong><span>{guide.title}</span></div><button class="blue-help-close" type="button" aria-label="Cerrar ayuda de Blue" hidden>×</button></div>
+    <p>{guide.intro}</p>
+    <p class="blue-help-scroll-hint">Elige un tema y desliza dentro de esta ventana para ver los demás.</p>
+    <p class="blue-help-context" aria-live="polite" hidden></p>
+    <div class="blue-help-topics">
+      {guide.topics.map((topic, index) => (
+        <details class="blue-help-topic" open={index === 0} data-blue-field={topic.target} data-blue-hint={topic.focusHint}>
+          <summary>{topic.title}</summary>
+          <p>{topic.text}</p>
+          {topic.target && <a href={`#${topic.target}`} data-blue-target={topic.target}>{topic.targetLabel}</a>}
+        </details>
+      ))}
+    </div>
+    <p class="blue-help-note">Esta ayuda no lee ni envía los datos del formulario. El resultado es orientativo y puede variar según tu situación.</p>
+    <a class="blue-help-sources" href="#fuentes">Consultar fuentes y vigencia</a>
+  </section>
 </details>
+<script>
+  const guide = document.querySelector<HTMLDetailsElement>('#blue-help');
+  if (guide) {
+    const trigger = guide.querySelector<HTMLElement>(':scope > summary');
+    const close = guide.querySelector<HTMLButtonElement>('.blue-help-close');
+    const context = guide.querySelector<HTMLElement>('.blue-help-context');
+    if (close) {
+      close.hidden = false;
+      close.addEventListener('click', () => { guide.open = false; trigger?.focus(); });
+    }
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && guide.open) { guide.open = false; trigger?.focus(); }
+    });
+    guide.querySelectorAll<HTMLAnchorElement>('[data-blue-target]').forEach((link) => {
+      link.addEventListener('click', (event) => {
+        const target = document.getElementById(link.dataset.blueTarget || '');
+        if (!target) return;
+        event.preventDefault();
+        guide.open = false;
+        target.focus({ preventScroll: true });
+        target.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
+      });
+    });
+    guide.querySelector<HTMLAnchorElement>('.blue-help-sources')?.addEventListener('click', () => { guide.open = false; });
+    document.querySelector('form')?.addEventListener('focusin', (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement) || !target.id || !context) return;
+      const topic = Array.from(guide.querySelectorAll<HTMLElement>('[data-blue-field]')).find((item) => item.dataset.blueField === target.id);
+      context.textContent = topic?.dataset.blueHint || '';
+      context.hidden = !context.textContent;
+    });
+  }
+</script>
