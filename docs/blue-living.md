@@ -17,7 +17,7 @@ Para usarlo en otra calculadora Astro, importar `BlueHelp` y pasarle una guía d
 
 En el vuelo se usa una caja barrida conservadora y márgenes de seguridad; los cambios de layout cancelan el movimiento antes de volver a medir. Si no hay espacio, la guía permanece en el flujo de la página. Mientras el formulario tiene foco, Blue no vuela. La guía abierta vuelve al flujo si el usuario desplaza la página o cambia el tamaño. La preferencia `cp-blue-visible` oculta la imagen, no la guía; si el almacenamiento falla solo se conserva durante la visita. Si falla la imagen, se conserva la guía textual. Con movimiento reducido Blue no vuela ni ejecuta la flotación repetitiva.
 
-El componente cancela temporizadores, fotogramas, observadores y listeners al salir; restaura el controlador si la página regresa desde la caché de navegación. No lee valores de entrada ni genera mensajes o eventos de cálculo.
+El componente cancela temporizadores, fotogramas, observadores y listeners al salir; restaura el controlador si la página regresa desde la caché de navegación. Al enviar el formulario, la calculadora comunica únicamente si hubo un error de validación o un resultado, sin valores personales. Blue usa ese estado para mostrar una sugerencia preparada para la herramienta; no lee los datos ni emite comentarios por cada edición.
 
 ## Pruebas y rendimiento
 

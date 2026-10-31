@@ -6,7 +6,7 @@ const { guide } = Astro.props;
 ---
 <div class="container blue-help-area">
 <button class="blue-visibility" type="button" hidden>Ocultar a Blue</button>
-<details class="blue-help" id="blue-help">
+<details class="blue-help" id="blue-help" data-result-hint={guide.resultHint}>
   <summary aria-label="¿Necesitas ayuda? Abrir guía de Blue">
     <span class="blue-help-bubble" aria-hidden="true">¿Necesitas ayuda?</span>
     <BlueCharacter id="blue-help-character" />
@@ -40,6 +40,7 @@ const { guide } = Astro.props;
     const trigger = guide.querySelector<HTMLElement>(':scope > summary');
     const close = guide.querySelector<HTMLButtonElement>('.blue-help-close');
     const context = guide.querySelector<HTMLElement>('.blue-help-context');
+    const bubble = guide.querySelector<HTMLElement>('.blue-help-bubble');
     if (close) {
       close.hidden = false;
       close.addEventListener('click', () => { guide.open = false; trigger?.focus(); });
@@ -63,6 +64,16 @@ const { guide } = Astro.props;
       if (!(target instanceof HTMLElement) || !target.id || !context) return;
       const topic = Array.from(guide.querySelectorAll<HTMLElement>('[data-blue-field]')).find((item) => item.dataset.blueField === target.id);
       context.textContent = topic?.dataset.blueHint || '';
+      context.hidden = !context.textContent;
+    });
+    document.querySelector('form')?.addEventListener('calculator:result', (event) => {
+      if (!(event instanceof CustomEvent) || !context || !bubble || !trigger) return;
+      const success = event.detail?.status === 'success';
+      if (!success && event.detail?.status !== 'invalid') return;
+      const label = success ? 'Revisa el resultado' : 'Revisa este dato';
+      bubble.textContent = label;
+      trigger.setAttribute('aria-label', `${label}. Abrir guía de Blue`);
+      context.textContent = success ? guide.dataset.resultHint ?? '' : 'Revisa los datos indicados en el formulario antes de continuar.';
       context.hidden = !context.textContent;
     });
   }

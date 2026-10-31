@@ -120,3 +120,20 @@ test('las capas de ojos y cabeza se animan y se detienen al usar el formulario',
   await page.locator('#salary').blur();
   await expect(page.locator('.blue-rig-eye').first()).toHaveCSS('animation-name', 'none');
 });
+
+test('Blue ofrece sugerencias según el resultado real sin repetirlas al editar', async ({ page }) => {
+  await page.goto('/calculadoras/salario-neto/');
+  const form = page.locator('#salary-form');
+  const guide = page.locator('#blue-help');
+  await form.locator('button[type=submit]').click();
+  await expect(guide.locator('.blue-help-bubble')).toHaveText('Revisa este dato');
+  await guide.locator(':scope > summary').click();
+  await expect(guide.locator('.blue-help-context')).toContainText('Revisa los datos');
+  await guide.locator('.blue-help-close').click();
+  await page.locator('#gross').fill('1500');
+  await form.locator('button[type=submit]').click();
+  await expect(page.locator('#salary-result')).toContainText('1,236.92');
+  await expect(guide.locator('.blue-help-bubble')).toHaveText('Revisa el resultado');
+  await guide.locator(':scope > summary').click();
+  await expect(guide.locator('.blue-help-context')).toContainText('desglose de descuentos');
+});

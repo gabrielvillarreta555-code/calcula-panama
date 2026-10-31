@@ -4,7 +4,7 @@ import { createBlueState } from './state';
 import { createMotion } from './motion';
 
 const preferenceKey = 'cp-blue-visible';
-const size: Size = { width: 124, height: 128 };
+const size: Size = { width: 148, height: 166 };
 const pauseMs = 10000;
 
 /** Mejora progresiva: si falta JS, la guía sigue funcionando en el documento. */
