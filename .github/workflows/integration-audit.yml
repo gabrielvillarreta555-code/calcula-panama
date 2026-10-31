@@ -1,7 +1,7 @@
 name: Auditoría de dependencias de integración
 on:
   pull_request:
-    branches: [main, integration/candidato-lanzamiento]
+    branches: [main, integration/candidato-lanzamiento, security/astro-dependency-update]
 permissions:
   contents: read
 jobs:
