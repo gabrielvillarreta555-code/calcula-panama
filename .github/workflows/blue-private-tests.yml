@@ -1,0 +1,14 @@
+name: Pruebas de revisión privada
+on:
+  pull_request:
+    branches: [integration/candidato-lanzamiento]
+permissions:
+  contents: read
+jobs:
+  private-summary-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - run: python3 -m unittest discover -s tests -p 'test_blue*.py' -v
