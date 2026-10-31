@@ -11,7 +11,7 @@ describe('catálogo modular 2.0', () => {
 
   it('conserva activas las cuatro calculadoras laborales actuales', () => {
     expect(activeTools().map(tool => tool.id)).toEqual([
-      'net-salary', 'thirteenth-month', 'vacation-pay', 'termination'
+      'net-salary', 'thirteenth-month', 'vacation-pay', 'termination', 'aisle-mode'
     ]);
     expect(activeTools().every(tool => tool.localOnly)).toBe(true);
   });
@@ -23,8 +23,8 @@ describe('catálogo modular 2.0', () => {
     expect(blue?.tools.every(tool => tool.status === 'experimental')).toBe(true);
   });
 
-  it('reserva Modo Pasillo sin publicarlo antes de la misión 3', () => {
+  it('activa Modo Pasillo como cálculo general y local', () => {
     const aisle = tools().find(tool => tool.id === 'aisle-mode');
-    expect(aisle).toMatchObject({ status: 'planned', localOnly: true, trust: 'general-calculation' });
+    expect(aisle).toMatchObject({ status: 'active', localOnly: true, trust: 'general-calculation' });
   });
 });

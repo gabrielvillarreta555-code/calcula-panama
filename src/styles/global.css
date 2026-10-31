@@ -477,3 +477,17 @@ caption { caption-side: bottom; padding: 10px 12px; text-align: left; color: var
   body { padding: 0; background: #fff; color: #000; }
   .calculator-shell { display: block; }
 }
+
+/* Blue Interactivo: cambios visuales discretos; nunca requiere datos del formulario. */
+@media (prefers-reduced-motion: no-preference) {
+  .blue-help[data-blue-mood="curious"] .blue-rig-head { animation: none; transform: rotate(-3deg); }
+  .blue-help[data-blue-mood="focused"] .blue-rig-head { animation: none; transform: rotate(2deg); }
+  .blue-help[data-blue-mood="happy"] .blue-rig-head { animation: blue-interactive-happy .7s ease-in-out 2; }
+  .blue-help[data-blue-mood="surprised"] .blue-rig-head { animation: blue-interactive-surprise .5s ease-out 1; }
+  .blue-help[data-blue-gaze="left"] .blue-rig-eye { translate: -3px 0; }
+  .blue-help[data-blue-gaze="right"] .blue-rig-eye { translate: 3px 0; }
+  .blue-help[data-blue-gaze="up"] .blue-rig-eye { translate: 0 -3px; }
+  .blue-help[data-blue-gaze="down"] .blue-rig-eye { translate: 0 3px; }
+  @keyframes blue-interactive-happy { 50% { transform: rotate(-3deg) scale(1.02); } }
+  @keyframes blue-interactive-surprise { 50% { transform: rotate(3deg) scale(1.03); } }
+}

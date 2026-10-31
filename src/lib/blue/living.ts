@@ -2,6 +2,7 @@ import { candidates, fits, pathIsSafe, type Point, type Size } from './geometry'
 import { measureEnvironment } from './environment';
 import { createBlueState } from './state';
 import { createMotion } from './motion';
+import { moodForEvent, directionTo, nearestToRect, type BlueMood } from './interaction';
 
 const preferenceKey = 'cp-blue-visible';
 const size: Size = { width: 148, height: 166 };
@@ -22,7 +23,15 @@ export function mountBlue(guide: HTMLDetailsElement): () => void {
   const abort = new AbortController();
   const opts = { signal: abort.signal };
   let visible = true, position: Point | null = null, timer = 0, landingTimer = 0, layoutFrame = 0, candidateIndex = 0;
-  let hovered = false, destroyed = false;
+  let hovered = false, destroyed = false, seekResult = false;
+  let moodTimer = 0;
+  function setMood(mood: BlueMood) { guide.dataset.blueMood = mood; }
+  function gazeAt(target: HTMLElement) {
+    if (reduce.matches) { delete guide.dataset.blueGaze; return; }
+    const a = guide.getBoundingClientRect(), b = target.getBoundingClientRect();
+    guide.dataset.blueGaze = directionTo(a, b);
+  }
+  setMood('rest');
   try { visible = localStorage.getItem(preferenceKey) !== 'false'; } catch { /* almacenamiento no disponible */ }
 
   const motion = createMotion((point, progress) => {
@@ -69,7 +78,9 @@ export function mountBlue(guide: HTMLDetailsElement): () => void {
       const { bounds, obstacles } = measureEnvironment(guide, size);
       const options = candidates(size, bounds, obstacles).filter(p => position && (Math.abs(p.x-position.x) + Math.abs(p.y-position.y) > 24) && pathIsSafe(position, p, size, bounds, obstacles));
       if (options.length === 0) { scheduleFlight(); return; }
-      const target = options[candidateIndex++ % options.length];
+      const result = seekResult ? document.querySelector<HTMLElement>('.results:not([hidden]), .aisle-cart') : null;
+      const target = result ? nearestToRect(options, size, result.getBoundingClientRect()) : options[candidateIndex++ % options.length];
+      seekResult = false;
       if (!target) return;
       const from = position;
       state.transition('flying');
@@ -126,6 +137,11 @@ export function mountBlue(guide: HTMLDetailsElement): () => void {
   }, opts);
   document.addEventListener('focusin', event => {
     const el = event.target;
+    if (el instanceof HTMLElement && el.matches('input, select, textarea, button') && !guide.contains(el)) {
+      window.clearTimeout(moodTimer);
+      setMood(moodForEvent(el.matches('button') ? 'button' : 'field'));
+      gazeAt(el);
+    }
     if (el instanceof HTMLElement && el.closest('form')) { area.classList.add('blue-paused'); inline(); }
     else if (guide.contains(el as Node)) { clearFlight(); if (state.value === 'flying') state.transition('idle'); }
   }, opts);
@@ -133,8 +149,22 @@ export function mountBlue(guide: HTMLDetailsElement): () => void {
     queueMicrotask(() => {
       if (destroyed) return;
       area.classList.toggle('blue-paused', document.hidden || !!document.activeElement?.closest('form'));
+      if (!(document.activeElement instanceof HTMLElement) || !document.activeElement.matches('input, select, textarea, button')) {
+        moodTimer = window.setTimeout(() => { setMood('rest'); delete guide.dataset.blueGaze; }, 1200);
+      }
       requestRefresh();
     });
+  }, opts);
+  document.addEventListener('calculator:result', event => {
+    if (!(event instanceof CustomEvent)) return;
+    const status = event.detail?.status;
+    if (status !== 'success' && status !== 'invalid') return;
+    window.clearTimeout(moodTimer);
+    setMood(moodForEvent(status));
+    const result = document.querySelector<HTMLElement>('.results:not([hidden]), .aisle-cart');
+    if (result && status === 'success') { gazeAt(result); seekResult = true; }
+    moodTimer = window.setTimeout(() => { setMood('rest'); delete guide.dataset.blueGaze; }, 6000);
+    requestRefresh();
   }, opts);
   document.addEventListener('visibilitychange', () => { area.classList.toggle('blue-paused', document.hidden); if (document.hidden) inline(); else requestRefresh(); }, opts);
   window.addEventListener('scroll', layoutChanged, { ...opts, passive: true });
@@ -150,7 +180,7 @@ export function mountBlue(guide: HTMLDetailsElement): () => void {
   document.querySelectorAll('.calculator-shell, #menu').forEach(el => mutations.observe(el, { subtree: true, attributes: true, attributeFilter: ['hidden', 'open', 'aria-expanded', 'class'] }));
   applyPreference();
   return () => {
-    destroyed = true; abort.abort(); observer?.disconnect(); mutations.disconnect();
+    destroyed = true; window.clearTimeout(moodTimer); abort.abort(); observer?.disconnect(); mutations.disconnect();
     if (layoutFrame) cancelAnimationFrame(layoutFrame);
     inline();
   };

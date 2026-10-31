@@ -14,7 +14,7 @@ export interface BlueGuide {
 }
 
 /** Orientación de interfaz basada en los campos y supuestos existentes; no sustituye una consulta profesional. */
-export const BLUE_GUIDES: Record<'salary' | 'thirteenth' | 'vacation' | 'termination', BlueGuide> = {
+export const BLUE_GUIDES: Record<'salary' | 'thirteenth' | 'vacation' | 'termination' | 'aisle', BlueGuide> = {
   salary: {
     title: 'Guía de salario neto',
     intro: 'Te ayudo a identificar los datos que pide esta calculadora.',
@@ -57,6 +57,17 @@ export const BLUE_GUIDES: Record<'salary' | 'thirteenth' | 'vacation' | 'termina
       { title: '2. Contrato y motivo', text: 'Elige el tipo de contrato y el motivo de terminación. Según la selección, pueden aparecer preguntas adicionales; la herramienta no determina por sí sola tu situación legal.', target: 'contract', targetLabel: 'Ir al tipo de contrato', focusHint: 'Selecciona el tipo de contrato; después indica el motivo de terminación.' },
       { title: '3. Datos opcionales', text: 'Puedes indicar vacaciones pendientes, lo devengado desde el último décimo y el promedio de los últimos cinco años. Si no aportas algunos datos, la herramienta explica cuándo usa una estimación.' },
       { title: '4. Cómo leer el resultado', text: 'Revisa el desglose y las advertencias. Si un concepto requiere revisión y no está incluido, el total se identifica como parcial. El neto tampoco incluye todos los conceptos o retenciones posibles.' }
+    ]
+  },
+  aisle: {
+    title: 'Guía de Modo Pasillo',
+    intro: 'Te explico cómo registrar una compra sin leer ni guardar tu lista.',
+    resultHint: 'Revisa el total, la cantidad y el saldo del presupuesto. No se aplican impuestos ni descuentos automáticamente.',
+    topics: [
+      { title: '1. Presupuesto opcional', text: 'Escribe cuánto deseas gastar. Puedes dejarlo vacío y añadirlo después; el total seguirá funcionando.', target: 'aisle-budget', targetLabel: 'Ir al presupuesto', focusHint: 'El presupuesto es opcional y solo se conserva durante esta visita.' },
+      { title: '2. Precio y cantidad', text: 'Usa el precio unitario mostrado en el comercio y la cantidad que llevarás. Se aceptan cantidades con hasta tres decimales.', target: 'aisle-price', targetLabel: 'Ir al precio', focusHint: 'Escribe el precio unitario con hasta dos decimales.' },
+      { title: '3. Editar la lista', text: 'Después de agregar un producto puedes cambiar su nombre, precio o cantidad, o eliminarlo. El total se actualiza al confirmar el cambio.' },
+      { title: '4. Cómo leer el saldo', text: 'Disponible indica cuánto queda del presupuesto. Excedido indica cuánto lo superaste. Modo Pasillo no calcula ITBMS, descuentos ni promociones.' }
     ]
   }
 };
