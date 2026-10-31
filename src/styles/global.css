@@ -279,6 +279,9 @@ p { margin: 0 0 1em; }
 .blue-help { margin: 0 0 20px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface-2); }
 .blue-help summary { display: flex; align-items: center; gap: 12px; min-height: 58px; padding: 8px 12px; cursor: pointer; font-weight: 700; color: var(--text); list-style: none; }
 .blue-help summary::-webkit-details-marker { display: none; }
+.blue-help-label { display: grid; gap: 2px; line-height: 1.35; }
+.blue-help-label strong { font-size: .95rem; }
+.blue-help-label small { color: var(--muted); font-size: .8rem; font-weight: 500; }
 .blue-help summary::after { content: '+'; margin-left: auto; font-size: 1.4rem; color: var(--brand-2); }
 .blue-help[open] summary::after { content: '−'; }
 .blue-help-avatar { display: block; width: 42px; height: 42px; flex: none; border-radius: 11px; background-color: #071426; background-repeat: no-repeat; background-size: 190px 127px; background-position: -32px -22px; }
@@ -286,6 +289,8 @@ p { margin: 0 0 1em; }
 .blue-help-content p { margin: 0 0 .7rem; }
 .blue-help-content p:last-child { margin-bottom: 0; }
 .blue-help-content a { color: var(--brand-2); font-weight: 700; }
+.blue-help-steps { margin: 0 0 .8rem; padding-left: 1.4rem; }
+.blue-help-steps li + li { margin-top: .4rem; }
 
 .form-grid { display: grid; gap: 16px; }
 @media (min-width: 560px) { .form-grid { grid-template-columns: 1fr 1fr; } .field.full { grid-column: 1 / -1; } }

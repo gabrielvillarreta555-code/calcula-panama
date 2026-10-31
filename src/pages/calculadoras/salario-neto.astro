@@ -44,7 +44,7 @@ const schema = {
   <div class="container calculator-shell">
     <form class="panel" id="salary-form" novalidate>
       <h2>Tu salario</h2>
-      <BlueHelp guidance="Escribe el salario bruto que recibes en cada pago, antes de descuentos, y elige si es mensual, quincenal, bisemanal o semanal." />
+      <BlueHelp guidance="Escribe el salario bruto que recibes en cada pago, antes de descuentos, y elige si es mensual, quincenal, bisemanal o semanal." steps={["Elige la frecuencia con la que recibes tu salario.", "Escribe el salario bruto de cada pago, antes de descuentos.", "Si corresponde, abre las opciones para indicar comisiones habituales o deducciones declaradas."]} />
       <div class="form-grid">
         <div class="field full">
           <span class="field-label" id="frequency-label">Frecuencia de pago</span>
