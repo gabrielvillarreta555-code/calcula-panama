@@ -1,6 +1,6 @@
 import type { Rect, Size } from './geometry';
 
-const selector = '.site-header, .tabbar, .site-footer, .nav-links.open, dialog[open], [role="dialog"], .ad-slot, form, .results, .page-head, .article, .related, main a, main button, main input, main select, main textarea, main summary, main h1, main h2, main h3, main p, main li';
+const selector = '.site-header, .tabbar, .site-footer, .nav-links.open, dialog[open], [role="dialog"], .ad-slot, form, .results, .aisle-cart, .aisle-panel, .page-head, .article, .related, main a, main button, main input, main select, main textarea, main summary, main h1, main h2, main h3, main p, main li';
 const margin = 10;
 export function measureEnvironment(guide: HTMLElement, size: Size): { bounds: Rect; obstacles: Rect[] } {
   const v = window.visualViewport;

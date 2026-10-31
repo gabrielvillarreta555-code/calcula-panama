@@ -58,3 +58,12 @@ jobs:
           path: test-results/screenshots/modo-pasillo-375.png
           if-no-files-found: warn
           retention-days: 14
+
+      - name: Guardar captura de Blue Interactivo
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: blue-interactivo-mobile
+          path: test-results/blue-interactivo/mobile.png
+          if-no-files-found: warn
+          retention-days: 14
