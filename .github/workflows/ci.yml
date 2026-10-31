@@ -29,3 +29,24 @@ jobs:
         run: npm run verify:seo
         env:
           SITE_URL: https://calculapanama.com/
+
+  mobile:
+    name: Interfaz móvil
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Instalar Chromium para Playwright
+        run: npx playwright install --with-deps chromium
+      - name: Construir sitio
+        run: npm run build
+        env:
+          SITE_URL: https://calculapanama.com/
+          BASE_PATH: /
+      - name: Probar calculadoras y Blue en viewports móviles
+        run: npm run test:e2e
