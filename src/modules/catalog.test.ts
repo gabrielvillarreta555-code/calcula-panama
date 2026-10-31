@@ -11,7 +11,7 @@ describe('catálogo modular 2.0', () => {
 
   it('conserva activas las cuatro calculadoras laborales actuales', () => {
     expect(activeTools().map(tool => tool.id)).toEqual([
-      'net-salary', 'thirteenth-month', 'vacation-pay', 'termination', 'aisle-mode', 'my-pay-period'
+      'net-salary', 'thirteenth-month', 'vacation-pay', 'termination', 'aisle-mode', 'my-pay-period', 'loan-calculator'
     ]);
     expect(activeTools().every(tool => tool.localOnly)).toBe(true);
   });

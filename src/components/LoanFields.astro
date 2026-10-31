@@ -1,0 +1,18 @@
+---
+interface Props { id: string; title: string }
+const { id, title } = Astro.props;
+---
+<fieldset class="loan-fields" data-offer={id}>
+  <legend>{title}</legend>
+  <div class="loan-grid">
+    <label>Monto del préstamo <small>B/.</small><input data-field="principal" type="text" inputmode="decimal" autocomplete="off" value="10000" required /></label>
+    <label>Tasa anual <small>%</small><input data-field="rate" type="text" inputmode="decimal" autocomplete="off" value="10" required /></label>
+    <label>Tipo de tasa<select data-field="rate-type"><option value="nominal">Nominal anual</option><option value="effective">Efectiva anual</option></select></label>
+    <label>Plazo<input data-field="term" type="text" inputmode="decimal" autocomplete="off" value="5" required /></label>
+    <label>Unidad de plazo<select data-field="unit"><option value="years">Años</option><option value="months">Meses</option></select></label>
+    <label>Seguro mensual <small>B/. · opcional</small><input data-field="insurance" type="text" inputmode="decimal" autocomplete="off" value="0" /></label>
+    <label>Otros cargos mensuales <small>B/. · opcional</small><input data-field="charges" type="text" inputmode="decimal" autocomplete="off" value="0" /></label>
+    <label>Comisión inicial descontada <small>B/. · opcional</small><input data-field="fee" type="text" inputmode="decimal" autocomplete="off" value="0" /></label>
+  </div>
+  <p class="loan-field-error" data-error role="alert"></p>
+</fieldset>
