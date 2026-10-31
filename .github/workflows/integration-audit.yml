@@ -1,7 +1,7 @@
 name: Auditoría de dependencias de integración
 on:
   pull_request:
-    branches: [main]
+    branches: [main, integration/candidato-lanzamiento]
 permissions:
   contents: read
 jobs:

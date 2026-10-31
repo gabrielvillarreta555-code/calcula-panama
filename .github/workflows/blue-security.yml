@@ -2,7 +2,7 @@ name: Blue Security Lab
 on:
   pull_request:
     # La rama adicional permite auditar este PR encadenado mientras #17 sigue abierto.
-    branches: [main, blue-security-integration, feature/modo-pasillo]
+    branches: [main, blue-security-integration, feature/modo-pasillo, integration/candidato-lanzamiento]
   push:
     branches: [main]
   schedule:
