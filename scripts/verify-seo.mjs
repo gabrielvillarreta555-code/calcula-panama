@@ -37,7 +37,9 @@ if (client) {
     if (!existsSync(file)) continue;
     const html = readFileSync(file, 'utf8');
     const head = html.split('</head>')[0];
-    if (head.split(tag).length !== 2 || html.split('adsbygoogle.js').length !== 2) errors.push(`Script de AdSense ausente o duplicado en ${loc}`);
+    if (loc === new URL('finanzas/mi-quincena/', site).toString()) {
+      if (html.includes('adsbygoogle.js')) errors.push(`AdSense no debe cargarse en la herramienta privada ${loc}`);
+    } else if (head.split(tag).length !== 2 || html.split('adsbygoogle.js').length !== 2) errors.push(`Script de AdSense ausente o duplicado en ${loc}`);
   }
   const adsTxt = read('dist/ads.txt');
   if (!adsTxt.includes(`google.com, ${client.replace('ca-', '')}, DIRECT, f08c47fec0942fa0`)) errors.push('ads.txt no coincide con el ID de AdSense');
@@ -47,4 +49,4 @@ if (errors.length) {
   console.error(`Verificación SEO fallida:\n- ${errors.join('\n- ')}`);
   process.exit(1);
 }
-console.log(`Verificación SEO correcta: ${locs.length} URL en sitemap.xml, robots.txt y canonical coherentes con ${site}${client ? `; AdSense ${client} en todas las páginas y ads.txt correcto` : ''}`);
+console.log(`Verificación SEO correcta: ${locs.length} URL en sitemap.xml, robots.txt y canonical coherentes con ${site}${client ? '; AdSense excluido de Mi Quincena y ads.txt correcto' : ''}`);

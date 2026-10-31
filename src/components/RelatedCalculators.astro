@@ -15,5 +15,6 @@ const href = (path: string) => `${base}${path.replace(/^\//, '')}`;
         <span><strong>{c.label}</strong><small>{c.description}</small></span>
       </a>
     ))}
+    <a class="related-card" href={href('/finanzas/mi-quincena/')}><span class="related-icon icon-salary"><Icon name="salary" size={22} /></span><span><strong>Mi Quincena</strong><small>Organiza tu presupuesto hasta el próximo pago.</small></span></a>
   </div>
 </section>

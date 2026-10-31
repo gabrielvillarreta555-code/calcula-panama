@@ -1,0 +1,59 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import '../../styles/pay-period.css';
+const blue = `${import.meta.env.BASE_URL}blue-flotante.webp`;
+const schema = { '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'Mi Quincena', applicationCategory: 'FinanceApplication', operatingSystem: 'Web', offers: { '@type': 'Offer', price: '0', priceCurrency: 'PAB' } };
+---
+<Layout title="Calculadora de Quincena y Presupuesto Personal en Panamá | Calcula Panamá" description="Organiza tu quincena, calcula cuánto puedes gastar diariamente y controla gastos, deudas y ahorros hasta tu próximo pago." canonicalPath="/finanzas/mi-quincena/" schema={schema} disableAds>
+  <div class="budget-page" id="budget-app">
+    <header class="budget-head container">
+      <Breadcrumbs items={[{ label: 'Mi Quincena', path: '/finanzas/mi-quincena/' }]} />
+      <div class="budget-head-grid"><div><span class="eyebrow">Finanzas personales</span><h1>Mi Quincena</h1><p>Un plan claro para lo que tienes hoy, hasta tu próximo pago.</p></div><img src={blue} alt="" width="360" height="432" /></div>
+    </header>
+
+    <div class="budget-content container">
+      <section class="budget-summary" aria-labelledby="summary-title">
+        <div class="budget-summary-top"><div><span class="budget-overline">Tu plan, de un vistazo</span><h2 id="summary-title">Disponible para gastar</h2><strong class="budget-hero-amount" data-result="free">—</strong></div><span class="budget-summary-symbol" aria-hidden="true">✦</span></div>
+        <div class="budget-summary-grid" aria-live="polite">
+          <div><span>Presupuesto diario</span><strong data-result="daily">—</strong></div><div><span>Días hasta tu pago</span><strong data-result="days">—</strong></div>
+          <div><span>Gastos pendientes</span><strong data-result="pending">—</strong></div><div><span>Ahorro reservado</span><strong data-result="savings">—</strong></div>
+        </div>
+        <div class="budget-blue"><img src={blue} alt="" width="360" height="432" /><p data-blue-message>Completa las fechas para empezar tu plan.</p></div>
+      </section>
+
+      <div class="budget-breakdown" aria-label="Detalle del saldo" aria-live="polite"><div><span>Saldo inicial</span><strong data-result="opening">B/.0.00</strong></div><div><span>Ya pagado</span><strong data-result="paid">B/.0.00</strong></div><div><span>Saldo actual</span><strong data-result="current">B/.0.00</strong></div></div>
+      <p class="budget-alert" id="budget-alert" role="status"></p>
+
+      <section class="budget-panel" aria-labelledby="period-title">
+        <div class="budget-section-head"><div><span class="budget-overline">01 · Tu período</span><h2 id="period-title">¿Cuándo vuelves a cobrar?</h2></div><span aria-hidden="true">◷</span></div>
+        <form id="period-form" novalidate>
+          <div class="budget-fields"><label>Fecha de inicio<input id="budget-start" type="date" required /></label><label>Fecha del próximo pago<input id="budget-payday" type="date" required /></label><label class="budget-wide">Dinero disponible al empezar <span class="budget-field-hint">B/.</span><input id="budget-opening" type="text" inputmode="decimal" autocomplete="off" value="0.00" required /></label></div>
+          <p class="budget-note">Introduce lo que tienes hoy. Registra como pagados solo los gastos que pagues después de empezar este plan, para no descontarlos dos veces.</p>
+          <p class="budget-note">Se cuenta desde el inicio o desde hoy —lo que sea posterior— y se excluye el día del próximo pago. El pago futuro no se suma al saldo actual.</p>
+          <p class="budget-error" id="period-error" role="alert"></p>
+        </form>
+      </section>
+
+      <section class="budget-panel" aria-labelledby="moves-title">
+        <div class="budget-section-head"><div><span class="budget-overline">02 · Gastos y deudas</span><h2 id="moves-title">Lo que tienes por cubrir</h2></div><button type="button" class="budget-text-button" id="unexpected">+ Imprevisto</button></div>
+        <form id="movement-form" novalidate>
+          <div class="budget-fields"><label class="budget-wide">Nombre<input id="move-name" maxlength="80" autocomplete="off" placeholder="Ej. Internet" required /></label><label>Importe en B/.<input id="move-amount" type="text" inputmode="decimal" autocomplete="off" placeholder="0.00" required /></label><label>Categoría<select id="move-category"><option value="alimentacion">Alimentación</option><option value="transporte">Transporte</option><option value="vivienda">Vivienda</option><option value="servicios">Servicios</option><option value="deudas">Deudas</option><option value="salud">Salud</option><option value="otros">Otros</option></select></label><label>Tipo<select id="move-kind"><option value="gasto">Gasto</option><option value="deuda">Deuda</option></select></label><label>Fecha prevista <span class="budget-field-hint">(opcional)</span><input id="move-date" type="date" /></label></div>
+          <label class="budget-check"><input id="move-recurring" type="checkbox" /> Repetir en el próximo período si lo elijo</label>
+          <p class="budget-error" id="movement-error" role="alert"></p><button type="submit" class="budget-primary">+ Añadir movimiento</button>
+        </form>
+        <div class="budget-list-header"><h3>Movimientos</h3><span id="movement-count">0</span></div><p id="movement-empty" class="budget-empty">Todavía no hay movimientos. Añade un gasto o deuda para empezar.</p><ul id="movement-list" class="budget-list" aria-label="Movimientos del período"></ul>
+      </section>
+
+      <section class="budget-panel" aria-labelledby="savings-title"><div class="budget-section-head"><div><span class="budget-overline">03 · Ahorro</span><h2 id="savings-title">Reserva para tu meta</h2></div><span aria-hidden="true">◇</span></div><label class="budget-savings-label" for="budget-savings">¿Cuánto quieres apartar? <span class="budget-field-hint">B/.</span></label><input id="budget-savings" type="text" inputmode="decimal" autocomplete="off" value="0.00" /><p class="budget-note">El ahorro se resta del dinero libre. Puedes cambiarlo cuando quieras.</p><p class="budget-error" id="savings-error" role="alert"></p></section>
+
+      <section class="budget-panel budget-privacy" aria-labelledby="privacy-title"><div><span class="budget-overline">04 · Tu privacidad</span><h2 id="privacy-title">Tu presupuesto se queda contigo</h2><p>Se guarda solo en este navegador, sin cuenta ni sincronización. Si borras los datos del navegador, puedes perderlo. Cualquier persona con acceso a este navegador podría verlo.</p><p id="storage-status" role="status">Comprobando almacenamiento en este dispositivo.</p></div><label class="budget-check"><input id="keep-recurring" type="checkbox" /> Conservar gastos recurrentes al iniciar otro período</label><div class="budget-actions"><button type="button" id="new-period">Iniciar nuevo período</button><button type="button" id="delete-data">Eliminar datos guardados</button></div><p class="budget-note">Modo Pasillo no descuenta compras automáticamente. Si registras una compra aquí, añádela una sola vez.</p></section>
+    </div>
+  </div>
+  <noscript><p class="container">Activa JavaScript para usar Mi Quincena. Tus datos no se enviarán al servidor.</p></noscript>
+  <script>
+    import { mountBudget } from '../../lib/finance/budget-ui';
+    const app = document.querySelector<HTMLElement>('#budget-app');
+    if (app) mountBudget(app);
+  </script>
+</Layout>
