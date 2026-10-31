@@ -43,7 +43,7 @@ export const MODULE_CATALOG: readonly ModuleDefinition[] = [
     label: 'Compras y gastos',
     description: 'Herramientas cotidianas que no interpretan normas laborales.',
     tools: [
-      { id: 'aisle-mode', label: 'Modo Pasillo', path: '/compras/modo-pasillo/', status: 'planned', trust: 'general-calculation', localOnly: true }
+      { id: 'aisle-mode', label: 'Modo Pasillo', path: '/compras/modo-pasillo/', status: 'active', trust: 'general-calculation', localOnly: true }
     ]
   },
   {
