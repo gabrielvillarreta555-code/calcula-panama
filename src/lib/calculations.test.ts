@@ -213,6 +213,13 @@ describe('tiempo de servicio', () => {
     expect(() => daysInclusive('2025-02-30', '2025-03-01')).toThrow();
   });
 
+  it('rechaza fechas inexistentes en vez de normalizarlas a otro mes', () => {
+    expect(() => daysInclusive('2025-02-30', '2025-03-10')).toThrow('Las fechas no son válidas.');
+    expect(() => daysInclusive('2025-02-01', '2025-02-29')).toThrow('Las fechas no son válidas.');
+    expect(() => daysInclusive('2025-04-31', '2025-05-10')).toThrow('Las fechas no son válidas.');
+    expect(daysInclusive('2024-02-29', '2024-03-01')).toBe(2);
+  });
+
   it('cuenta años por aniversarios, sin desviación por años bisiestos', () => {
     expect(serviceYears('2021-01-01', '2025-12-31')).toEqual({ fullYears: 5, years: 5 });
     expect(serviceYears('2024-01-01', '2024-12-31')).toEqual({ fullYears: 1, years: 1 });
@@ -297,6 +304,14 @@ describe('liquidación laboral', () => {
   it('contrato definido sin fecha pactada pide revisión; si ya venció no indemniza', () => {
     expect(calculateTermination({ ...base, contractType: 'fixed', reason: 'unjustified' })).toMatchObject({ indemnityStatus: 'needs-review', indemnity: 0 });
     expect(calculateTermination({ ...base, contractType: 'fixed', reason: 'unjustified', agreedEndDate: '2025-12-31' })).toMatchObject({ indemnityStatus: 'not-applicable', indemnity: 0 });
+  });
+
+  it('marca para revisión la indemnización no calculada en contratos definidos u obra', () => {
+    for (const contractType of ['fixed', 'specific-work'] as const) {
+      for (const reason of ['justified-resignation', 'economic'] as const) {
+        expect(calculateTermination({ ...base, contractType, reason })).toMatchObject({ indemnity: 0, indemnityStatus: 'needs-review' });
+      }
+    }
   });
 
   it('advierte si un contrato definido supera un año (art. 74)', () => {

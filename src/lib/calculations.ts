@@ -16,7 +16,7 @@ const DAY_MS = 86_400_000;
 function parseIsoDate(value: string): number {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) throw new Error('Las fechas no son válidas.');
   const time = Date.parse(`${value}T00:00:00Z`);
-  if (!Number.isFinite(time)) throw new Error('Las fechas no son válidas.');
+  if (!Number.isFinite(time) || new Date(time).toISOString().slice(0, 10) !== value) throw new Error('Las fechas no son válidas.');
   return time;
 }
 
@@ -425,6 +425,7 @@ export function calculateTermination(input: TerminationInput) {
 
   if (contractType !== 'indefinite') {
     if (reason === 'justified-resignation' || reason === 'economic') {
+      indemnityStatus = 'needs-review';
       notes.push({ kind: 'warning', text: 'En contratos definidos u obra determinada este motivo requiere revisión profesional; no se atribuye indemnización automática.' });
     }
     notes.push({ kind: 'info', text: 'Un contrato definido o por obra se considera por tiempo indefinido si seguiste trabajando tras su vencimiento o fin de la obra, si hubo contratos sucesivos o si cubría un puesto permanente (arts. 75 y 77). En ese caso te corresponderían prima e indemnización como en un contrato indefinido.' });

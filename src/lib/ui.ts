@@ -90,13 +90,15 @@ export function bindCalculator(options: {
       message = ex instanceof Error ? ex.message : 'No fue posible calcular.';
     }
     if (message) {
-      error.textContent = message;
-      if (!calculated) return;
-      result.classList.add('is-stale');
+      error.textContent = calculated ? `${message} Corrige los datos para actualizar el resultado.` : message;
+      if (calculated) {
+        // Nunca mostrar ni permitir compartir un resultado que ya no corresponde a los datos.
+        result.hidden = true;
+        empty.hidden = false;
+      }
       return;
     }
     error.textContent = '';
-    result.classList.remove('is-stale');
     empty.hidden = true;
     result.hidden = false;
     if (reveal && window.matchMedia('(max-width: 899px)').matches) {
