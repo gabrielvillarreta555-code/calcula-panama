@@ -1,7 +1,10 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Icon from '../components/Icon.astro';
-import { CALCULATORS, GUIDES, SITE } from '../data/site';
+import CalculatorArtwork from '../components/CalculatorArtwork.astro';
+import ShoppingScene from '../components/ShoppingScene.astro';
+import { CALCULATORS, SITE } from '../data/site';
+import '../styles/home-showcase.css';
 import { calculateNetSalary } from '../lib/calculations';
 import { formatMoney } from '../lib/format';
 
@@ -26,17 +29,18 @@ const schema = [
   }
 ];
 ---
-<Layout title="Calcula Panamá: calculadoras de salario neto, décimo, vacaciones y liquidación" description="Calculadoras laborales gratuitas para Panamá: salario neto con CSS e ISR, décimo tercer mes, vacaciones y liquidación. Fórmulas explicadas, fuentes oficiales y sin enviar tus datos." canonicalPath="/" schema={schema}>
+<Layout title="Calcula Panamá: calculadoras laborales y Modo Pasillo" description="Calcula salario neto, décimo, vacaciones y liquidación en Panamá. Organiza tus compras y controla tu presupuesto con Modo Pasillo." canonicalPath="/" schema={schema}>
   <section class="hero">
     <div class="container hero-inner">
       <div>
         <span class="eyebrow">Hecho para Panamá</span>
-        <h1>Entiende tu salario <em>antes</em> de que llegue la quincena.</h1>
-        <p class="lead">Calcula tu salario neto, el décimo tercer mes, tus vacaciones o tu liquidación en segundos. Cada resultado muestra la fórmula y la ley que lo respalda.</p>
+        <h1>Tus cuentas de cada día, <em>más claras.</em></h1>
+        <p class="lead">Desde tu salario hasta las compras del supermercado: calcula con herramientas sencillas, gratuitas y hechas para Panamá.</p>
         <div class="actions">
           <a class="button primary" href={href('/calculadoras/salario-neto/')}>Calcular mi salario <Icon name="arrow" size={18} /></a>
           <a class="button secondary" href="#calculadoras">Ver calculadoras</a>
         </div>
+        <a class="hero-shopping-link" href={href('/compras/modo-pasillo/')}>¿Vas de compras? Abre Modo Pasillo <Icon name="arrow" size={16} /></a>
         <ul class="trust-row">
           <li><Icon name="check" size={18} />Gratis y sin registro</li>
           <li><Icon name="check" size={18} />Tus datos no salen del teléfono</li>
@@ -73,20 +77,41 @@ const schema = [
     </div>
   </section>
 
-  <section class="section" id="calculadoras">
+  <section class="section shopping-feature-section" aria-labelledby="shopping-feature-title">
+    <div class="container">
+      <div class="shopping-feature">
+        <div class="shopping-feature-copy">
+          <span class="shopping-kicker">Compras y gastos <span aria-hidden="true">✦</span></span>
+          <h2 id="shopping-feature-title">Tu supermercado, con las cuentas claras.</h2>
+          <p>Organiza tus compras, añade productos y cantidades, calcula el total y controla cuánto queda de tu presupuesto mientras recorres los pasillos.</p>
+          <div class="shopping-feature-actions">
+            <a class="shopping-feature-button" href={href('/compras/modo-pasillo/')}>Abrir Modo Pasillo <Icon name="arrow" size={19} /></a>
+            <a class="shopping-feature-more" href={href('/compras/')}>Conoce Compras y gastos</a>
+          </div>
+          <span class="shopping-feature-note"><Icon name="shield" size={16} /> Tu lista se calcula en tu dispositivo.</span>
+        </div>
+        <ShoppingScene />
+      </div>
+    </div>
+  </section>
+
+  <section class="section labor-showcase" id="calculadoras">
     <div class="container">
       <div class="section-title">
-        <span class="eyebrow">Calculadoras</span>
-        <h2>¿Qué necesitas calcular hoy?</h2>
-        <p>Cada herramienta desglosa el resultado, explica los supuestos y te avisa cuando un caso necesita revisión profesional.</p>
+        <span class="eyebrow">Trabajo e ingresos</span>
+        <h2>Entiende lo que te corresponde.</h2>
+        <p>Cuatro calculadoras para tus preguntas laborales, con resultados desglosados y supuestos explicados.</p>
       </div>
-      <div class="cards">
+      <div class="labor-cards">
         {CALCULATORS.map(c => (
-          <a class="card" href={href(c.path)}>
-            <span class={`card-icon icon-${c.icon}`}><Icon name={c.icon} /></span>
-            <h3>{c.label}</h3>
-            <p>{c.description}</p>
-            <span class="card-link">Calcular <Icon name="arrow" size={16} /></span>
+          <a class:list={['labor-card', `labor-card-${c.icon}`]} href={href(c.path)}>
+            <div class="labor-card-copy">
+              <span class="labor-card-label">Calculadora laboral</span>
+              <h3>{c.label}</h3>
+              <p>{c.description}</p>
+              <span class="labor-card-link">Comenzar <Icon name="arrow" size={17} /></span>
+            </div>
+            <CalculatorArtwork type={c.icon} />
           </a>
         ))}
       </div>
@@ -118,19 +143,6 @@ const schema = [
     </div>
   </section>
 
-  <section class="section" aria-labelledby="guias-title">
-    <div class="container">
-      <div class="section-title">
-        <span class="eyebrow">Guías</span>
-        <h2 id="guias-title">Respuestas claras a dudas frecuentes</h2>
-      </div>
-      <div class="guide-list">
-        {GUIDES.map(g => (
-          <a class="guide-card" href={href(g.path)}><strong>{g.title}</strong><span>{g.description}</span></a>
-        ))}
-      </div>
-    </div>
-  </section>
 </Layout>
 
 <script is:inline>
