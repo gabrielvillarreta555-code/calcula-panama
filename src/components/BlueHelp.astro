@@ -2,12 +2,12 @@
 import type { BlueGuide } from '../data/blue-help';
 interface Props { guide: BlueGuide }
 const { guide } = Astro.props;
-const blueImage = `${import.meta.env.BASE_URL}blue-referencia.jpg`;
+const blueImage = `${import.meta.env.BASE_URL}blue-flotante.webp`;
 ---
 <details class="blue-help" id="blue-help">
   <summary aria-label="¿Necesitas ayuda? Abrir guía de Blue">
     <span class="blue-help-bubble" aria-hidden="true">¿Necesitas ayuda?</span>
-    <span class="blue-help-avatar" style={`background-image: url('${blueImage}')`} aria-hidden="true"></span>
+    <img class="blue-help-avatar" src={blueImage} alt="" width="80" height="96" />
   </summary>
   <section class="blue-help-content" aria-label={guide.title}>
     <div class="blue-help-header"><div><strong>Blue te orienta</strong><span>{guide.title}</span></div><button class="blue-help-close" type="button" aria-label="Cerrar ayuda de Blue" hidden>×</button></div>

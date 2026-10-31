@@ -282,8 +282,12 @@ p { margin: 0 0 1em; }
 .blue-help > summary::-webkit-details-marker, .blue-help-topic > summary::-webkit-details-marker { display: none; }
 .blue-help > summary:focus-visible, .blue-help-close:focus-visible, .blue-help-topic > summary:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
 .blue-help-bubble { color: #f5f9ff; background: #153761; border: 1px solid #598ac4; border-radius: 10px; padding: 5px 8px; font-size: .7rem; line-height: 1.2; font-weight: 700; box-shadow: 0 4px 16px #0003; white-space: nowrap; }
-.blue-help-avatar { display: block; width: 56px; height: 56px; border: 2px solid #8dc6ff; border-radius: 18px; background-color: #071426; background-repeat: no-repeat; background-size: 250px 167px; background-position: -42px -29px; box-shadow: 0 5px 18px #0005; }
-.blue-help-content { position: absolute; right: 0; bottom: calc(100% + 10px); width: min(360px, calc(100vw - 24px)); max-height: min(420px, calc(100dvh - var(--tabbar-h) - 165px)); overflow: auto; overscroll-behavior: contain; padding: 16px; border: 1px solid var(--line); border-radius: 18px; background: var(--surface); color: var(--text); box-shadow: 0 15px 45px #0005; font-size: .9rem; }
+.blue-help-avatar { display: block; width: 80px; height: 96px; object-fit: contain; }
+@media (prefers-reduced-motion: no-preference) {
+  .blue-help-avatar { animation: blue-float 4s ease-in-out infinite; }
+  @keyframes blue-float { 50% { transform: translateY(-5px); } }
+}
+.blue-help-content { position: absolute; right: 0; bottom: calc(100% + 10px); width: min(360px, calc(100vw - 24px)); max-height: min(420px, calc(100dvh - var(--tabbar-h) - 210px)); overflow: auto; overscroll-behavior: contain; padding: 16px; border: 1px solid var(--line); border-radius: 18px; background: var(--surface); color: var(--text); box-shadow: 0 15px 45px #0005; font-size: .9rem; }
 .blue-help-content p { margin: 0 0 .8rem; }
 .blue-help-header { display: flex; align-items: start; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
 .blue-help-header strong, .blue-help-header span { display: block; }
@@ -300,7 +304,7 @@ p { margin: 0 0 1em; }
 .blue-help-topic a { display: inline-block; margin: 0 12px 12px; color: var(--brand-2); font-weight: 700; }
 .blue-help-note { color: var(--muted); font-size: .8rem; }
 .blue-help-sources { color: var(--brand-2); font-size: .86rem; font-weight: 700; }
-@media (min-width: 900px) { .blue-help { bottom: 22px; } .blue-help-content { max-height: min(460px, calc(100dvh - 155px)); } }
+@media (min-width: 900px) { .blue-help { bottom: 22px; } .blue-help-content { max-height: min(460px, calc(100dvh - 205px)); } }
 @media print { .blue-help { display: none !important; } }
 
 .form-grid { display: grid; gap: 16px; }
