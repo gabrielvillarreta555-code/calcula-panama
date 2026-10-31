@@ -27,6 +27,7 @@ test('maneja tasa cero, comisión inválida y campos vacíos sin mostrar un resu
   await expect(page.locator('[data-output=interest]')).toHaveText('B/.0.00'); await expect(page.locator('[data-output=last]')).toHaveText('B/.33.34');
   await field(page,'a','fee').fill('101'); await expect(offer(page,'a').locator('[data-error]')).toContainText('comisión'); await expect(page.locator('[data-output=monthly]')).toHaveText('—');
   await field(page,'a','principal').fill(''); await expect(page.locator('[data-output=monthly]')).toHaveText('—');
+  await field(page,'a','fee').fill('0'); await field(page,'a','principal').fill('1'); await field(page,'a','term').fill('60'); await expect(page.locator('[data-output=count]')).toContainText('50 de 60');
 });
 
 for (const v of [{ width: 375, height: 812, name: 'movil' }, { width: 1440, height: 900, name: 'escritorio' }]) test(`captura de préstamos ${v.name}`, async ({ page }) => { await page.setViewportSize(v); await page.goto('/finanzas/calculadora-prestamos/'); await page.screenshot({ path: `test-results/prestamos/${v.name}.png`, fullPage: true, animations: 'disabled' }); });

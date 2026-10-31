@@ -32,10 +32,11 @@ export function mountLoans(root: HTMLElement) {
   const read = (node: HTMLElement) => { const error = node.querySelector<HTMLElement>('[data-error]')!; try { const input = readOffer(node), result = calculateLoan(input); error.textContent = ''; return { input, result }; } catch (e) { error.textContent = e instanceof Error ? e.message : 'Revisa los datos.'; return null; } };
   const render = () => {
     const first = read(a); current = first?.result ?? null;
-    if (!first) for (const key of ['monthly','financial','insurance','charges','last','interest','fee','net','cost','total']) output(key, '—');
+    if (!first) for (const key of ['monthly','financial','insurance','charges','last','interest','fee','net','cost','total','count']) output(key, '—');
     else {
       const { input, result } = first;
       for (const [key, cents] of Object.entries({ monthly: result.regularTotal, financial: result.regularPayment, insurance: input.insurance, charges: input.monthlyCharges, last: result.finalPayment, interest: result.interestTotal, fee: input.upfrontFee, net: result.netReceived, cost: result.cost, total: result.totalPaid })) output(key, money(cents));
+      output('count', result.installments.length === input.months ? String(input.months) : `${result.installments.length} de ${input.months} (ajuste por redondeo)`);
     }
     renderSchedule();
     const result = get<HTMLElement>('#comparison-result'); result.replaceChildren();
