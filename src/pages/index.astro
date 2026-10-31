@@ -44,6 +44,10 @@ const schema = [
         </ul>
       </div>
       <aside class="hero-preview" aria-label="Ejemplo de cálculo">
+        <div class="blue-helper">
+          <span class="blue-helper-art" aria-hidden="true" style={`--blue-reference: url('${href('/blue-referencia.jpg')}')`}></span>
+          <span class="blue-helper-copy"><strong>Una idea para comprender mejor</strong>Junto a Blue, de <a href="https://gabrielvillarreta555-code.github.io/#blue">Blue Lab Studios</a>.</span>
+        </div>
         <div class="preview-head"><small>Salario de {formatMoney(example.gross)} al mes</small><small>Ejemplo</small></div>
         <div class="preview-amount">{formatMoney(example.net)}</div>
         <small>neto estimado por mes</small>
