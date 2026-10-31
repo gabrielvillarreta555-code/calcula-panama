@@ -51,7 +51,8 @@ export const MODULE_CATALOG: readonly ModuleDefinition[] = [
     label: 'Finanzas personales',
     description: 'Herramientas de planificación; no sustituyen asesoría financiera.',
     tools: [
-      { id: 'my-pay-period', label: 'Mi Quincena', path: '/finanzas/mi-quincena/', status: 'active', trust: 'general-calculation', localOnly: true }
+      { id: 'my-pay-period', label: 'Mi Quincena', path: '/finanzas/mi-quincena/', status: 'active', trust: 'general-calculation', localOnly: true },
+      { id: 'loan-calculator', label: 'Calculadora de Préstamos', path: '/finanzas/calculadora-prestamos/', status: 'active', trust: 'general-calculation', localOnly: true }
     ]
   },
   {

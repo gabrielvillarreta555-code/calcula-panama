@@ -37,7 +37,7 @@ if (client) {
     if (!existsSync(file)) continue;
     const html = readFileSync(file, 'utf8');
     const head = html.split('</head>')[0];
-    if (loc === new URL('finanzas/mi-quincena/', site).toString()) {
+    if (['finanzas/mi-quincena/', 'finanzas/calculadora-prestamos/'].some(path => loc === new URL(path, site).toString())) {
       if (html.includes('adsbygoogle.js')) errors.push(`AdSense no debe cargarse en la herramienta privada ${loc}`);
     } else if (head.split(tag).length !== 2 || html.split('adsbygoogle.js').length !== 2) errors.push(`Script de AdSense ausente o duplicado en ${loc}`);
   }
@@ -49,4 +49,4 @@ if (errors.length) {
   console.error(`Verificación SEO fallida:\n- ${errors.join('\n- ')}`);
   process.exit(1);
 }
-console.log(`Verificación SEO correcta: ${locs.length} URL en sitemap.xml, robots.txt y canonical coherentes con ${site}${client ? '; AdSense excluido de Mi Quincena y ads.txt correcto' : ''}`);
+console.log(`Verificación SEO correcta: ${locs.length} URL en sitemap.xml, robots.txt y canonical coherentes con ${site}${client ? '; AdSense excluido de las herramientas privadas y ads.txt correcto' : ''}`);
