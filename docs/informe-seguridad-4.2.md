@@ -1,6 +1,6 @@
 # Informe de seguridad 4.2
 
-Estado: propuesta en borrador. Ninguno de estos cambios está en producción ni en el PR #20.
+Estado: propuestas de seguridad en borrador. El PR #20 se fusionó a main el 31 de octubre de 2026 a las 20:53 UTC; el estado de su despliegue no ha podido verificarse con el conector disponible. Las actualizaciones #21, #22 y #23 no están fusionadas.
 
 ## Confirmados
 
@@ -28,4 +28,4 @@ Ejecutar el PR #22 en un entorno privado autorizado sobre la referencia exacta d
 
 ## Recomendación
 
-No publicar #20 todavía. Revisar los PR #21, #22 y #23, ejecutar la revisión privada sobre el candidato, integrar las actualizaciones en un nuevo candidato de forma autorizada, volver a ejecutar npm audit, Blue Security Lab, todas las pruebas, build y SEO sobre el commit final y probar Android físico y accesibilidad. Se requiere autorización expresa antes de fusionar o publicar.
+El PR #20 ya está en main, pero su despliegue no está verificado. No realizar nuevos despliegues sin autorización. Revisar los PR #21, #22 y #23, ejecutar la revisión privada sobre el commit b1d34c9, preparar un candidato final de las actualizaciones, volver a ejecutar npm audit, Blue Security Lab, todas las pruebas, build y SEO sobre ese commit y probar Android físico y accesibilidad. Se requiere autorización expresa antes de fusionar o publicar.
