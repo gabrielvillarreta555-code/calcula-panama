@@ -2,6 +2,7 @@
 import Layout from '../../layouts/Layout.astro';
 import AdSlot from '../../components/AdSlot.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import BlueHelp from '../../components/BlueHelp.astro';
 import Faq from '../../components/Faq.astro';
 import Icon from '../../components/Icon.astro';
 import LegalSources from '../../components/LegalSources.astro';
@@ -39,6 +40,7 @@ const schema = {
   <div class="container calculator-shell">
     <form class="panel" id="thirteenth-form" novalidate>
       <h2>Datos de la partida</h2>
+      <BlueHelp guidance="Elige la partida y el año. Puedes usar tu salario fijo o lo realmente devengado; el salario habitual permite estimar el ISR." />
       <div class="form-grid">
         <div class="field">
           <label for="period">Partida</label>

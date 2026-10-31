@@ -1,0 +1,12 @@
+---
+interface Props { guidance: string }
+const { guidance } = Astro.props;
+const blueImage = `${import.meta.env.BASE_URL}blue-referencia.jpg`;
+---
+<details class="blue-help">
+  <summary><span class="blue-help-avatar" style={`background-image: url('${blueImage}')`} aria-hidden="true"></span><span>Blue te ayuda con estos datos</span></summary>
+  <div class="blue-help-content">
+    <p>{guidance}</p>
+    <p>El resultado es orientativo y puede variar según tu situación. <a href="#fuentes">Revisa las fuentes y su vigencia</a>.</p>
+  </div>
+</details>
