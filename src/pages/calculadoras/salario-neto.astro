@@ -1,6 +1,5 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import AdSlot from '../../components/AdSlot.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import BlueHelp from '../../components/BlueHelp.astro';
 import { BLUE_GUIDES } from '../../data/blue-help';
@@ -34,7 +33,7 @@ const schema = {
   offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' }
 };
 ---
-<Layout title="Calculadora de salario neto Panamá 2026: CSS, Seguro Educativo e ISR" description="Calcula tu salario neto en Panamá: descuento de Seguro Social (9.75%), Seguro Educativo (1.25%) e ISR con el décimo incluido. Mensual, quincenal o semanal, con desglose y gráfico." canonicalPath={path} schema={schema}>
+<Layout title="Calculadora de salario neto Panamá 2026: CSS, Seguro Educativo e ISR" description="Calcula tu salario neto en Panamá: descuento de Seguro Social (9.75%), Seguro Educativo (1.25%) e ISR con el décimo incluido. Mensual, quincenal o semanal, con desglose y gráfico." canonicalPath={path} schema={schema} disableAds>
   <header class="page-head container">
     <Breadcrumbs items={[{ label: 'Salario neto', path }]} />
     <span class="eyebrow">Calculadora laboral</span>
@@ -109,7 +108,7 @@ const schema = {
           <div><span>Deducciones aplicadas</span><strong data-out="annualDeductions"></strong></div>
         </div>
         <div class="result-actions">
-          <button class="button secondary" type="button" id="salary-share"><Icon name="share" size={18} />Compartir</button>
+          <button class="button secondary" type="button" id="salary-share"><Icon name="share" size={18} />Compartir resultado</button>
           <a class="button secondary" href="#como-se-calcula">Ver fórmula</a>
         </div>
         <p class="callout info">Estimación orientativa para un solo empleador y un ingreso estable todo el año. La retención real sigue las tablas de la DGI, se recalcula si cambia tu salario y se ajusta al cierre del año.</p>
@@ -117,7 +116,6 @@ const schema = {
     </section>
   </div>
 
-  <div class="container"><AdSlot name="afterResult" /></div>
 
   <article class="container article">
     <h2 id="como-se-calcula">¿Cómo se calcula el salario neto en Panamá?</h2>
@@ -177,7 +175,7 @@ const schema = {
 
   const labels: Record<Frequency, string> = { monthly: 'por mes', fortnightly: 'por quincena', biweekly: 'cada dos semanas', weekly: 'por semana' };
   const result = $('#salary-result');
-  let summary = '';
+  let shareData: import('../../lib/share').ShareData = { tool: 'salary' };
 
   bindCalculator({
     form: $<HTMLFormElement>('#salary-form'),
@@ -221,8 +219,8 @@ const schema = {
         { label: 'Seguro Educativo', value: out.educationalInsurance, tone: 'edu' },
         { label: 'ISR', value: out.incomeTax, tone: 'isr' }
       ], formatMoney);
-      summary = `Salario bruto ${formatMoney(out.gross)} ${labels[frequency]} → neto estimado ${formatMoney(out.net)} (CSS ${formatMoney(out.socialSecurity)}, Seguro Educativo ${formatMoney(out.educationalInsurance)}, ISR ${formatMoney(out.incomeTax)}). Calculado en Calcula Panamá.`;
+      shareData = { tool: 'salary', primary: `Salario neto estimado: ${formatMoney(out.net)} ${labels[frequency]}`, details: [`Seguro Social: ${formatMoney(out.socialSecurity)}`, `Seguro Educativo: ${formatMoney(out.educationalInsurance)}`, `ISR estimado: ${formatMoney(out.incomeTax)}`] };
     }
   });
-  bindShare($<HTMLButtonElement>('#salary-share'), () => summary);
+  bindShare($<HTMLButtonElement>('#salary-share'), () => shareData);
 </script>

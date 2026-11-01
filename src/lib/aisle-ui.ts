@@ -8,6 +8,7 @@ import {
   type ShoppingItem
 } from './shopping';
 import { formatMoney } from './format';
+import { openSharePreview } from './share-ui';
 
 const quantityText = (milli: number) => {
   const value = milli / 1000;
@@ -207,6 +208,12 @@ export function mountAisleMode(root: HTMLElement): () => void {
       announceError();
       render();
     }
+  }, options);
+
+  const shareButton = root.querySelector<HTMLButtonElement>('#aisle-share');
+  shareButton?.addEventListener('click', () => {
+    const shopping = summarizeShopping(items, null);
+    openSharePreview({ tool: 'aisle', primary: `Total de la compra: ${formatMoney(shopping.subtotalCents / 100)}`, products: items.map(item => `${quantityText(item.quantityMilli)} × ${item.name || 'Producto sin nombre'}`) }, shareButton);
   }, options);
 
   render();

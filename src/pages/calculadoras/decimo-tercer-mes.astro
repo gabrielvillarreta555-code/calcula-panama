@@ -1,6 +1,5 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import AdSlot from '../../components/AdSlot.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import BlueHelp from '../../components/BlueHelp.astro';
 import { BLUE_GUIDES } from '../../data/blue-help';
@@ -30,7 +29,7 @@ const schema = {
   offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' }
 };
 ---
-<Layout title="Calculadora del décimo tercer mes Panamá 2026: abril, agosto y diciembre" description="Calcula tu décimo tercer mes en Panamá: partidas de abril, agosto y diciembre, período exacto, descuento de 7.25% de CSS, ISR estimado y cálculo proporcional si entraste a mitad del período." canonicalPath={path} schema={schema}>
+<Layout title="Calculadora del décimo tercer mes Panamá 2026: abril, agosto y diciembre" description="Calcula tu décimo tercer mes en Panamá: partidas de abril, agosto y diciembre, período exacto, descuento de 7.25% de CSS, ISR estimado y cálculo proporcional si entraste a mitad del período." canonicalPath={path} schema={schema} disableAds>
   <header class="page-head container">
     <Breadcrumbs items={[{ label: 'Décimo tercer mes', path }]} />
     <span class="eyebrow">Prestación laboral</span>
@@ -112,14 +111,13 @@ const schema = {
         <p class="callout info" data-row="prorated">Prorrateado: <span data-out="workedDays"></span> de <span data-out="periodDays"></span> días del período, con cortes el día 15.</p>
         <p class="callout info">Resultado orientativo: sigue la práctica de planilla (devengado ÷ 12). Si tu empleador corta los períodos a fin de mes o tuviste variables, usa el modo «Con lo devengado».</p>
         <div class="result-actions">
-          <button class="button secondary" type="button" id="thirteenth-share"><Icon name="share" size={18} />Compartir</button>
+          <button class="button secondary" type="button" id="thirteenth-share"><Icon name="share" size={18} />Compartir resultado</button>
           <a class="button secondary" href={`${base}guias/fechas-de-pago-del-decimo-tercer-mes/`}>Fechas y reglas</a>
         </div>
       </div>
     </section>
   </div>
 
-  <div class="container"><AdSlot name="afterResult" /></div>
 
   <article class="container article">
     <h2>¿Cómo se calcula el décimo tercer mes?</h2>
@@ -160,7 +158,7 @@ const schema = {
 
   const form = $<HTMLFormElement>('#thirteenth-form');
   const result = $('#thirteenth-result');
-  let summary = '';
+  let shareData: import('../../lib/share').ShareData = { tool: 'thirteenth' };
 
   // Propone la próxima partida según la fecha de hoy.
   const today = new Date();
@@ -228,8 +226,8 @@ const schema = {
         { label: 'Seguro Social', value: out.socialSecurity, tone: 'css' },
         { label: 'ISR', value: out.incomeTax ?? 0, tone: 'isr' }
       ], formatMoney);
-      summary = `Décimo tercer mes (${period.label.toLowerCase()} ${period.year}, pago ${formatDate(period.payDate)}): bruto ${formatMoney(out.gross)}, ${out.incomeTax === null ? 'neto antes de ISR' : 'neto estimado'} ${formatMoney(out.net)}. Calculado en Calcula Panamá.`;
+      shareData = { tool: 'thirteenth', primary: `${out.incomeTax === null ? 'Neto antes de ISR' : 'Neto estimado'}: ${formatMoney(out.net)}`, details: [`Período: ${period.label} ${period.year}`, `Décimo bruto: ${formatMoney(out.gross)}`] };
     }
   });
-  bindShare($<HTMLButtonElement>('#thirteenth-share'), () => summary);
+  bindShare($<HTMLButtonElement>('#thirteenth-share'), () => shareData);
 </script>

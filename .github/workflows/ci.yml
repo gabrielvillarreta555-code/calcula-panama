@@ -68,6 +68,15 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
+      - name: Guardar capturas de compartir (datos de ejemplo)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: compartir-capturas
+          path: test-results/compartir/*.png
+          if-no-files-found: warn
+          retention-days: 14
+
       - name: Guardar capturas de la calculadora de préstamos (datos de ejemplo)
         if: always()
         uses: actions/upload-artifact@v4
