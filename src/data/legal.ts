@@ -79,7 +79,7 @@ export const OFFICIAL_SOURCES = {
     institution: 'Caja de Seguro Social (Gaceta Oficial 30284-B de 2025)',
     title: 'Texto único de la Ley 51 de 2005, con las reformas de la Ley 462 de 2025',
     detail: 'Art. 85 (qué es salario: incluye comisiones y vacaciones), art. 86 (no son salario el décimo, el preaviso, la indemnización ni la prima de antigüedad) y art. 96 (9.75% del empleado; 7.25% sobre el décimo).',
-    url: 'https://www.css.gob.pa/wp-content/uploads/2025/05/TEXTO-UNICO-DE-LA-LEY-51-DE-2005-CSS-GACETA-OFICIAL-22-5-25.pdf'
+    url: 'https://www.css.gob.pa/wp-content/uploads/2026/01/TEXTO-UNICO-DE-LA-LEY-51-DE-2005-CSS-GACETA-OFICIAL-22-5-25.pdf'
   },
   educationalInsurance: {
     institution: 'Gaceta Oficial (copia de LEGISPAN)',

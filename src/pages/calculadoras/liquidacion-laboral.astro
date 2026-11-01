@@ -21,6 +21,7 @@ const schema = {
   '@context': 'https://schema.org',
   '@type': 'WebApplication',
   name: 'Calculadora de liquidación laboral Panamá',
+  url: new URL(path, Astro.site ?? Astro.url.origin).toString(),
   applicationCategory: 'FinanceApplication',
   operatingSystem: 'Web',
   inLanguage: 'es-PA',
@@ -28,7 +29,7 @@ const schema = {
   offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' }
 };
 ---
-<Layout title="Calculadora de liquidación laboral Panamá: prima, indemnización y vacaciones" description="Estima tu liquidación en Panamá: vacaciones, décimo proporcional, prima de antigüedad e indemnización según tu contrato y el motivo (renuncia, despido injustificado, mutuo acuerdo o causa económica)." canonicalPath={path} schema={schema} disableAds>
+<Layout title="Calculadora de liquidación laboral en Panamá | Prestaciones" description="Estima una liquidación laboral en Panamá según tu contrato y motivo de salida. Revisa vacaciones, décimo, prima e indemnización cuando correspondan." canonicalPath={path} schema={schema} disableAds>
   <header class="page-head container">
     <Breadcrumbs items={[{ label: 'Liquidación laboral', path }]} />
     <span class="eyebrow">Terminación laboral</span>
@@ -151,6 +152,9 @@ const schema = {
 
 
   <article class="container article">
+    <h2>Qué revisar antes de calcular una liquidación</h2>
+    <p>Reúne tus fechas de ingreso y terminación, el tipo de contrato, el motivo de salida y tus comprobantes de salario. Si tienes vacaciones pendientes o ingresos variables, revisa los datos y las opciones del formulario. El resultado es orientativo: algunos casos necesitan revisión individual y no todos incluyen indemnización.</p>
+    <p>Para estudiar cada parte por separado, consulta la <a href={`${base}calculadoras/vacaciones/`}>calculadora de vacaciones</a>, la <a href={`${base}calculadoras/decimo-tercer-mes/`}>calculadora de décimo tercer mes</a> y la <a href={`${base}calculadoras/salario-neto/`}>calculadora de salario neto</a>. Estas herramientas usan períodos y supuestos propios, por lo que sus resultados no deben sumarse automáticamente a una liquidación.</p>
     <h2>¿Qué te corresponde según el motivo?</h2>
     <div class="table-wrap">
       <table>
