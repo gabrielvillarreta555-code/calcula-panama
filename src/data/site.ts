@@ -10,10 +10,10 @@ export const SITE = {
 /**
  * Google AdSense.
  *
- * Con `client` definido, el script oficial se carga en el <head> de todas las páginas (necesario
- * para verificar el sitio y para los anuncios automáticos). `public/ads.txt` debe usar el mismo ID.
- * Los bloques manuales solo aparecen cuando se rellena el id de cada uno en `slots`.
- * Con `client` vacío no se carga ningún script de Google ni se muestra ningún espacio.
+ * Identificador conservado para administración, NO habilita publicidad.
+ * Mientras Mi Quincena comparta origen con el sitio, no se permite ejecutar
+ * scripts publicitarios de terceros en ninguna página del origen. Cualquier
+ * integración futura requiere aislamiento y revisión de privacidad explícita.
  */
 export const ADSENSE = {
   client: 'ca-pub-2150093744862116',
@@ -27,7 +27,7 @@ export const ADSENSE = {
 
 export type AdSlotName = keyof typeof ADSENSE.slots;
 
-export const isAdsenseEnabled = () => /^ca-pub-\d{16}$/.test(ADSENSE.client);
+export const isAdsenseEnabled = () => false;
 
 export interface NavItem {
   path: string;

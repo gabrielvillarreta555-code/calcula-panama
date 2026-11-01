@@ -1,6 +1,7 @@
 // Verifica el sitio compilado (dist/) antes de publicarlo: sitemap.xml, robots.txt y URL canónicas.
 // Uso: SITE_URL=https://calculapanama.com/ node scripts/verify-seo.mjs
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { join, relative } from 'node:path';
 
 const site = process.env.SITE_URL || 'https://calculapanama.com/';
 const errors = [];
@@ -17,6 +18,16 @@ if (new Set(locs).size !== locs.length) errors.push('sitemap.xml contiene URL du
 const priorityPaths = ['calculadoras/salario-neto/', 'calculadoras/vacaciones/', 'calculadoras/liquidacion-laboral/'];
 const priorityTitles = new Set();
 const priorityDescriptions = new Set();
+// La publicidad permanece pausada en TODO el origen que almacena Mi Quincena.
+function verifyOriginPrivacy(html, loc) {
+  const csp = html.match(/<meta http-equiv="Content-Security-Policy" content="([^"]+)"/)?.[1];
+  if (!csp || !/script-src 'self' 'unsafe-inline'(?:;|$)/.test(csp) || !/connect-src 'none'(?:;|$)/.test(csp)) errors.push(`Falta la política de privacidad del origen: ${loc}`);
+  if (/adsbygoogle|googlesyndication|doubleclick/i.test(html)) errors.push(`Código publicitario en el origen privado: ${loc}`);
+  for (const tag of html.matchAll(/<script\b[^>]*\bsrc=["']([^"']+)["'][^>]*>/gi)) {
+    try { if (new URL(tag[1], loc).origin !== new URL(site).origin) errors.push(`Script externo no permitido: ${loc}`); }
+    catch { errors.push(`URL de script no válida: ${loc}`); }
+  }
+}
 for (const loc of locs) {
   if (!loc.startsWith(site)) { errors.push(`URL fuera del dominio ${site}: ${loc}`); continue; }
   const file = `dist/${loc.slice(site.length)}index.html`;
@@ -53,20 +64,19 @@ const robots = read('dist/robots.txt');
 if (!robots.includes(`Sitemap: ${site}sitemap.xml`)) errors.push('robots.txt no enlaza sitemap.xml');
 if (/^Disallow:\s*\/\s*$/m.test(robots)) errors.push('robots.txt bloquea todo el sitio');
 
-// AdSense: el script oficial debe estar una vez en el <head> de cada página y ads.txt debe coincidir.
+// Revisar también 404 y cualquier HTML futuro que no figure en el sitemap.
+function verifyAllHtml(directory) {
+  for (const entry of readdirSync(directory, { withFileTypes: true })) {
+    const file = join(directory, entry.name);
+    if (entry.isDirectory()) verifyAllHtml(file);
+    else if (entry.isFile() && file.endsWith('.html')) verifyOriginPrivacy(read(file), new URL(relative('dist', file).replaceAll('\\', '/'), site).toString());
+  }
+}
+verifyAllHtml('dist');
+// Se conserva ads.txt para la cuenta existente; no habilita scripts ni anuncios.
 const siteConfig = readFileSync('src/data/site.ts', 'utf8');
 const client = siteConfig.match(/client: '(ca-pub-\d{16})'/)?.[1];
 if (client) {
-  const tag = `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${client}" crossorigin="anonymous"></script>`;
-  for (const loc of locs) {
-    const file = `dist/${loc.slice(site.length)}index.html`;
-    if (!existsSync(file)) continue;
-    const html = readFileSync(file, 'utf8');
-    const head = html.split('</head>')[0];
-    if (['finanzas/mi-quincena/', 'finanzas/calculadora-prestamos/', 'compras/modo-pasillo/', 'calculadoras/salario-neto/', 'calculadoras/decimo-tercer-mes/', 'calculadoras/vacaciones/', 'calculadoras/liquidacion-laboral/'].some(path => loc === new URL(path, site).toString())) {
-      if (html.includes('adsbygoogle.js')) errors.push(`AdSense no debe cargarse en la herramienta privada ${loc}`);
-    } else if (head.split(tag).length !== 2 || html.split('adsbygoogle.js').length !== 2) errors.push(`Script de AdSense ausente o duplicado en ${loc}`);
-  }
   const adsTxt = read('dist/ads.txt');
   if (!adsTxt.includes(`google.com, ${client.replace('ca-', '')}, DIRECT, f08c47fec0942fa0`)) errors.push('ads.txt no coincide con el ID de AdSense');
 }
@@ -75,4 +85,4 @@ if (errors.length) {
   console.error(`Verificación SEO fallida:\n- ${errors.join('\n- ')}`);
   process.exit(1);
 }
-console.log(`Verificación SEO correcta: ${locs.length} URL en sitemap.xml, robots.txt y canonical coherentes con ${site}${client ? '; AdSense excluido de las herramientas privadas y ads.txt correcto' : ''}`);
+console.log(`Verificación SEO y privacidad correcta: ${locs.length} URL en sitemap.xml, robots.txt, canonical y política del origen; publicidad pausada${client ? ' y ads.txt conservado' : ''}`);
