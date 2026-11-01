@@ -398,7 +398,7 @@ export function calculateTermination(input: TerminationInput) {
         notes.push({ kind: 'info', text: 'Con dos años o más de servicio, el trabajador despedido sin causa justificada puede reclamar el reintegro o la indemnización; si lo resuelve un juez puede haber salarios caídos y recargos que aquí no se calculan. En empresas pequeñas y otros casos del art. 212 se aplica el régimen de preaviso.' });
       }
       if (days <= TERMINATION.probationMaxDays) {
-        notes.push({ kind: 'warning', text: 'Si tu contrato escrito fijaba un período probatorio (hasta 3 meses, art. 78), cualquiera de las partes podía terminarlo en ese plazo sin responsabilidad: en ese caso no hay indemnización ni preaviso.' });
+        notes.push({ kind: 'warning', text: 'Una cláusula de período probatorio está sujeta a requisitos de validez, no solo a que conste por escrito (art. 78). Esta herramienta no determina su validez ni sus efectos: consulta tu caso con MITRADEL.' });
       }
     }
     if (reason === 'economic') {

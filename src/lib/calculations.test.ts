@@ -288,6 +288,8 @@ describe('liquidación laboral', () => {
   it('avisa del período probatorio en relaciones de hasta tres meses', () => {
     const result = calculateTermination({ ...base, startDate: '2025-11-01', contractType: 'indefinite', reason: 'unjustified' });
     expect(result.notes.some(n => n.text.includes('art. 78'))).toBe(true);
+    expect(result.notes.some(n => n.text.includes('no solo a que conste por escrito'))).toBe(true);
+    expect(result.notes.some(n => n.text.includes('no determina su validez'))).toBe(true);
   });
 
   it('contrato definido despedido sin causa: salarios del tiempo restante (art. 227)', () => {
