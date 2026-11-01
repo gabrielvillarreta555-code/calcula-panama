@@ -1,4 +1,5 @@
 import { LEGAL_PARAMETERS } from '../data/legal';
+import { assertLaborInput } from './labor-input';
 
 const { salary: SALARY, thirteenthMonth: THIRTEENTH, vacation: VACATION, termination: TERMINATION } = LEGAL_PARAMETERS;
 
@@ -69,6 +70,7 @@ export interface NetSalaryInput {
  * del art. 709 y aplica proporcionalmente la tarifa del art. 700 (Código Fiscal, art. 704).
  */
 export function calculateNetSalary({ grossPerPay, frequency, otherPerPay = 0, includeThirteenth = true, jointFiling = false, otherAnnualDeductions = 0 }: NetSalaryInput) {
+  [grossPerPay, otherPerPay, otherAnnualDeductions].forEach(assertLaborInput);
   const payments = PAYMENTS_PER_YEAR[frequency];
   if (!payments) throw new Error('Frecuencia de pago no válida.');
   if (!(grossPerPay > 0) || !(otherPerPay >= 0)) throw new Error('Introduce un salario mayor que cero.');
@@ -155,6 +157,7 @@ export function thirteenthPeriodContaining(date: string): ThirteenthPeriod {
  * proporcional a los días trabajados dentro de él.
  */
 export function estimatePeriodEarnings(monthlySalary: number, period: { start: string; end: string }, workedFrom?: string, workedTo?: string) {
+  assertLaborInput(monthlySalary);
   const from = workedFrom && workedFrom > period.start ? workedFrom : period.start;
   const to = workedTo && workedTo < period.end ? workedTo : period.end;
   const periodDays = daysInclusive(period.start, period.end);
@@ -174,6 +177,7 @@ export interface ThirteenthInput {
 }
 
 export function calculateThirteenthMonth({ ordinaryEarnings, variableEarnings = 0, regularMonthlySalary }: ThirteenthInput) {
+  [ordinaryEarnings, variableEarnings, regularMonthlySalary].forEach(assertLaborInput);
   if (!(ordinaryEarnings >= 0) || !(variableEarnings >= 0) || ordinaryEarnings + variableEarnings <= 0) {
     throw new Error('Introduce una remuneración mayor que cero.');
   }
@@ -211,6 +215,7 @@ export interface VacationInput {
 
 /** Código de Trabajo, art. 54: un día de vacaciones por cada 11 días de servicio; 30 días pagados con un mes de salario. */
 export function calculateVacationPay({ monthlySalary, averageLastElevenMonths, serviceDays, pendingDays, takenDays = 0 }: VacationInput) {
+  [monthlySalary, averageLastElevenMonths, serviceDays, pendingDays, takenDays].forEach(assertLaborInput);
   if (!(monthlySalary > 0)) throw new Error('Introduce un salario mayor que cero.');
   const base = Math.max(monthlySalary, averageLastElevenMonths ?? 0);
   const usedAverage = (averageLastElevenMonths ?? 0) > monthlySalary;
@@ -329,6 +334,7 @@ export function terminationIncomeTax(amount: number, fullYears: number) {
 
 export function calculateTermination(input: TerminationInput) {
   const { monthlySalary, startDate, endDate, contractType, reason } = input;
+  [monthlySalary, input.unusedVacationDays, input.currentPeriodEarnings, input.averageSalaryLastFiveYears].forEach(assertLaborInput);
   if (!(monthlySalary > 0)) throw new Error('Introduce un salario mayor que cero.');
   const days = daysInclusive(startDate, endDate);
   const { years, fullYears } = serviceYears(startDate, endDate);
