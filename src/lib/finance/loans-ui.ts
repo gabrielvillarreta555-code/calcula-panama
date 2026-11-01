@@ -1,5 +1,7 @@
 import { parseCents } from './pay-period';
 import { calculateLoan, type LoanInput, type LoanResult } from './loans';
+import { openSharePreview } from '../share-ui';
+import type { ShareData } from '../share';
 
 const money = (cents: number) => `B/.${(cents / 100).toFixed(2)}`;
 function decimal(value: string): number {
@@ -21,6 +23,7 @@ export function mountLoans(root: HTMLElement) {
   const comparison = get<HTMLDetailsElement>('#comparison'), schedule = get<HTMLDetailsElement>('#schedule'), list = get<HTMLOListElement>('#schedule-list');
   const output = (key: string, value: string) => { get<HTMLElement>(`[data-output="${key}"]`).textContent = value; };
   let current: LoanResult | null = null;
+  let shareData: ShareData = { tool: 'loan' };
   const renderSchedule = () => {
     list.replaceChildren(); if (!schedule.open || !current) return;
     for (const row of current.installments) {
@@ -32,6 +35,7 @@ export function mountLoans(root: HTMLElement) {
   const read = (node: HTMLElement) => { const error = node.querySelector<HTMLElement>('[data-error]')!; try { const input = readOffer(node), result = calculateLoan(input); error.textContent = ''; return { input, result }; } catch (e) { error.textContent = e instanceof Error ? e.message : 'Revisa los datos.'; return null; } };
   const render = () => {
     const first = read(a); current = first?.result ?? null;
+    shareData = first ? { tool: 'loan', primary: `Cuota mensual estimada: ${money(first.result.regularTotal)}`, details: [`Plazo: ${first.input.months} meses`, `Total estimado: ${money(first.result.totalPaid)}`] } : { tool: 'loan' };
     if (!first) for (const key of ['monthly','financial','insurance','charges','last','interest','fee','net','cost','total','count']) output(key, '—');
     else {
       const { input, result } = first;
@@ -50,6 +54,8 @@ export function mountLoans(root: HTMLElement) {
     line(first.input.principal !== second.input.principal || first.input.months !== second.input.months ? 'Los montos o plazos son diferentes: estos resultados no identifican automáticamente una mejor oferta.' : 'Incluso con el mismo monto y plazo, revisa todas las condiciones y cargos antes de elegir.');
   };
   get<HTMLFormElement>('#loan-form').addEventListener('submit', e => e.preventDefault());
+  const shareButton = get<HTMLButtonElement>('#loan-share');
+  shareButton.addEventListener('click', () => openSharePreview(shareData, shareButton));
   root.addEventListener('input', render); root.addEventListener('change', render);
   schedule.addEventListener('toggle', renderSchedule); comparison.addEventListener('toggle', render); render();
 }

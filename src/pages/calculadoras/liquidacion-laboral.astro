@@ -1,6 +1,5 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import AdSlot from '../../components/AdSlot.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import BlueHelp from '../../components/BlueHelp.astro';
 import { BLUE_GUIDES } from '../../data/blue-help';
@@ -29,7 +28,7 @@ const schema = {
   offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' }
 };
 ---
-<Layout title="Calculadora de liquidación laboral Panamá: prima, indemnización y vacaciones" description="Estima tu liquidación en Panamá: vacaciones, décimo proporcional, prima de antigüedad e indemnización según tu contrato y el motivo (renuncia, despido injustificado, mutuo acuerdo o causa económica)." canonicalPath={path} schema={schema}>
+<Layout title="Calculadora de liquidación laboral Panamá: prima, indemnización y vacaciones" description="Estima tu liquidación en Panamá: vacaciones, décimo proporcional, prima de antigüedad e indemnización según tu contrato y el motivo (renuncia, despido injustificado, mutuo acuerdo o causa económica)." canonicalPath={path} schema={schema} disableAds>
   <header class="page-head container">
     <Breadcrumbs items={[{ label: 'Liquidación laboral', path }]} />
     <span class="eyebrow">Terminación laboral</span>
@@ -143,14 +142,13 @@ const schema = {
         <div class="notes" id="termination-notes"></div>
         <p class="callout info">Resultado orientativo. El neto no incluye el ISR ordinario sobre vacaciones y décimo, que depende de tu ingreso anual, ni salarios adeudados, recargos, horas extra pendientes o préstamos. La prima, la indemnización y el preaviso no pagan cuotas de la CSS (Ley 51, art. 86).</p>
         <div class="result-actions">
-          <button class="button secondary" type="button" id="termination-share"><Icon name="share" size={18} />Compartir</button>
+          <button class="button secondary" type="button" id="termination-share"><Icon name="share" size={18} />Compartir resultado</button>
           <a class="button secondary" href={`${base}guias/prima-de-antiguedad-e-indemnizacion/`}>Entender la prima</a>
         </div>
       </div>
     </section>
   </div>
 
-  <div class="container"><AdSlot name="afterResult" /></div>
 
   <article class="container article">
     <h2>¿Qué te corresponde según el motivo?</h2>
@@ -207,7 +205,7 @@ const schema = {
   const result = $('#termination-result');
   const agreedField = $('[data-show="agreed"]', form);
   const noticeField = $('[data-show="notice"]', form);
-  let summary = '';
+  let shareData: import('../../lib/share').ShareData = { tool: 'termination' };
 
   const syncAgreed = () => {
     const data = new FormData(form);
@@ -297,8 +295,8 @@ const schema = {
         p.textContent = note.text;
         return p;
       }));
-      summary = `Liquidación ${out.indemnityStatus === 'needs-review' ? 'parcial' : 'estimada'}: ${formatMoney(out.total)} (vacaciones ${formatMoney(out.vacation)}, décimo ${formatMoney(out.thirteenth)}, prima ${formatMoney(out.seniorityPremium)}, indemnización ${out.indemnityStatus === 'needs-review' ? 'requiere revisión y no está incluida' : formatMoney(out.indemnity)}${out.preaviso > 0 ? `, preaviso ${formatMoney(out.preaviso)}` : ''}; neto ${out.indemnityStatus === 'needs-review' ? 'parcial estimado' : 'estimado'} ${formatMoney(out.netEstimate)}). Calculado en Calcula Panamá.`;
+      shareData = { tool: 'termination', primary: `Liquidación bruta ${out.indemnityStatus === 'needs-review' ? 'parcial' : 'estimada'}: ${formatMoney(out.total)}`, details: [`Vacaciones: ${formatMoney(out.vacation)}`, `Décimo: ${formatMoney(out.thirteenth)}`, `Prima de antigüedad: ${formatMoney(out.seniorityPremium)}`, `Indemnización: ${out.indemnityStatus === 'needs-review' ? 'requiere revisión y no está incluida' : formatMoney(out.indemnity)}`, ...(out.preaviso > 0 ? [`Preaviso: ${formatMoney(out.preaviso)}`] : []), `Neto ${out.indemnityStatus === 'needs-review' ? 'parcial estimado' : 'estimado'}: ${formatMoney(out.netEstimate)}`] };
     }
   });
-  bindShare($<HTMLButtonElement>('#termination-share'), () => summary);
+  bindShare($<HTMLButtonElement>('#termination-share'), () => shareData);
 </script>

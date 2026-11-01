@@ -1,4 +1,6 @@
 import { CATEGORIES, MAX_MOVEMENTS, civilDay, emptyBudget, isBudgetState, localToday, newPeriod, parseCents, summarizeBudget, type BudgetState, type Category, type Movement } from './pay-period';
+import { openSharePreview } from '../share-ui';
+import type { ShareData } from '../share';
 
 const KEY = 'cp-mi-quincena-v1';
 const money = (cents: number) => `B/.${(cents / 100).toFixed(2)}`;
@@ -19,6 +21,7 @@ export function mountBudget(root: HTMLElement) {
   const periodError = get<HTMLElement>('#period-error'), savingsError = get<HTMLElement>('#savings-error');
   const movementError = get<HTMLElement>('#movement-error');
   let state: BudgetState = emptyBudget();
+  let shareData: ShareData = { tool: 'budget' };
   let preserveCorrupt = false;
   try {
     const saved = localStorage.getItem(KEY);
@@ -40,6 +43,7 @@ export function mountBudget(root: HTMLElement) {
   const output = (key: string, value: string) => { get<HTMLElement>(`[data-result="${key}"]`).textContent = value; };
   const syncInputs = () => { start.value = state.start; payday.value = state.payday; opening.value = (state.openingCents / 100).toFixed(2); savings.value = (state.savingsCents / 100).toFixed(2); };
   const renderSummary = () => {
+    shareData = { tool: 'budget' };
     let valid = true;
     periodError.textContent = ''; savingsError.textContent = '';
     try { civilDay(start.value); if (payday.value) civilDay(payday.value); state.start = start.value; state.payday = payday.value; }
@@ -58,6 +62,7 @@ export function mountBudget(root: HTMLElement) {
     }
     try {
       const result = summarizeBudget(state);
+      shareData = { tool: 'budget', primary: `Dinero libre: ${money(result.freeCents)}`, details: [`Días hasta el próximo pago: ${result.days}`, `Presupuesto diario: ${result.dailyCents === null ? 'no disponible' : money(result.dailyCents)}`, `Compromisos pendientes: ${money(result.pendingCents)}`, `Ahorro reservado: ${money(result.savingsCents)}`] };
       output('free', money(result.freeCents)); output('daily', result.dailyCents === null ? '—' : money(result.dailyCents)); output('days', String(result.days));
       output('pending', money(result.pendingCents)); output('savings', money(result.savingsCents)); output('opening', money(state.openingCents)); output('paid', money(result.paidCents)); output('current', money(result.currentCents));
       if (result.past) alert.textContent = 'La fecha de pago es hoy o ya pasó. Actualiza tu próximo período.';
@@ -104,6 +109,8 @@ export function mountBudget(root: HTMLElement) {
     li.append(form); editName.focus();
   }
   get<HTMLFormElement>('#period-form').addEventListener('submit', e => e.preventDefault());
+  const shareButton = get<HTMLButtonElement>('#budget-share');
+  shareButton.addEventListener('click', () => openSharePreview(shareData, shareButton));
   for (const field of [start, payday, opening, savings]) field.addEventListener('input', renderSummary);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) renderSummary(); });
   get<HTMLFormElement>('#movement-form').addEventListener('submit', event => {

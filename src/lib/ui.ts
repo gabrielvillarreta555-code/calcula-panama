@@ -1,4 +1,6 @@
 /** Utilidades de interfaz compartidas por los scripts de las calculadoras (solo navegador). */
+import { openSharePreview } from './share-ui';
+import type { ShareData } from './share';
 
 export interface Segment {
   label: string;
@@ -117,22 +119,7 @@ export function bindCalculator(options: {
   form.addEventListener('change', () => { if (calculated) calculate(false); });
 }
 
-/** Botón para compartir o copiar un resumen en texto (sin enviar datos a ningún servidor). */
-export function bindShare(button: HTMLButtonElement, getText: () => string) {
-  button.addEventListener('click', async () => {
-    const text = getText();
-    const original = button.textContent;
-    try {
-      if (navigator.share) {
-        await navigator.share({ title: document.title, text, url: location.origin + location.pathname });
-        return;
-      }
-      await navigator.clipboard.writeText(`${text}\n${location.origin}${location.pathname}`);
-      button.textContent = 'Copiado ✓';
-    } catch (ex) {
-      if (ex instanceof DOMException && ex.name === 'AbortError') return;
-      button.textContent = 'No se pudo copiar';
-    }
-    window.setTimeout(() => { button.textContent = original; }, 2000);
-  });
+/** Solo abre una vista previa: no comparte datos hasta la acción explícita del usuario. */
+export function bindShare(button: HTMLButtonElement, getData: () => ShareData) {
+  button.addEventListener('click', () => openSharePreview(getData(), button));
 }

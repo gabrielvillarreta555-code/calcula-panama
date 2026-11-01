@@ -37,7 +37,7 @@ if (client) {
     if (!existsSync(file)) continue;
     const html = readFileSync(file, 'utf8');
     const head = html.split('</head>')[0];
-    if (['finanzas/mi-quincena/', 'finanzas/calculadora-prestamos/'].some(path => loc === new URL(path, site).toString())) {
+    if (['finanzas/mi-quincena/', 'finanzas/calculadora-prestamos/', 'compras/modo-pasillo/', 'calculadoras/salario-neto/', 'calculadoras/decimo-tercer-mes/', 'calculadoras/vacaciones/', 'calculadoras/liquidacion-laboral/'].some(path => loc === new URL(path, site).toString())) {
       if (html.includes('adsbygoogle.js')) errors.push(`AdSense no debe cargarse en la herramienta privada ${loc}`);
     } else if (head.split(tag).length !== 2 || html.split('adsbygoogle.js').length !== 2) errors.push(`Script de AdSense ausente o duplicado en ${loc}`);
   }

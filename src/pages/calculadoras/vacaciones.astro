@@ -1,6 +1,5 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import AdSlot from '../../components/AdSlot.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import BlueHelp from '../../components/BlueHelp.astro';
 import { BLUE_GUIDES } from '../../data/blue-help';
@@ -28,7 +27,7 @@ const schema = {
   offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' }
 };
 ---
-<Layout title="Calculadora de vacaciones Panamá: días acumulados y pago proporcional" description="Calcula cuántos días de vacaciones acumulaste y cuánto te deben pagar en Panamá: 30 días por cada 11 meses, pago proporcional, promedio de salarios variables y descuentos." canonicalPath={path} schema={schema}>
+<Layout title="Calculadora de vacaciones Panamá: días acumulados y pago proporcional" description="Calcula cuántos días de vacaciones acumulaste y cuánto te deben pagar en Panamá: 30 días por cada 11 meses, pago proporcional, promedio de salarios variables y descuentos." canonicalPath={path} schema={schema} disableAds>
   <header class="page-head container">
     <Breadcrumbs items={[{ label: 'Vacaciones', path }]} />
     <span class="eyebrow">Descanso anual</span>
@@ -105,12 +104,11 @@ const schema = {
           <li class="total"><span>Neto antes de ISR</span><strong data-out="net"></strong></li>
         </ul>
         <p class="callout info">Si tu salario anual supera B/.11,000, el empleador también puede retener ISR sobre este pago.</p>
-        <div class="result-actions"><button class="button secondary" type="button" id="vacation-share"><Icon name="share" size={18} />Compartir</button></div>
+        <div class="result-actions"><button class="button secondary" type="button" id="vacation-share"><Icon name="share" size={18} />Compartir resultado</button></div>
       </div>
     </section>
   </div>
 
-  <div class="container"><AdSlot name="afterResult" /></div>
 
   <article class="container article">
     <h2>¿Cómo se calculan las vacaciones en Panamá?</h2>
@@ -138,7 +136,7 @@ const schema = {
 
   const form = $<HTMLFormElement>('#vacation-form');
   const result = $('#vacation-result');
-  let summary = '';
+  let shareData: import('../../lib/share').ShareData = { tool: 'vacation' };
 
   const syncMode = () => {
     const mode = readText(new FormData(form), 'mode');
@@ -187,8 +185,8 @@ const schema = {
         net: formatMoney(out.netBeforeIncomeTax)
       });
       toggleRows(result, { service: serviceDays !== undefined, taken: out.takenDays > 0 });
-      summary = `Vacaciones: ${formatNumber(out.days)} días, pago bruto ${formatMoney(out.gross)} (neto antes de ISR ${formatMoney(out.netBeforeIncomeTax)}). Calculado en Calcula Panamá.`;
+      shareData = { tool: 'vacation', primary: `Pago bruto estimado: ${formatMoney(out.gross)}`, details: [`Días estimados: ${formatNumber(out.days)}`, `Neto antes de ISR: ${formatMoney(out.netBeforeIncomeTax)}`] };
     }
   });
-  bindShare($<HTMLButtonElement>('#vacation-share'), () => summary);
+  bindShare($<HTMLButtonElement>('#vacation-share'), () => shareData);
 </script>
