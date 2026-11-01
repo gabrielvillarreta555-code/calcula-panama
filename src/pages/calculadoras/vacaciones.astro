@@ -20,6 +20,7 @@ const schema = {
   '@context': 'https://schema.org',
   '@type': 'WebApplication',
   name: 'Calculadora de vacaciones Panamá',
+  url: new URL(path, Astro.site ?? Astro.url.origin).toString(),
   applicationCategory: 'FinanceApplication',
   operatingSystem: 'Web',
   inLanguage: 'es-PA',
@@ -27,7 +28,7 @@ const schema = {
   offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' }
 };
 ---
-<Layout title="Calculadora de vacaciones Panamá: días acumulados y pago proporcional" description="Calcula cuántos días de vacaciones acumulaste y cuánto te deben pagar en Panamá: 30 días por cada 11 meses, pago proporcional, promedio de salarios variables y descuentos." canonicalPath={path} schema={schema} disableAds>
+<Layout title="Calculadora de vacaciones en Panamá | Días y pago" description="Estima tus días de vacaciones y su pago en Panamá. Revisa el cálculo proporcional, los descuentos considerados y sus supuestos legales." canonicalPath={path} schema={schema} disableAds>
   <header class="page-head container">
     <Breadcrumbs items={[{ label: 'Vacaciones', path }]} />
     <span class="eyebrow">Descanso anual</span>
@@ -111,6 +112,9 @@ const schema = {
 
 
   <article class="container article">
+    <h2>Qué necesitas para estimar tus vacaciones</h2>
+    <p>Ten a mano tu salario mensual y el tiempo transcurrido desde el inicio de la relación laboral o desde tus últimas vacaciones. Si conoces los días pendientes, revisa tus registros y confirma el saldo con tu empleador: esta herramienta ofrece una estimación, no consulta tu expediente.</p>
+    <p>Si la relación laboral terminó, puedes revisar las vacaciones pendientes junto con otros conceptos en la <a href={`${import.meta.env.BASE_URL}calculadoras/liquidacion-laboral/`}>calculadora de liquidación</a>. Para una estimación del pago habitual, usa la <a href={`${import.meta.env.BASE_URL}calculadoras/salario-neto/`}>calculadora de salario neto</a>.</p>
     <h2>¿Cómo se calculan las vacaciones en Panamá?</h2>
     <p>El artículo 54 del Código de Trabajo concede <strong>30 días de descanso por cada 11 meses continuos de trabajo</strong>, a razón de un día por cada 11 días al servicio del empleador. Los descansos semanales, los días feriados y las licencias autorizadas cuentan como tiempo servido.</p>
     <p class="formula">Días de vacaciones = días trabajados ÷ 11 &nbsp;·&nbsp; Pago = días × (salario mensual ÷ 30)</p>

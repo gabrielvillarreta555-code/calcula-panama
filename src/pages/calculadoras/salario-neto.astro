@@ -14,7 +14,7 @@ const path = '/calculadoras/salario-neto/';
 const examples = [650, 800, 1000, 1200, 1500, 2000, 3000, 5000].map(grossPerPay => calculateNetSalary({ grossPerPay, frequency: 'monthly' }));
 const faq = [
   { q: '¿Cuánto me descuentan del salario en Panamá?', a: 'El trabajador aporta 9.75% de Seguro Social y 1.25% de Seguro Educativo sobre su salario. Además, si su ingreso anual proyectado (incluido el décimo tercer mes) supera B/.11,000, el empleador retiene impuesto sobre la renta.' },
-  { q: '¿A partir de qué salario se paga impuesto sobre la renta?', a: 'Con 13 pagos al año (12 salarios más el décimo), un salario mensual fijo de hasta B/.846.15 queda por debajo de B/.11,000 anuales y no genera ISR. A partir de ahí se paga 15% sobre el excedente, y 25% sobre lo que supere B/.50,000 al año.' },
+  { q: '¿A partir de qué salario se paga impuesto sobre la renta?', a: 'En la proyección de esta calculadora, con salario fijo durante todo el año, 12 salarios y un décimo equivalente, y sin deducciones personales, hasta B/.846.15 mensuales queda por debajo de B/.11,000 anuales. La tarifa se aplica sobre la renta gravable: las deducciones y circunstancias personales pueden cambiar el resultado.' },
   { q: '¿Por qué la calculadora multiplica por 13 y no por 12?', a: 'El décimo tercer mes es renta gravable para el ISR, así que la proyección anual del empleador lo incluye. Si en tu caso no corresponde (por ejemplo, empezaste a mitad de año), desmarca la opción y verás la estimación sin él.' },
   { q: '¿Las cuotas de Seguro Social reducen el ISR?', a: 'No. Las cuotas del Seguro Social no son deducibles para el impuesto sobre la renta y la deducción del Seguro Educativo fue derogada en 2010 (Decreto Ejecutivo 98). Por eso el ISR se calcula sobre el ingreso bruto.' },
   { q: '¿Qué deducciones reducen el ISR de un asalariado?', a: 'Las que declares a tu empleador y él compruebe (Código Fiscal, arts. 704 y 709): B/.800 si declaras en forma conjunta con tu cónyuge, intereses hipotecarios de tu vivienda principal, intereses de préstamos educativos, primas de seguro de hospitalización y aportes a fondos de pensiones. Puedes indicarlas en «Comisiones, deducciones y opciones».' },
@@ -26,6 +26,7 @@ const schema = {
   '@context': 'https://schema.org',
   '@type': 'WebApplication',
   name: 'Calculadora de salario neto Panamá',
+  url: new URL(path, Astro.site ?? Astro.url.origin).toString(),
   applicationCategory: 'FinanceApplication',
   operatingSystem: 'Web',
   inLanguage: 'es-PA',
@@ -33,7 +34,7 @@ const schema = {
   offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' }
 };
 ---
-<Layout title="Calculadora de salario neto Panamá 2026: CSS, Seguro Educativo e ISR" description="Calcula tu salario neto en Panamá: descuento de Seguro Social (9.75%), Seguro Educativo (1.25%) e ISR con el décimo incluido. Mensual, quincenal o semanal, con desglose y gráfico." canonicalPath={path} schema={schema} disableAds>
+<Layout title="Calculadora de salario neto en Panamá | CSS e ISR" description="Estima tu salario neto mensual, quincenal o semanal en Panamá. Consulta el desglose de Seguro Social, Seguro Educativo e ISR y los supuestos del cálculo." canonicalPath={path} schema={schema} disableAds>
   <header class="page-head container">
     <Breadcrumbs items={[{ label: 'Salario neto', path }]} />
     <span class="eyebrow">Calculadora laboral</span>
@@ -118,6 +119,9 @@ const schema = {
 
 
   <article class="container article">
+    <h2>Antes de calcular tu salario neto</h2>
+    <p>El salario bruto es el importe antes de descuentos; el neto es la estimación de lo que recibes después de las retenciones consideradas. Selecciona la frecuencia de tu pago e introduce el bruto correspondiente a ese mismo período. Si tus ingresos varían, puedes indicar un promedio y revisar las opciones adicionales.</p>
+    <p>Para estimar el pago de un descanso, utiliza la <a href={`${import.meta.env.BASE_URL}calculadoras/vacaciones/`}>calculadora de vacaciones</a>. Si terminó tu relación de trabajo, consulta la <a href={`${import.meta.env.BASE_URL}calculadoras/liquidacion-laboral/`}>calculadora de liquidación laboral</a>; sus conceptos y supuestos son distintos.</p>
     <h2 id="como-se-calcula">¿Cómo se calcula el salario neto en Panamá?</h2>
     <p>Del salario bruto se restan tres conceptos. Los dos primeros son porcentajes fijos de cada pago; el tercero depende de lo que ganarás en todo el año.</p>
     <ol>
