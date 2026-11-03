@@ -66,6 +66,7 @@ const adsense = !disableAds && isAdsenseEnabled();
         {CALCULATORS.map(item => <a href={href(item.path)} aria-current={isCurrent(item.path) ? 'page' : undefined}>{item.label}</a>)}
         <a href={href('/compras/')} aria-current={isCurrent('/compras/') ? 'page' : undefined}>Compras</a>
         <a href={href('/guias/')} aria-current={isCurrent('/guias/') ? 'page' : undefined}>Guías</a>
+        <a href={href('/responde/')} aria-current={isCurrent('/responde/') ? 'page' : undefined}>Responde</a>
       </div>
       <button class="icon-button theme-button" type="button" aria-label="Cambiar entre modo claro y oscuro"><Icon name="theme" size={20} /></button>
       <button class="icon-button menu-button" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="menu"><Icon name="menu" size={20} /></button>
@@ -89,6 +90,7 @@ const adsense = !disableAds && isAdsenseEnabled();
           <h2>Información</h2>
           <a href={href('/compras/')}>Compras y gastos</a>
           <a href={href('/guias/')}>Guías</a>
+          <a href={href('/responde/')}>Calcula Panamá Responde</a>
           <a href={href('/sobre-nosotros/')}>Sobre nosotros</a>
           <a href={href('/contacto/')}>Contacto</a>
           <a href={href('/privacidad/')}>Privacidad</a>
