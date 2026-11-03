@@ -1,0 +1,26 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import {respuestasPublicadas} from '../../data/responde';
+const base=import.meta.env.BASE_URL;
+const href=(path:string)=>`${base}${path.replace(/^\//,'')}`;
+const categorias=[...new Set(respuestasPublicadas.map(item=>item.categoria))];
+const recientes=[...respuestasPublicadas].sort((a,b)=>b.revisado.localeCompare(a.revisado));
+---
+<Layout title="Calcula Panamá Responde | Preguntas y respuestas" description="Respuestas claras sobre salarios, derechos laborales, compras y finanzas en Panamá." canonicalPath="/responde/">
+<header class="page-head container"><span class="eyebrow">Aprende y calcula</span><h1>Calcula Panamá Responde</h1><p>Respuestas claras sobre tu salario, derechos laborales, compras y finanzas en Panamá.</p></header>
+<section class="container responde" aria-label="Buscar preguntas"><label for="busqueda">Busca una pregunta</label><input id="busqueda" type="search" placeholder="Por ejemplo: décimo, ahorro o ITBMS" autocomplete="off"/><label for="categoria">Categoría</label><select id="categoria"><option value="">Todas las categorías</option>{categorias.map(c=><option value={c}>{c}</option>)}</select><p id="estado-busqueda" role="status" aria-live="polite"></p>
+<section class="destacadas"><h2>Preguntas destacadas</h2><div class="responde-grid">{respuestasPublicadas.filter(item=>item.destacada).map(item=><article class="responde-card"><span>{item.categoria}</span><h3><a href={href(`/responde/${item.slug}/`)}>{item.pregunta}</a></h3><p>{item.resumen}</p><a href={href(item.calculadora.path)}>{item.calculadora.label} →</a></article>)}</div></section>
+<section><h2>Preguntas recientes</h2><p class="muted">Explora las respuestas disponibles o usa los filtros.</p><div class="responde-grid" id="resultados">{recientes.map(item=><article class="responde-card resultado" data-text={`${item.pregunta} ${item.resumen} ${item.categoria}`} data-category={item.categoria}><span>{item.categoria}</span><h3><a href={href(`/responde/${item.slug}/`)}>{item.pregunta}</a></h3><p>{item.resumen}</p><a href={href(item.calculadora.path)}>{item.calculadora.label} →</a></article>)}</div><p id="sin-resultados" hidden>No encontramos preguntas con esos filtros.</p></section></section>
+</Layout>
+<script>
+ const search=document.querySelector<HTMLInputElement>('#busqueda');
+ const category=document.querySelector<HTMLSelectElement>('#categoria');
+ const cards=[...document.querySelectorAll<HTMLElement>('.resultado')];
+ const status=document.querySelector<HTMLElement>('#estado-busqueda');
+ const empty=document.querySelector<HTMLElement>('#sin-resultados');
+ const featured=document.querySelector<HTMLElement>('.destacadas');
+ const norm=(s:string)=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+ function filter(){const q=norm(search?.value??'');const cat=category?.value??'';let count=0;for(const card of cards){const show=norm(card.dataset.text??'').includes(q)&&(!cat||card.dataset.category===cat);card.hidden=!show;if(show)count++;}if(status)status.textContent=`${count} ${count===1?'pregunta encontrada':'preguntas encontradas'}`;if(empty)empty.hidden=count!==0;if(featured)featured.hidden=!!q||!!cat;}
+ search?.addEventListener('input',filter);category?.addEventListener('change',filter);
+</script>
+<style>.responde{padding-bottom:4rem}.responde label{display:block;font-weight:700;margin:.8rem 0 .4rem}.responde input,.responde select{width:100%;max-width:42rem;padding:.85rem;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--text);font:inherit}.responde section{margin:2.5rem 0}.responde-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:1rem}.responde-card{padding:1.25rem;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-sm)}.responde-card[hidden],section[hidden]{display:none}.responde-card span{color:var(--muted);font-size:.85rem}.responde-card h3{font-size:1.15rem}.responde-card a{font-weight:700}.responde-card p{line-height:1.55}</style>

@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { buildSitemapXml, sitemapPaths } from '../lib/sitemap';
+import { respuestasPublicadas } from '../data/responde';
 
 /**
  * Sitemap estándar en /sitemap.xml con las URL canónicas de todas las páginas públicas.
@@ -10,7 +11,7 @@ const pages = import.meta.glob('./**/*.astro');
 
 export const GET: APIRoute = ({ site }) => {
   if (!site) throw new Error('Configura `site` en astro.config.mjs para generar el sitemap.');
-  return new Response(buildSitemapXml(sitemapPaths(Object.keys(pages)), site), {
+  return new Response(buildSitemapXml([...sitemapPaths(Object.keys(pages)), ...respuestasPublicadas.map(item => `/responde/${item.slug}/`)], site), {
     headers: { 'Content-Type': 'application/xml; charset=utf-8' }
   });
 };
