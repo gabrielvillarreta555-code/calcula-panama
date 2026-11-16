@@ -100,3 +100,7 @@ Capturas de las seis páginas a 390 y 1440 px: artefacto de CI `expansion-3-capt
 - `git diff --check`: sin errores.
 
 Se corrigió el desbordamiento a 900 px encontrado en la primera ejecución. La segunda detectó una inconsistencia de lectura de `noscript`; se sustituyó por un aviso HTML visible hasta que arranca el script, manteniendo el botón deshabilitado sin JavaScript. La suite final completa pasó después de esos cambios.
+
+## Corrección de bloqueo de integración
+
+La autorización posterior de Dirección permite fusionar y desplegar únicamente con todas las comprobaciones satisfactorias. La auditoría del PR detectó GHSA-mh32-jxcr-mh9f y GHSA-r3h5-4585-7x3w en Astro 7.4.4, heredado de la base. Se actualiza Astro dentro de la misma versión menor a 7.4.12 y su lockfile para desbloquear esta entrega, sin suprimir ni relajar auditorías. `npm audit` devuelve cero vulnerabilidades; se repiten compilación, TypeScript, SEO y ambas suites antes de fusionar.
