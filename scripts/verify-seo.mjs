@@ -49,6 +49,30 @@ for (const loc of locs) {
 }
 for (const path of priorityPaths) if (!locs.includes(new URL(path, site).toString())) errors.push(`Página prioritaria ausente del sitemap: ${path}`);
 
+// Primera expansión: cada herramienta debe ser rastreable y accesible desde el directorio.
+const expansionPaths = ['compras/precio-por-unidad/', 'compras/descuentos-y-promociones/', 'finanzas/meta-de-ahorro/', 'educacion/promedio-de-notas/', 'vida-cotidiana/consumo-electrico/'];
+const directory = read('dist/herramientas/index.html');
+const toolTitles = new Set();
+const toolDescriptions = new Set();
+for (const path of expansionPaths) {
+  const url = new URL(path, site).toString();
+  if (!locs.includes(url)) errors.push(`Herramienta ausente del sitemap: ${url}`);
+  const html = read(`dist/${path}index.html`);
+  const title = html.match(/<title>([^<]+)<\/title>/)?.[1];
+  const description = html.match(/<meta name="description" content="([^"]+)"/)?.[1];
+  if (!title || toolTitles.has(title)) errors.push(`Título de herramienta ausente o repetido: ${url}`);
+  if (!description || toolDescriptions.has(description)) errors.push(`Descripción de herramienta ausente o repetida: ${url}`);
+  toolTitles.add(title); toolDescriptions.add(description);
+  if ([...html.matchAll(/<h1(?:\s[^>]*)?>/g)].length !== 1) errors.push(`La herramienta requiere un único H1: ${url}`);
+  for (const text of ['Cómo se calcula', 'Ejemplo verificable', 'Alcance y limitaciones', 'Fuentes y metodología']) {
+    if (!html.includes(text)) errors.push(`Contenido HTML ausente: ${text} en ${url}`);
+  }
+  if (!directory.includes(`href="/${path}"`)) errors.push(`Falta enlace desde el directorio: ${url}`);
+  for (const match of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) {
+    try { JSON.parse(match[1]); } catch { errors.push(`Datos estructurados inválidos: ${url}`); }
+  }
+}
+
 const robots = read('dist/robots.txt');
 if (!robots.includes(`Sitemap: ${site}sitemap.xml`)) errors.push('robots.txt no enlaza sitemap.xml');
 if (/^Disallow:\s*\/\s*$/m.test(robots)) errors.push('robots.txt bloquea todo el sitio');
@@ -63,7 +87,7 @@ if (client) {
     if (!existsSync(file)) continue;
     const html = readFileSync(file, 'utf8');
     const head = html.split('</head>')[0];
-    if (['finanzas/mi-quincena/', 'finanzas/calculadora-prestamos/', 'compras/modo-pasillo/', 'calculadoras/salario-neto/', 'calculadoras/decimo-tercer-mes/', 'calculadoras/vacaciones/', 'calculadoras/liquidacion-laboral/'].some(path => loc === new URL(path, site).toString())) {
+    if (['herramientas/', 'compras/precio-por-unidad/', 'compras/descuentos-y-promociones/', 'finanzas/meta-de-ahorro/', 'educacion/promedio-de-notas/', 'vida-cotidiana/consumo-electrico/', 'finanzas/mi-quincena/', 'finanzas/calculadora-prestamos/', 'compras/modo-pasillo/', 'calculadoras/salario-neto/', 'calculadoras/decimo-tercer-mes/', 'calculadoras/vacaciones/', 'calculadoras/liquidacion-laboral/'].some(path => loc === new URL(path, site).toString())) {
       if (html.includes('adsbygoogle.js')) errors.push(`AdSense no debe cargarse en la herramienta privada ${loc}`);
     } else if (head.split(tag).length !== 2 || html.split('adsbygoogle.js').length !== 2) errors.push(`Script de AdSense ausente o duplicado en ${loc}`);
   }
