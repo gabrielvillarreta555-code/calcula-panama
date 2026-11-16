@@ -65,6 +65,7 @@ const adsense = !disableAds && isAdsenseEnabled();
       <div class="nav-links" id="menu">
         {CALCULATORS.map(item => <a href={href(item.path)} aria-current={isCurrent(item.path) ? 'page' : undefined}>{item.label}</a>)}
         <a href={href('/compras/')} aria-current={isCurrent('/compras/') ? 'page' : undefined}>Compras</a>
+        <a href={href('/herramientas/')} aria-current={isCurrent('/herramientas/') ? 'page' : undefined}>Herramientas</a>
         <a href={href('/guias/')} aria-current={isCurrent('/guias/') ? 'page' : undefined}>Guías</a>
       </div>
       <button class="icon-button theme-button" type="button" aria-label="Cambiar entre modo claro y oscuro"><Icon name="theme" size={20} /></button>
@@ -87,6 +88,10 @@ const adsense = !disableAds && isAdsenseEnabled();
         </div>
         <div>
           <h2>Información</h2>
+          <a href={href('/herramientas/')}>Todas las herramientas</a>
+          <a href={href('/herramientas/#finanzas')}>Finanzas personales</a>
+          <a href={href('/herramientas/#educacion')}>Educación</a>
+          <a href={href('/herramientas/#vida-cotidiana')}>Vida cotidiana</a>
           <a href={href('/compras/')}>Compras y gastos</a>
           <a href={href('/guias/')}>Guías</a>
           <a href={href('/sobre-nosotros/')}>Sobre nosotros</a>

@@ -1,0 +1,16 @@
+---
+import type { Field } from '../../data/expansion-tools';
+interface Props { field: Field; prefix: string }
+const { field, prefix } = Astro.props;
+const id = `${prefix}-${field.key}`;
+---
+<div class="tool-field" data-field={field.key}>
+  <label for={id}>{field.label}</label>
+  {field.type === 'select' ? <select id={id} name={field.key}>
+    {field.options?.map(option => <option value={option.value}>{option.label}</option>)}
+  </select> : <input id={id} name={field.key} type={field.type === 'date' ? 'date' : 'text'}
+    inputmode={field.type === 'date' ? undefined : field.digits === 0 ? 'numeric' : 'decimal'}
+    value={field.value ?? ''} required={!field.optional} autocomplete="off"
+    min={field.type === 'date' ? '2000-01-01' : undefined} max={field.type === 'date' ? '2100-12-31' : undefined}
+    data-digits={field.digits ?? 3} data-label={field.label} />}
+</div>

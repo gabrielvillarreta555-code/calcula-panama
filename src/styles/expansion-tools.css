@@ -1,0 +1,32 @@
+.tools-page { padding-block: 26px 48px; }
+.tool-heading { max-width: 800px; margin-block: 24px; }
+.tool-heading h1 { font-size: clamp(1.8rem, 5vw, 2.8rem); }
+.tool-heading p { color: var(--muted); }
+.tool-grid { display: grid; gap: 24px; align-items: start; }
+.tool-panel, .tool-card { border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); padding: clamp(16px, 3vw, 28px); box-shadow: var(--shadow-sm); min-width: 0; }
+.tool-fields { display: grid; gap: 16px; margin-bottom: 16px; }
+.tool-field { min-width: 0; }
+.tool-field label { display: block; font-weight: 650; margin-bottom: 6px; }
+.tool-field input, .tool-field select { width: 100%; min-width: 0; min-height: 48px; border: 1px solid var(--line); border-radius: 12px; padding: 10px; background: var(--bg); }
+.tool-field [aria-invalid=true] { border-color: var(--accent); }
+.tool-row { min-width: 0; margin: 0 0 18px; border: 1px solid var(--line); border-radius: 14px; padding: 14px; }
+.tool-row legend { padding-inline: 6px; font-weight: 700; }
+.tool-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-block: 24px; }
+.tool-actions button { min-height: 48px; }
+.tool-error { color: var(--accent); margin-top: 16px; }
+.tool-result { background: var(--surface-2); overflow-wrap: anywhere; }
+.tool-result [data-result] p:first-child { font-size: 1.4rem; font-weight: 750; color: var(--brand-2); }
+.tool-reading { max-width: 780px; }
+.tool-reading section { margin-block: 32px; }
+.tool-reading li { margin-bottom: 10px; }
+.tool-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+.tool-table th, .tool-table td { text-align: left; border-bottom: 1px solid var(--line); padding: 10px 6px; }
+.tool-directory { display: grid; gap: 16px; }
+.tool-card h3 { font-size: 1.2rem; }
+.tool-card a { text-decoration-thickness: 2px; text-underline-offset: 4px; }
+.tool-categories { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 28px; }
+.tool-categories a { border: 1px solid var(--line); border-radius: 999px; padding: 10px 16px; background: var(--surface); }
+.tool-category { margin-block: 32px; scroll-margin-top: 90px; }
+.tool-panel details summary { cursor: pointer; min-height: 44px; padding-block: 10px; }
+@media (min-width: 700px) { .tool-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); } .tool-directory { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1100px) { .tool-grid { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); } .tool-directory { grid-template-columns: repeat(3, minmax(0, 1fr)); } }

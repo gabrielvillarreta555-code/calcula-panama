@@ -185,6 +185,11 @@ p { margin: 0 0 1em; }
   .theme-button { margin-left: 8px; }
 }
 
+@media (min-width: 900px) and (max-width: 1099px) {
+  .nav-links a { padding: 8px 6px; font-size: .85rem; }
+  .brand { flex-shrink: 0; }
+}
+
 /* ---------------------------------------------------------------- hero */
 .hero { position: relative; overflow: hidden; padding: 36px 0 28px; background: radial-gradient(ellipse at 85% 5%, color-mix(in srgb, var(--brand-2) 12%, transparent), transparent 52%); }
 .hero-inner { display: grid; gap: 28px; }
