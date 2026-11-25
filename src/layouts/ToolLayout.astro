@@ -1,12 +1,15 @@
 ---
 import Layout from './Layout.astro';
 import ToolField from '../components/tools/ToolField.astro';
+import Faq from '../components/Faq.astro';
 import type { Tool } from '../data/expansion-tools';
 import '../styles/expansion-tools.css';
 interface Props { tool: Tool }
 const { tool } = Astro.props;
 const href = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\//, '')}`;
-const categoryId = ({ Compras: 'compras', Finanzas: 'finanzas', Educación: 'educacion', 'Vida cotidiana': 'vida-cotidiana' } as Record<string,string>)[tool.category];
+const categoryId = ({ Compras: 'compras', Finanzas: 'finanzas', Educación: 'educacion', 'Vida cotidiana': 'vida-cotidiana', Vehículos: 'vehiculos' } as Record<string,string>)[tool.category];
+const checkedOn = tool.checkedOn ?? '2026-11-16';
+const checkedLabel = new Intl.DateTimeFormat('es-PA', { dateStyle: 'long', timeZone: 'UTC' }).format(new Date(`${checkedOn}T00:00:00Z`));
 const schema = { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
   { '@type': 'ListItem', position: 1, name: 'Herramientas', item: new URL('herramientas/', Astro.site).href },
   { '@type': 'ListItem', position: 2, name: tool.title, item: new URL(tool.path.slice(1), Astro.site).href },
@@ -48,7 +51,8 @@ const schema = { '@context': 'https://schema.org', '@type': 'BreadcrumbList', it
       <section><h2>Cómo se calcula</h2><p>{tool.formula}</p></section>
       <section><h2>Ejemplo verificable</h2><p>{tool.example}</p></section>
       <section><h2>Alcance y limitaciones</h2><ul>{tool.limits.map(limit => <li>{limit}</li>)}</ul><p>Resultados orientativos. No son importes oficiales ni certificaciones.</p></section>
-      <section><h2>Fuentes y metodología</h2><ul>{tool.sources.map(source => <li><a href={source.url}>{source.title}</a></li>)}</ul><p>Metodología de Blue Lab Studios. Fuentes consultadas el <time datetime="2026-11-16">16 de noviembre de 2026</time>.</p></section>
+      <section><h2>Fuentes y metodología</h2><ul>{tool.sources.map(source => <li><a href={source.url}>{source.title}</a></li>)}</ul><p>Metodología de Blue Lab Studios. Fuentes consultadas el <time datetime={checkedOn}>{checkedLabel}</time>.</p></section>
+      {tool.faq && <Faq items={tool.faq} />}
       <section><h2>Herramientas relacionadas</h2><ul>{tool.related.map(item => <li><a href={href(item.path)}>{item.title}</a></li>)}</ul></section>
     </article>
   </div>
