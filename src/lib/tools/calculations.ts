@@ -1,4 +1,5 @@
 /** Pure mathematical engines. No DOM, storage, network or official tariff assumptions. */
+import { calculateLoan, type Installment } from '../finance/loans';
 export const LIMIT = 10_000_000;
 export function bounded(n: number, name: string, min = 0, max = LIMIT): number {
   if (!Number.isFinite(n) || n < min || n > max) throw new Error(`${name}: usa un número entre ${min} y ${max}.`);
@@ -101,4 +102,126 @@ export function electricity(watts: number, hours: number, days: number, duty: nu
   if (rate !== undefined) bounded(rate, 'Precio por kWh', 0, 100);
   const kwh = watts / 1000 * hours * days * duty / 100;
   return { kwh, cost: rate === undefined ? null : kwh * rate };
+}
+
+/* ---------------------------------------------------------------- Bloque A: automóviles */
+
+/** Galón estadounidense y milla internacional exactos (NIST Handbook 44, apéndice C). */
+export const LITERS_PER_GALLON = 3.785411784;
+export const KM_PER_MILE = 1.609344;
+const toCents = (n: number, name: string) => cents(n, name);
+
+/**
+ * Tasa efectiva anual estimada: tasa interna de retorno mensual de los flujos del préstamo
+ * (Acuerdo SBP 3-2002, art. 4: incluye comisiones de cierre; excluye seguros, notaría, registro,
+ * FECI y tributos), anualizada como (1 + i)^12 − 1.
+ */
+export function effectiveAnnualRate(netReceivedCents: number, paymentsCents: number[]): number {
+  const pv = (rate: number) => paymentsCents.reduce((sum, pay, k) => sum + pay / Math.pow(1 + rate, k + 1), 0);
+  if (netReceivedCents <= 0) throw new Error('La comisión no puede igualar ni superar el monto financiado.');
+  let low = 0, high = 1;
+  if (pv(0) <= netReceivedCents) return 0;
+  for (let i = 0; i < 200; i++) { const mid = (low + high) / 2; if (pv(mid) > netReceivedCents) low = mid; else high = mid; }
+  return Math.expm1(12 * Math.log1p((low + high) / 2));
+}
+
+export interface CarLoanInput {
+  price: number; downPayment: number; annualRate: number; rateType: 'nominal' | 'effective'; months: number;
+  /** Seguros mensuales exigidos (auto y vida). No forman parte de la tasa efectiva. */
+  insurance: number;
+  /** Comisión o gastos de cierre del banco pagados al inicio: sí forman parte de la tasa efectiva. */
+  bankFees: number;
+  /** Notaría, registro y otros pagos a terceros: no forman parte de la tasa efectiva. */
+  otherCosts: number;
+}
+
+export function carFinancing(input: CarLoanInput) {
+  const price = toCents(input.price, 'Precio del auto'), down = toCents(input.downPayment, 'Abono inicial');
+  const insurance = toCents(input.insurance, 'Seguros mensuales'), fees = toCents(input.bankFees, 'Comisión de cierre'), other = toCents(input.otherCosts, 'Otros gastos iniciales');
+  if (price === 0) throw new Error('Precio del auto: debe ser mayor que cero.');
+  if (down >= price) throw new Error('El abono inicial debe ser menor que el precio: no quedaría nada por financiar.');
+  bounded(input.months, 'Plazo', 1, 120);
+  if (!Number.isInteger(input.months)) throw new Error('Plazo: usa meses enteros.');
+  const financed = price - down;
+  if (fees >= financed) throw new Error('La comisión de cierre no puede igualar ni superar el monto financiado.');
+  const loan = calculateLoan({ principal: financed, annualRate: input.annualRate, rateType: input.rateType, months: input.months, insurance, monthlyCharges: 0, upfrontFee: 0 });
+  const loanPayments = loan.installments.reduce((sum, item) => sum + item.payment, 0);
+  const insuranceTotal = insurance * loan.installments.length;
+  const totalCar = down + loanPayments + insuranceTotal + fees + other;
+  return {
+    financed: financed / 100,
+    payment: loan.regularPayment / 100,
+    paymentWithInsurance: (loan.regularPayment + insurance) / 100,
+    finalPayment: loan.installments.at(-1)!.payment / 100,
+    payments: loan.installments.length,
+    interest: loan.interestTotal / 100,
+    insuranceTotal: insuranceTotal / 100,
+    financingCost: (loanPayments - financed + insuranceTotal + fees + other) / 100,
+    totalCar: totalCar / 100,
+    effectiveRate: effectiveAnnualRate(financed - fees, loan.installments.map(item => item.payment)) * 100,
+    schedule: loan.installments.map((item: Installment) => ({ month: item.month, payment: item.payment / 100, principal: item.principal / 100, interest: item.interest / 100, balance: item.balance / 100 })),
+  };
+}
+
+export type EfficiencyUnit = 'kml' | 'kmgal' | 'mpg' | 'l100';
+export interface FuelTripInput { distance: number; roundTrip: boolean; efficiency: number; unit: EfficiencyUnit; price: number; priceUnit: 'liter' | 'gallon'; people: number }
+
+/** Convierte cualquier rendimiento admitido a kilómetros por litro. */
+export function kmPerLiter(efficiency: number, unit: EfficiencyUnit): number {
+  bounded(efficiency, 'Rendimiento', 0.01, 1000);
+  switch (unit) {
+    case 'kml': return efficiency;
+    case 'kmgal': return efficiency / LITERS_PER_GALLON;
+    case 'mpg': return efficiency * KM_PER_MILE / LITERS_PER_GALLON;
+    case 'l100': return 100 / efficiency;
+    default: throw new Error('Selecciona una unidad de rendimiento válida.');
+  }
+}
+
+export function fuelTrip(input: FuelTripInput) {
+  bounded(input.distance, 'Distancia', 0.01, 100000);
+  bounded(input.price, 'Precio del combustible', 0, 100);
+  bounded(input.people, 'Personas', 1, 100);
+  if (!Number.isInteger(input.people)) throw new Error('Personas: usa un número entero.');
+  if (input.priceUnit !== 'liter' && input.priceUnit !== 'gallon') throw new Error('Selecciona si el precio es por litro o por galón.');
+  const km = input.distance * (input.roundTrip ? 2 : 1);
+  const liters = km / kmPerLiter(input.efficiency, input.unit);
+  const pricePerLiter = input.priceUnit === 'liter' ? input.price : input.price / LITERS_PER_GALLON;
+  const cost = liters * pricePerLiter;
+  return { km, liters, gallons: liters / LITERS_PER_GALLON, pricePerLiter, cost, costPerKm: cost / km, costPerPerson: cost / input.people };
+}
+
+export interface CarMonthlyInput {
+  loanPayment: number; fuel: number; parking: number; tolls: number; other: number;
+  insuranceYear: number; maintenanceYear: number; registrationYear: number; depreciationYear: number;
+  kmPerMonth?: number;
+}
+
+export function carMonthlyCost(input: CarMonthlyInput) {
+  const monthly = [
+    { label: 'Cuota del financiamiento', value: input.loanPayment, name: 'Cuota' },
+    { label: 'Combustible', value: input.fuel, name: 'Combustible' },
+    { label: 'Estacionamiento', value: input.parking, name: 'Estacionamiento' },
+    { label: 'Peajes', value: input.tolls, name: 'Peajes' },
+    { label: 'Otros gastos mensuales', value: input.other, name: 'Otros gastos' },
+  ];
+  const yearly = [
+    { label: 'Seguro del auto', value: input.insuranceYear, name: 'Seguro anual' },
+    { label: 'Mantenimiento y llantas', value: input.maintenanceYear, name: 'Mantenimiento anual' },
+    { label: 'Placa, revisado y trámites', value: input.registrationYear, name: 'Trámites anuales' },
+    { label: 'Pérdida de valor (depreciación)', value: input.depreciationYear, name: 'Depreciación anual' },
+  ];
+  const items = [
+    ...monthly.map(item => ({ label: item.label, monthly: toCents(item.value, item.name) / 100 })),
+    ...yearly.map(item => ({ label: item.label, monthly: toCents(item.value, item.name) / 1200 })),
+  ];
+  const total = items.reduce((sum, item) => sum + item.monthly, 0);
+  if (total === 0) throw new Error('Introduce al menos un gasto mayor que cero.');
+  if (input.kmPerMonth !== undefined) bounded(input.kmPerMonth, 'Kilómetros al mes', 1, 100000);
+  const withoutDepreciation = total - input.depreciationYear / 12;
+  return {
+    total, annual: total * 12, withoutDepreciation,
+    perKm: input.kmPerMonth === undefined ? null : total / input.kmPerMonth,
+    items: items.filter(item => item.monthly > 0).map(item => ({ ...item, share: item.monthly / total * 100 })).sort((a, b) => b.monthly - a.monthly),
+  };
 }

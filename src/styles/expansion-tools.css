@@ -21,6 +21,9 @@
 .tool-reading li { margin-bottom: 10px; }
 .tool-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
 .tool-table th, .tool-table td { text-align: left; border-bottom: 1px solid var(--line); padding: 10px 6px; }
+.tool-table-scroll { max-width: 100%; overflow-x: auto; }
+.tool-table-scroll:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.tool-table-scroll .tool-table { min-width: 460px; }
 .tool-directory { display: grid; gap: 16px; }
 .tool-card h3 { font-size: 1.2rem; }
 .tool-card a { text-decoration-thickness: 2px; text-underline-offset: 4px; }

@@ -1,4 +1,4 @@
-import { compareUnits, decimal, electricity, grades, promotion, savings, type Frequency, type Promotion, type Unit } from '../lib/tools/calculations';
+import { carFinancing, carMonthlyCost, compareUnits, decimal, electricity, fuelTrip, grades, promotion, savings, type EfficiencyUnit, type Frequency, type Promotion, type Unit } from '../lib/tools/calculations';
 const number = (n: number, digits = 2) => n.toLocaleString('es-PA', { minimumFractionDigits: digits, maximumFractionDigits: digits });
 const money = (n: number, digits = 2) => `B/.${number(n, digits)}`;
 for (const root of document.querySelectorAll<HTMLElement>('[data-tool]')) {
@@ -70,6 +70,9 @@ for (const root of document.querySelectorAll<HTMLElement>('[data-tool]')) {
     const body = element.createTBody(); data.forEach(values => { const row = body.insertRow(); values.forEach(text => { row.insertCell().textContent = text; }); });
     return element;
   };
+  /** Tablas anchas: desplazamiento horizontal dentro del panel, nunca en la página. */
+  const scroll = (element: HTMLElement) => { const wrap = document.createElement('div'); wrap.className = 'tool-table-scroll'; wrap.tabIndex = 0; wrap.setAttribute('role', 'region'); wrap.setAttribute('aria-label', element.querySelector('caption')?.textContent ?? 'Tabla'); wrap.append(element); return wrap; };
+  const optional = (key: string) => value(key).trim() ? num(key) : undefined;
   form.addEventListener('submit', event => {
     event.preventDefault(); invalidate();
     try {
@@ -108,6 +111,31 @@ for (const root of document.querySelectorAll<HTMLElement>('[data-tool]')) {
           line(`Consumo estimado: ${number(r.kwh, 3)} kWh`);
           line(r.cost === null ? 'Sin estimación de costo: no introdujiste un precio por kWh.' : `Costo orientativo de energía: ${money(r.cost)}.`);
           line('No incluye cargos fijos, subsidios, bloques tarifarios ni otros ajustes de la factura.'); break;
+        }
+        case 'car-loan': {
+          const r = carFinancing({ price: num('price'), downPayment: num('downPayment'), annualRate: num('rate'), rateType: value('rateType') as 'nominal' | 'effective', months: num('months'), insurance: num('insurance'), bankFees: num('bankFees'), otherCosts: num('otherCosts') });
+          line(`Letra mensual: ${money(r.payment)}${r.paymentWithInsurance > r.payment ? ` (${money(r.paymentWithInsurance)} con seguros)` : ''}`);
+          line(`Monto financiado: ${money(r.financed)} en ${r.payments} cuotas${Math.abs(r.finalPayment - r.payment) > 0.001 ? `; la última es de ${money(r.finalPayment)} por ajuste de centavos` : ''}.`);
+          line(`Intereses totales: ${money(r.interest)}.${r.insuranceTotal > 0 ? ` Seguros en todo el plazo: ${money(r.insuranceTotal)}.` : ''}`);
+          line(`Costo del financiamiento (intereses, seguros y gastos): ${money(r.financingCost)}. Total pagado por el auto, con abono: ${money(r.totalCar)}.`);
+          line(`Tasa efectiva anual estimada: ${number(r.effectiveRate)}% (incluye la comisión de cierre; no los seguros ni la notaría).`);
+          const section = document.createElement('details'); const summary = document.createElement('summary'); summary.textContent = 'Ver tabla de amortización'; section.append(summary);
+          section.append(scroll(table(['Mes', 'Cuota', 'Capital', 'Interés', 'Saldo'], r.schedule.map(row => [`${row.month}`, money(row.payment), money(row.principal), money(row.interest), money(row.balance)]), 'Tabla de amortización sin seguros'))); details.append(section); break;
+        }
+        case 'fuel-trip': {
+          const r = fuelTrip({ distance: num('distance'), roundTrip: value('trip') === 'round', efficiency: num('efficiency'), unit: value('unit') as EfficiencyUnit, price: num('price'), priceUnit: value('priceUnit') as 'liter' | 'gallon', people: num('people') });
+          line(`Costo del combustible: ${money(r.cost)}`);
+          line(`Combustible necesario: ${number(r.liters)} litros (${number(r.gallons)} galones) para ${number(r.km)} km.`);
+          line(`Costo por kilómetro: ${money(r.costPerKm, 3)}. Precio usado: ${money(r.pricePerLiter, 3)} por litro.`);
+          if (num('people') > 1) line(`Por persona: ${money(r.costPerPerson)}.`);
+          break;
+        }
+        case 'car-cost': {
+          const r = carMonthlyCost({ loanPayment: num('loanPayment'), fuel: num('fuel'), parking: num('parking'), tolls: num('tolls'), other: num('other'), insuranceYear: num('insuranceYear'), maintenanceYear: num('maintenanceYear'), registrationYear: num('registrationYear'), depreciationYear: num('depreciationYear'), kmPerMonth: optional('kmPerMonth') });
+          line(`Costo mensual del auto: ${money(r.total)}`);
+          line(`Al año: ${money(r.annual)}.${num('depreciationYear') > 0 ? ` Sin la pérdida de valor: ${money(r.withoutDepreciation)} al mes.` : ''}`);
+          if (r.perKm !== null) line(`Costo por kilómetro: ${money(r.perKm, 3)}.`);
+          details.append(scroll(table(['Concepto', 'Al mes', 'Parte del total'], r.items.map(item => [item.label, money(item.monthly), `${number(item.share, 1)}%`]), 'Desglose mensual (los anuales se dividen entre 12)'))); break;
         }
       }
       placeholder.hidden = true;

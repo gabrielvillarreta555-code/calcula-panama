@@ -50,7 +50,7 @@ for (const loc of locs) {
 for (const path of priorityPaths) if (!locs.includes(new URL(path, site).toString())) errors.push(`Página prioritaria ausente del sitemap: ${path}`);
 
 // Primera expansión: cada herramienta debe ser rastreable y accesible desde el directorio.
-const expansionPaths = ['compras/precio-por-unidad/', 'compras/descuentos-y-promociones/', 'finanzas/meta-de-ahorro/', 'educacion/promedio-de-notas/', 'vida-cotidiana/consumo-electrico/'];
+const expansionPaths = ['compras/precio-por-unidad/', 'compras/descuentos-y-promociones/', 'finanzas/meta-de-ahorro/', 'educacion/promedio-de-notas/', 'vida-cotidiana/consumo-electrico/', 'vehiculos/financiamiento-de-auto/', 'vehiculos/combustible-por-viaje/', 'vehiculos/costo-mensual-de-un-auto/'];
 const directory = read('dist/herramientas/index.html');
 const toolTitles = new Set();
 const toolDescriptions = new Set();
@@ -87,7 +87,7 @@ if (client) {
     if (!existsSync(file)) continue;
     const html = readFileSync(file, 'utf8');
     const head = html.split('</head>')[0];
-    if (['herramientas/', 'compras/precio-por-unidad/', 'compras/descuentos-y-promociones/', 'finanzas/meta-de-ahorro/', 'educacion/promedio-de-notas/', 'vida-cotidiana/consumo-electrico/', 'finanzas/mi-quincena/', 'finanzas/calculadora-prestamos/', 'compras/modo-pasillo/', 'calculadoras/salario-neto/', 'calculadoras/decimo-tercer-mes/', 'calculadoras/vacaciones/', 'calculadoras/liquidacion-laboral/'].some(path => loc === new URL(path, site).toString())) {
+    if (['herramientas/', 'compras/precio-por-unidad/', 'compras/descuentos-y-promociones/', 'finanzas/meta-de-ahorro/', 'educacion/promedio-de-notas/', 'vida-cotidiana/consumo-electrico/', 'vehiculos/financiamiento-de-auto/', 'vehiculos/combustible-por-viaje/', 'vehiculos/costo-mensual-de-un-auto/', 'finanzas/mi-quincena/', 'finanzas/calculadora-prestamos/', 'compras/modo-pasillo/', 'calculadoras/salario-neto/', 'calculadoras/decimo-tercer-mes/', 'calculadoras/vacaciones/', 'calculadoras/liquidacion-laboral/'].some(path => loc === new URL(path, site).toString())) {
       if (html.includes('adsbygoogle.js')) errors.push(`AdSense no debe cargarse en la herramienta privada ${loc}`);
     } else if (head.split(tag).length !== 2 || html.split('adsbygoogle.js').length !== 2) errors.push(`Script de AdSense ausente o duplicado en ${loc}`);
   }

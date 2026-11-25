@@ -103,3 +103,12 @@ jobs:
           path: test-results/expansion-3/*.png
           if-no-files-found: warn
           retention-days: 14
+
+      - name: Guardar captura del financiamiento de autos (datos de ejemplo)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: automoviles-capturas
+          path: test-results/automoviles/*.png
+          if-no-files-found: warn
+          retention-days: 14
