@@ -1,0 +1,97 @@
+---
+/**
+ * Cabecera Midnight Functional (CP-DESIGN-007): marca CALCULA. y botones enmarcados de búsqueda y menú.
+ * La búsqueda filtra en el navegador un índice de las herramientas y guías existentes; no hace peticiones.
+ */
+import FxIcon from './FxIcon.astro';
+import { CALCULATORS, GUIDES } from '../../data/site';
+import { expansionTools, vehicleTools } from '../../data/expansion-tools';
+const base = import.meta.env.BASE_URL;
+const href = (p: string) => `${base}${p.replace(/^\//, '')}`;
+const index = [
+  ...CALCULATORS.map(c => ({ t: c.label, p: c.path, c: 'Trabajo' })),
+  { t: 'Mi Quincena', p: '/finanzas/mi-quincena/', c: 'Finanzas' },
+  { t: 'Calculadora de préstamos', p: '/finanzas/calculadora-prestamos/', c: 'Finanzas' },
+  { t: 'Modo Pasillo', p: '/compras/modo-pasillo/', c: 'Compras' },
+  ...expansionTools.map(t => ({ t: t.title, p: t.path, c: t.category })),
+  ...vehicleTools.map(t => ({ t: t.title, p: t.path, c: t.category })),
+  ...GUIDES.map(g => ({ t: g.title, p: g.path, c: 'Guía' }))
+].map(item => ({ ...item, p: href(item.p) }));
+const menu = [
+  { label: 'Trabajo y salarios', path: '/herramientas/#trabajo', icon: 'wallet' },
+  { label: 'Finanzas', path: '/herramientas/#finanzas', icon: 'piggy' },
+  { label: 'Vehículos', path: '/herramientas/#vehiculos', icon: 'bus' },
+  { label: 'Compras', path: '/compras/', icon: 'cart' },
+  { label: 'Educación', path: '/herramientas/#educacion', icon: 'graduation' },
+  { label: 'Vida cotidiana', path: '/herramientas/#vida-cotidiana', icon: 'bolt' },
+  { label: 'Guías', path: '/guias/', icon: 'book' },
+  { label: 'Todas las herramientas', path: '/herramientas/', icon: 'calculator' },
+  { label: 'Inicio', path: '/', icon: 'home' }
+] as const;
+---
+<header class="fx-header">
+  <div class="fx-wrap fx-header-bar">
+    <a class="fx-wordmark" href={href('/')} aria-label="Calcula Panamá, inicio">CALCULA.</a>
+    <div class="fx-header-actions">
+      <button class="fx-iconbtn" type="button" data-fx-toggle="fx-search" aria-expanded="false" aria-controls="fx-search" aria-label="Buscar una herramienta"><FxIcon name="search" size={20} /></button>
+      <button class="fx-iconbtn" type="button" data-fx-toggle="fx-menu" aria-expanded="false" aria-controls="fx-menu" aria-label="Abrir menú"><FxIcon name="menu" size={20} /></button>
+    </div>
+  </div>
+  <div class="fx-drawer" id="fx-search" hidden>
+    <div class="fx-wrap">
+      <label class="visually-hidden" for="fx-search-input">Buscar una herramienta</label>
+      <div class="fx-search-field"><FxIcon name="search" size={20} /><input id="fx-search-input" type="search" autocomplete="off" spellcheck="false" placeholder="¿Qué necesitas calcular?" aria-describedby="fx-search-status" /></div>
+      <p class="visually-hidden" id="fx-search-status" role="status" aria-live="polite"></p>
+      <ul class="fx-search-results" hidden></ul>
+    </div>
+  </div>
+  <nav class="fx-drawer" id="fx-menu" aria-label="Menú" hidden>
+    <div class="fx-wrap">
+      <p class="fx-drawer-title">Categorías</p>
+      <ul class="fx-menu-list">{menu.map(item => <li><a href={href(item.path)}><FxIcon name={item.icon} framed />{item.label}</a></li>)}</ul>
+    </div>
+  </nav>
+  <script type="application/json" id="fx-search-index" set:html={JSON.stringify(index)} />
+</header>
+<script>
+  const toggles = document.querySelectorAll<HTMLButtonElement>('[data-fx-toggle]');
+  const close = (except?: string) => toggles.forEach(button => {
+    if (button.dataset.fxToggle === except) return;
+    button.setAttribute('aria-expanded', 'false');
+    document.getElementById(button.dataset.fxToggle!)!.hidden = true;
+  });
+  toggles.forEach(button => button.addEventListener('click', () => {
+    const panel = document.getElementById(button.dataset.fxToggle!)!;
+    const open = panel.hidden;
+    close(button.dataset.fxToggle);
+    panel.hidden = !open;
+    button.setAttribute('aria-expanded', String(open));
+    if (open) panel.querySelector<HTMLElement>('input, a')?.focus();
+  }));
+  document.addEventListener('keydown', event => {
+    if (event.key !== 'Escape') return;
+    const open = [...toggles].find(b => b.getAttribute('aria-expanded') === 'true');
+    if (open) { close(); open.focus(); }
+  });
+  type Entry = { t: string; p: string; c: string };
+  const normalize = (text: string) => text.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+  const entries = (JSON.parse(document.getElementById('fx-search-index')?.textContent ?? '[]') as Entry[]).map(e => ({ ...e, n: normalize(`${e.t} ${e.c}`) }));
+  const input = document.getElementById('fx-search-input') as HTMLInputElement | null;
+  const list = document.querySelector<HTMLUListElement>('.fx-search-results');
+  const status = document.getElementById('fx-search-status');
+  input?.addEventListener('input', () => {
+    if (!list || !status) return;
+    const words = normalize(input.value).split(/\s+/).filter(Boolean);
+    list.replaceChildren();
+    if (!words.length) { list.hidden = true; status.textContent = ''; return; }
+    const hits = entries.filter(e => words.every(w => e.n.includes(w))).slice(0, 8);
+    for (const hit of hits) {
+      const li = document.createElement('li'), a = document.createElement('a'), small = document.createElement('small');
+      a.href = hit.p; a.textContent = hit.t; small.textContent = hit.c; a.append(small); li.append(a); list.append(li);
+    }
+    if (!hits.length) { const li = document.createElement('li'); li.className = 'fx-search-empty'; li.textContent = 'Sin resultados. Prueba con otra palabra.'; list.append(li); }
+    list.hidden = false;
+    status.textContent = hits.length ? `${hits.length} resultado${hits.length === 1 ? '' : 's'}` : 'Sin resultados';
+  });
+  input?.addEventListener('keydown', event => { if (event.key === 'Enter') { const first = list?.querySelector('a'); if (first) { event.preventDefault(); location.href = first.href; } } });
+</script>

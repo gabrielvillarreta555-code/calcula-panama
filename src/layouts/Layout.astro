@@ -1,6 +1,9 @@
 ---
 import '../styles/global.css';
 import '../styles/share.css';
+import '../styles/functional.css';
+import FxHeader from '../components/fx/FxHeader.astro';
+import FxFooter from '../components/fx/FxFooter.astro';
 import Icon from '../components/Icon.astro';
 import { ADSENSE, CALCULATORS, SITE } from '../data/site';
 import { ADS_CSP, STRICT_CSP, adsAllowed } from '../data/ad-policy';
@@ -14,13 +17,16 @@ interface Props {
   schema?: Record<string, unknown> | Record<string, unknown>[];
   noindex?: boolean;
   blueShowcase?: boolean;
+  /** Midnight Functional (CP-DESIGN-007): cabecera, pie y estilos funcionales. Solo en las herramientas autorizadas. */
+  variant?: 'functional';
   /** Obsoleto: la publicidad se decide en src/data/ad-policy.json. Si es true, fuerza la página sin anuncios. */
   disableAds?: boolean;
   /** Único origen que la página puede incrustar en un iframe (p. ej., la app para el traslado). Se añade a la CSP estricta. */
   frameSrc?: string;
 }
 
-const { title, description, schema, noindex = false, blueShowcase = false, disableAds = false, frameSrc } = Astro.props;
+const { title, description, schema, noindex = false, blueShowcase = false, disableAds = false, frameSrc, variant } = Astro.props;
+const functional = variant === 'functional';
 const base = import.meta.env.BASE_URL;
 const href = (path: string) => `${base}${path.replace(/^\//, '')}`;
 // La ruta de Astro incluye la base (/calcula-panama/); se elimina para no duplicarla en la URL canónica.
@@ -74,8 +80,9 @@ const adsense = !disableAds && adsAllowed(relativePath);
     </script>
   )}
 </head>
-<body class:list={[{ 'blue-showcase': blueShowcase }]}>
+<body class:list={[{ 'blue-showcase': blueShowcase && !functional, fx: functional }]}>
   <a class="skip" href="#contenido">Saltar al contenido</a>
+  {!functional && (
   <header class="site-header">
     <nav class="nav container" aria-label="Navegación principal">
       <a class="brand" href={href('/')} aria-label={`${SITE.name}, inicio`}>
@@ -92,11 +99,14 @@ const adsense = !disableAds && adsAllowed(relativePath);
       <button class="icon-button menu-button" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="menu"><Icon name="menu" size={20} /></button>
     </nav>
   </header>
+  )}
+  {functional && <FxHeader />}
 
   {adsense && <p class="container legacy-notice" data-legacy-notice hidden>Tienes un presupuesto de Mi Quincena guardado en este navegador en la dirección anterior. <a href={href('/finanzas/mi-quincena/')}>Trasládalo a la nueva dirección</a>; mientras tanto, esta página no muestra publicidad.</p>}
   {adsense && <script is:inline>if (document.documentElement.dataset.ads === 'blocked') { var n = document.querySelector('[data-legacy-notice]'); if (n) n.hidden = false; }</script>}
   <main id="contenido"><slot /></main>
 
+  {!functional && (
   <footer class="site-footer">
     <div class="container">
       <div class="footer-grid">
@@ -130,13 +140,17 @@ const adsense = !disableAds && adsAllowed(relativePath);
       <p class="footer-bottom">Creado por <a class="footer-author" href="https://gabrielvillarreta555-code.github.io/" rel="author">Gabriel Villarreta · Blue Lab Studios</a>.<br>© {new Date().getFullYear()} {SITE.name}. Resultados orientativos: no constituyen asesoría legal, contable ni tributaria. No somos una entidad del Gobierno de Panamá.</p>
     </div>
   </footer>
+  )}
 
+  {!functional && (
   <nav class="tabbar" aria-label="Accesos rápidos">
     <a href={href('/')} aria-current={relativePath === '/' ? 'page' : undefined}><Icon name="home" size={22} /><span>Inicio</span></a>
     {CALCULATORS.slice(0, 2).map(item => <a href={href(item.path)} aria-current={isCurrent(item.path) ? 'page' : undefined}><Icon name={item.icon} size={22} /><span>{item.short}</span></a>)}
     <a href={href('/herramientas/')} aria-current={isCurrent('/herramientas/') ? 'page' : undefined}><Icon name="spark" size={22} /><span>Herramientas</span></a>
     <a href={href('/guias/')} aria-current={isCurrent('/guias/') ? 'page' : undefined}><Icon name="book" size={22} /><span>Guías</span></a>
   </nav>
+  )}
+  {functional && <FxFooter />}
 
   <script is:inline>
     (function(){
