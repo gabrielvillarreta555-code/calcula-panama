@@ -15,7 +15,7 @@ const schema = { '@context': 'https://schema.org', '@type': 'BreadcrumbList', it
   { '@type': 'ListItem', position: 2, name: tool.title, item: new URL(tool.path.slice(1), Astro.site).href },
 ] };
 ---
-<Layout title={`${tool.title} | Calcula Panamá`} description={tool.description} canonicalPath={tool.path} schema={schema} disableAds>
+<Layout title={`${tool.title} | Calcula Panamá`} description={tool.description} canonicalPath={tool.path} schema={schema}>
   <div class="container tools-page">
     <nav class="tool-breadcrumb" aria-label="Ruta de navegación"><a href={href('/herramientas/')}>Herramientas</a> / <a href={href(`/herramientas/#${categoryId}`)}>{tool.category}</a></nav>
     <header class="tool-heading"><p class="eyebrow">{tool.category} · Calcula Panamá</p><h1>{tool.title}</h1><p>{tool.intro}</p></header>
@@ -50,8 +50,9 @@ const schema = { '@context': 'https://schema.org', '@type': 'BreadcrumbList', it
       <section><h2>Cómo usar esta calculadora</h2><ol>{tool.steps.map(step => <li>{step}</li>)}</ol></section>
       <section><h2>Cómo se calcula</h2><p>{tool.formula}</p></section>
       <section><h2>Ejemplo verificable</h2><p>{tool.example}</p></section>
+      {tool.context && <section><h2>En la práctica, en Panamá</h2>{tool.context.map(item => <p>{item}</p>)}</section>}
       <section><h2>Alcance y limitaciones</h2><ul>{tool.limits.map(limit => <li>{limit}</li>)}</ul><p>Resultados orientativos. No son importes oficiales ni certificaciones.</p></section>
-      <section><h2>Fuentes y metodología</h2><ul>{tool.sources.map(source => <li><a href={source.url}>{source.title}</a></li>)}</ul><p>Metodología de Blue Lab Studios. Fuentes consultadas el <time datetime={checkedOn}>{checkedLabel}</time>.</p></section>
+      <section><h2>Fuentes y metodología</h2>{tool.sources.length > 0 && <ul>{tool.sources.map(source => <li><a href={source.url}>{source.title}</a></li>)}</ul>}{tool.sourceNote && <p>{tool.sourceNote}</p>}<p>Metodología de Blue Lab Studios.{tool.sources.length > 0 && <> Fuentes consultadas el <time datetime={checkedOn}>{checkedLabel}</time>.</>}</p></section>
       {tool.faq && <Faq items={tool.faq} />}
       <section><h2>Herramientas relacionadas</h2><ul>{tool.related.map(item => <li><a href={href(item.path)}>{item.title}</a></li>)}</ul></section>
     </article>

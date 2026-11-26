@@ -112,5 +112,29 @@ describe('electricity', () => {
 it('catalog keeps five unique complete editorial entries', () => {
   expect(expansionTools).toHaveLength(5);
   for (const key of ['path', 'title', 'description'] as const) expect(new Set(expansionTools.map(t => t[key])).size).toBe(5);
-  for (const t of expansionTools) { expect(t.sources.length).toBeGreaterThan(0); expect(t.example.length).toBeGreaterThan(60); expect(t.limits.length).toBeGreaterThan(1); }
+  for (const t of expansionTools) { expect(t.sources.length > 0 || Boolean(t.sourceNote)).toBe(true); expect(t.example.length).toBeGreaterThan(60); expect(t.limits.length).toBeGreaterThan(1); }
+});
+
+describe('ejemplos de contexto y preguntas frecuentes (CP-ADS-002)', () => {
+  it('precio por unidad: libra a kilo y paquetes múltiples', () => {
+    expect(compareUnits([{ price: 1.99, quantity: 1, unit: 'lb' }, { price: 4.39, quantity: 1, unit: 'kg' }]).values[0]).toBeCloseTo(4.387, 3);
+    const r = compareUnits([{ price: 4.5, quantity: 2130, unit: 'ml' }, { price: 2.75, quantity: 2, unit: 'l' }]);
+    expect(r.values[0]).toBeCloseTo(2.1127, 4); expect(r.values[1]).toBeCloseTo(1.375, 10); expect(r.winners).toEqual([1]);
+  });
+  it('descuentos: 30% + 20% y segunda unidad al 50%', () => {
+    expect(promotion(100, 1, 'successive', 30, 20).total).toBe(56);
+    expect(promotion(10, 2, 'second', 50).total).toBe(15);
+    expect(promotion(6, 3, '2x1').total).toBe(12);
+  });
+  it('ahorro: 12 aportes mensuales de B/.100 entre febrero de 2027 y enero de 2028', () => {
+    const r = savings(1200, 0, '2027-02-01', '2028-01-31', 'monthly');
+    expect(r.plan).toHaveLength(12); expect(r.plan.every(row => row.amount === 100)).toBe(true); expect(r.plan[0]?.date).toBe('2027-02-01');
+  });
+  it('notas: escala de 1 a 5 con 40% pendiente', () => {
+    const r = grades([{ score: 4, weight: 30 }, { score: 3.5, weight: 30 }], 5, 3);
+    expect(r.points).toBeCloseTo(2.25, 10); expect(r.required).toBeCloseTo(1.875, 10); expect(r.possible).toBe(true);
+  });
+  it('consumo eléctrico: aire acondicionado de 1,100 W', () => {
+    const r = electricity(1100, 8, 30, 60, 0.2); expect(r.kwh).toBeCloseTo(158.4, 10); expect(r.cost).toBeCloseTo(31.68, 10);
+  });
 });
