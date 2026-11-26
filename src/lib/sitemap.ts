@@ -1,5 +1,5 @@
 /** Páginas que no deben aparecer en el sitemap (no son contenido indexable). */
-export const SITEMAP_EXCLUDED = new Set(['/404/']);
+export const SITEMAP_EXCLUDED = new Set(['/404/', '/ensayo/traslado-quincena/']);
 
 /**
  * Convierte rutas de archivos de `src/pages` (p. ej. `./guias/index.astro`) en rutas públicas

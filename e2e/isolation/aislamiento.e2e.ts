@@ -162,3 +162,19 @@ test('la app no carga recursos de terceros, aplica la CSP estricta y es noindex'
   expect(await stored(page)).toContain('"openingCents":100000');
   expect(external).toEqual([]);
 });
+
+test('ensayo: el canal de datos ficticios traslada a su propia clave y no toca el presupuesto real', async ({ page }) => {
+  await seed(page, MAIN, SAMPLE_BUDGET);
+  await page.goto(`${MAIN}/ensayo/traslado-quincena/`);
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex');
+  await page.getByRole('button', { name: '1. Crear presupuesto ficticio' }).click();
+  await page.getByRole('button', { name: '2. Trasladar el presupuesto ficticio' }).click();
+  await expect(page.locator('[data-migration-done]')).toBeVisible();
+  expect(await stored(page)).toBe(SAMPLE_BUDGET);
+  await page.getByRole('button', { name: 'Comprobar desde esta página' }).click();
+  await expect(page.locator('[data-check="cross-origin-blocked"]')).toHaveAttribute('data-ok', 'true');
+  await expect(page.locator('[data-check="no-real-budget"]')).toHaveAttribute('data-ok', 'false');
+  await page.goto(`${APP}/ensayo/`);
+  await expect(page.locator('[data-rehearsal-state]')).toContainText('B/.1234.56');
+  expect(await stored(page)).toBeNull();
+});

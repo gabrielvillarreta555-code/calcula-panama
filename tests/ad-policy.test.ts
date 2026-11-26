@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readdirSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { AD_POLICY, ADS_ACTIVE, ADS_CSP, STRICT_CSP, adPolicyFor, adsAllowed, pagesByTier, policyKey } from '../src/data/ad-policy';
-import { sitemapPaths } from '../src/lib/sitemap';
+import { SITEMAP_EXCLUDED, sitemapPaths } from '../src/lib/sitemap';
 
 const pageFiles = (dir: string): string[] => readdirSync(dir).flatMap(name => {
   const file = join(dir, name);
@@ -13,7 +13,7 @@ describe('política de publicidad por página (CP-ADS-002)', () => {
   it('cada página pública tiene una política explícita', () => {
     const paths = sitemapPaths(pageFiles('src/pages'));
     expect(paths.filter(path => !(path in AD_POLICY))).toEqual([]);
-    expect(Object.keys(AD_POLICY).filter(path => path !== '/404/' && !paths.includes(path))).toEqual([]);
+    expect(Object.keys(AD_POLICY).filter(path => !SITEMAP_EXCLUDED.has(path) && !paths.includes(path))).toEqual([]);
   });
   it('la publicidad está pausada y ninguna página la carga', () => {
     expect(ADS_ACTIVE).toBe(false);

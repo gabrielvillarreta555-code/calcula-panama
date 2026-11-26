@@ -1,0 +1,57 @@
+---
+/**
+ * Página interna de ensayo (CP-ADS-004). No está enlazada, no está en el sitemap y es noindex.
+ * Solo usa presupuestos FICTICIOS en una clave aparte (cp-ensayo-quincena-v1): nunca lee, envía ni borra el presupuesto real.
+ */
+import Layout from '../../layouts/Layout.astro';
+import { APP_ORIGIN } from '../../data/isolation';
+---
+<Layout title="Ensayo del traslado de Mi Quincena | Calcula Panamá" description="Página interna de ensayo con datos ficticios." canonicalPath="/ensayo/traslado-quincena/" noindex frameSrc={APP_ORIGIN}>
+  <article class="container article" id="rehearsal" data-app-origin={APP_ORIGIN} data-channel="ensayo">
+    <h1>Ensayo del traslado de Mi Quincena</h1>
+    <p class="notice">Página interna de validación. Usa <strong>solo un presupuesto ficticio</strong> guardado en una clave de ensayo. No lee, no envía y no borra presupuestos reales.</p>
+    <p><button class="button secondary" type="button" data-rehearsal-create>1. Crear presupuesto ficticio</button></p>
+    <section class="notice" data-migration-panel hidden>
+      <p>Hay un presupuesto ficticio de ensayo en este navegador.</p>
+      <p><button class="button primary" type="button" data-migration-move>2. Trasladar el presupuesto ficticio</button> <a class="button secondary" data-migration-download href="#">Descargar copia</a></p>
+      <p role="status" data-migration-status></p>
+    </section>
+    <section class="notice" data-migration-done hidden>
+      <p>Ensayo trasladado: el presupuesto ficticio ya no está en esta dirección. <a href={`${APP_ORIGIN}/ensayo/`}>3. Comprobarlo en la app</a>.</p>
+    </section>
+    <h2>4. Comprobación de aislamiento</h2>
+    <p><button class="button secondary" type="button" data-isolation-check>Comprobar desde esta página</button></p>
+    <ul data-isolation-result></ul>
+  </article>
+  <script>
+    import { mountMigration } from '../../lib/finance/migration-bridge';
+    import { BUDGET_KEY, REHEARSAL_KEY } from '../../lib/finance/storage-keys';
+    const root = document.querySelector<HTMLElement>('#rehearsal');
+    const FICTITIOUS = { version: 1, start: '2026-11-15', payday: '2026-11-30', openingCents: 123456, savingsCents: 1000, movements: [{ id: 'ensayo-1', name: 'Gasto ficticio de ensayo', cents: 4321, category: 'otros', date: '', kind: 'gasto', status: 'pendiente', recurring: false }] };
+    if (root) {
+      mountMigration(root);
+      root.querySelector('[data-rehearsal-create]')?.addEventListener('click', () => {
+        try { localStorage.setItem(REHEARSAL_KEY, JSON.stringify(FICTITIOUS)); } catch { return; }
+        root.dispatchEvent(new Event('cp-rehearsal-created'));
+      });
+      root.querySelector('[data-isolation-check]')?.addEventListener('click', () => {
+        const out = root.querySelector<HTMLUListElement>('[data-isolation-result]')!;
+        const line = (id: string, ok: boolean, text: string) => { const li = document.createElement('li'); li.dataset.check = id; li.dataset.ok = String(ok); li.textContent = `${ok ? '✔' : '✘'} ${text}`; out.append(li); };
+        out.replaceChildren();
+        let keys: string[] = [];
+        try { keys = Object.keys(localStorage); } catch { /* sin acceso */ }
+        line('no-real-budget', !keys.includes(BUDGET_KEY), 'Este origen no conserva un presupuesto real de Mi Quincena');
+        line('no-rehearsal-budget', !keys.includes(REHEARSAL_KEY), 'Este origen no conserva el presupuesto ficticio');
+        const frame = document.createElement('iframe');
+        frame.hidden = true; frame.title = 'Comprobación de aislamiento'; frame.src = `${root.dataset.appOrigin}/importar/`;
+        frame.addEventListener('load', () => {
+          let blocked = false;
+          try { blocked = frame.contentWindow?.localStorage === undefined; void frame.contentDocument?.body; blocked = blocked || frame.contentDocument === null; } catch { blocked = true; }
+          line('cross-origin-blocked', blocked, 'El almacenamiento y el contenido de la app son inaccesibles desde este origen');
+          frame.remove();
+        });
+        root.append(frame);
+      });
+    }
+  </script>
+</Layout>
