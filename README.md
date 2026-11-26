@@ -55,6 +55,13 @@ Los flujos compilan con `SITE_URL=https://calculapanama.com/` y `BASE_PATH=/`, a
 - Bloques manuales: `ADSENSE.slots` (`afterResult`, `inArticle`). Nunca entre el formulario y el resultado.
 - Antes de activar: configurar el mensaje de consentimiento certificado (EEE, Reino Unido, Suiza) en AdSense → Privacidad y mensajes, y actualizar la fecha de `/privacidad/`.
 
+## App sin publicidad (app.calculapanama.com)
+
+- `npm run build:app` compila `app/` en `dist-app/`. Contiene Mi Quincena (`/quincena/`) y el receptor del traslado (`/importar/`). Nunca lleva publicidad ni scripts de terceros, y `npm run verify:app` lo comprueba.
+- `src/data/isolation.json` → `quincenaMoved`: con `true`, `/finanzas/mi-quincena/` pasa a ser la página de presentación con el traslado verificado de los presupuestos guardados. La publicidad no puede activarse sin este paso.
+- `npm run test:isolation` prueba el aislamiento con tres orígenes `*.localhost` y un script espía en lugar de AdSense.
+- Despliegue, DNS y orden de publicación: `docs/cp-ads-003/README.md`.
+
 ## Antes del lanzamiento público
 
 - El canal de contacto actual son las incidencias públicas de GitHub. Si quieres un correo, añádelo en `src/pages/contacto.astro`.
