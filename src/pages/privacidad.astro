@@ -2,33 +2,56 @@
 import Layout from '../layouts/Layout.astro';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
 import { SITE, isAdsenseEnabled } from '../data/site';
-const ads = isAdsenseEnabled();
+import { ADS_ACTIVE, pagesByTier } from '../data/ad-policy';
+const ads = ADS_ACTIVE && isAdsenseEnabled();
+const adPages = pagesByTier('stage1').length;
+const base = import.meta.env.BASE_URL;
+const href = (p: string) => `${base}${p.replace(/^\//, '')}`;
 ---
-<Layout title="Política de privacidad | Calcula Panamá" description="Cómo trata Calcula Panamá los datos: cálculos locales en el navegador, preferencias guardadas en tu dispositivo y uso de publicidad." canonicalPath="/privacidad/">
+<Layout title="Política de privacidad | Calcula Panamá" description="Cómo trata Calcula Panamá tus datos: cálculos en tu navegador, qué se guarda en tu dispositivo, alojamiento, publicidad y cookies de terceros." canonicalPath="/privacidad/">
   <header class="page-head container">
     <Breadcrumbs items={[{ label: 'Privacidad', path: '/privacidad/' }]} />
     <span class="eyebrow">Legal</span>
     <h1>Política de privacidad</h1>
-    <p>Última actualización: 24 de octubre de 2026.</p>
+    <p>Última actualización: 26 de noviembre de 2026.</p>
   </header>
   <article class="container article">
-    <h2>Datos que escribes en las calculadoras</h2>
-    <p>Los cálculos se procesan en tu navegador. En Mi Quincena, las fechas, importes y movimientos se guardan en el almacenamiento local del navegador para recuperarlos en este dispositivo; puedes eliminarlos desde la herramienta. En la calculadora de préstamos, las calculadoras laborales y Modo Pasillo no guardamos esos datos. Al compartir, revisas el texto y eliges si incluir importes o productos. Si eliges WhatsApp u otra aplicación, esa aplicación recibe el texto y aplica su propia política. La URL de WhatsApp contiene el mensaje elegido y puede ser tratada por el navegador y WhatsApp; evita incluir información que no quieras compartir.</p>
+    <p>Responsable del sitio: Blue Lab Studios, a través del proyecto Calcula Panamá (<a href={href('/sobre-nosotros/')}>quiénes somos</a>).</p>
+
+    <h2>Datos que escribes en las herramientas</h2>
+    <p>Todas las calculadoras hacen sus cálculos en tu navegador. Las cifras que escribes (salarios, importes, fechas, precios, notas o consumos) no se envían a ningún servidor nuestro ni de terceros. No pedimos cuentas, nombres, correos ni números de cédula.</p>
+    <ul>
+      <li><strong>Mi Quincena</strong> guarda las fechas, importes y movimientos de tu presupuesto en el almacenamiento local del navegador, para que los recuperes en este dispositivo. Puedes eliminarlos desde la propia herramienta.</li>
+      <li><strong>Las demás herramientas</strong> no guardan lo que escribes: al recargar o cerrar la página, los datos se pierden.</li>
+      <li><strong>Compartir:</strong> antes de compartir un resultado ves el texto y eliges si incluir importes o productos. Si eliges WhatsApp u otra aplicación, esa aplicación recibe el texto y aplica su propia política. La dirección de WhatsApp contiene el mensaje elegido y pueden tratarla el navegador y WhatsApp, así que no incluyas información que no quieras compartir.</li>
+    </ul>
+
     <h2>Preferencias guardadas en tu dispositivo</h2>
-    <p>Si eliges el modo claro u oscuro, esa preferencia se guarda en el almacenamiento local de tu navegador. Puedes borrarla desde su configuración.</p>
+    <p>Si eliges el modo claro u oscuro, o si muestras u ocultas a Blue, la preferencia se guarda en el almacenamiento local de tu navegador. Puedes borrarla desde la configuración del navegador.</p>
+
+    <h2>Protecciones técnicas</h2>
+    <p>Las páginas sin publicidad aplican una política de seguridad de contenido (CSP) que solo permite scripts del propio sitio y bloquea cualquier conexión de red desde la página. Las herramientas donde escribes datos personales, como salarios, préstamos, presupuestos o notas, no cargan publicidad ni scripts de terceros.</p>
+
     <h2>Alojamiento</h2>
-    <p>El sitio se publica en GitHub Pages. Como cualquier servidor web, GitHub puede registrar datos técnicos de la conexión (por ejemplo, la dirección IP) para operar y proteger el servicio. Las calculadoras laborales, Mi Quincena, préstamos y Modo Pasillo no cargan el script publicitario de Google; otras páginas pueden cargarlo si está activado.</p>
-    <h2>Publicidad</h2>
+    <p>El sitio se publica en GitHub Pages. Como cualquier servidor web, GitHub puede registrar datos técnicos de la conexión (por ejemplo, la dirección IP) para operar y proteger el servicio, según su propia política de privacidad.</p>
+
+    <h2>Publicidad y cookies de terceros</h2>
     {ads ? (
       <>
-        <p>Este sitio muestra anuncios de Google AdSense. Google y sus socios pueden usar cookies u otros identificadores para mostrar anuncios basados en tus visitas a este y otros sitios web. Puedes desactivar la publicidad personalizada en la <a href="https://adssettings.google.com/" target="_blank" rel="noopener noreferrer">configuración de anuncios de Google</a>.</p>
-        <p>Más información: <a href="https://policies.google.com/technologies/partner-sites" target="_blank" rel="noopener noreferrer">cómo utiliza Google la información de los sitios que usan sus servicios</a>.</p>
+        <p>Algunas páginas ({adPages} como máximo: guías, directorios y herramientas que no piden datos personales) muestran anuncios de Google AdSense. En esas páginas, Google y sus socios publicitarios pueden usar cookies u otros identificadores para mostrar anuncios y medir su rendimiento, incluidos anuncios basados en tus visitas a este y a otros sitios web.</p>
+        <p>Puedes desactivar la publicidad personalizada en la <a href="https://adssettings.google.com/" target="_blank" rel="noopener noreferrer">configuración de anuncios de Google</a>. Más información sobre <a href="https://policies.google.com/technologies/partner-sites" target="_blank" rel="noopener noreferrer">cómo utiliza Google la información de los sitios que usan sus servicios</a>.</p>
+        <p>Si visitas el sitio desde el Espacio Económico Europeo, el Reino Unido o Suiza, se te pedirá el consentimiento mediante el mensaje de Google antes de usar cookies publicitarias.</p>
       </>
     ) : (
-      <p>Actualmente no se muestran anuncios ni se usan cookies publicitarias o de analítica. Si en el futuro se activan, esta política se actualizará antes, con la información sobre cookies de terceros y las opciones para desactivarlas.</p>
+      <p>Ahora mismo la publicidad está pausada: ninguna página carga scripts publicitarios ni usa cookies publicitarias o de analítica. Si la activamos, será solo en guías, directorios y herramientas que no piden datos personales. Antes de activarla actualizaremos esta política con la información sobre cookies de Google y de sus socios, las opciones para desactivar la publicidad personalizada y el consentimiento que se exige a los visitantes del Espacio Económico Europeo, el Reino Unido y Suiza.</p>
     )}
+
     <h2>Enlaces externos</h2>
     <p>Los enlaces a instituciones oficiales y a otros sitios tienen sus propias políticas. Calcula Panamá no controla esos sitios.</p>
+
+    <h2>Cambios en esta política</h2>
+    <p>Si cambia la forma en que tratamos los datos, actualizaremos esta página y su fecha antes de aplicar el cambio.</p>
+
     <h2>Contacto</h2>
     <p>Para dudas sobre esta política, usa el <a href={SITE.issuesUrl} target="_blank" rel="noopener noreferrer">canal público de reportes</a> sin incluir datos personales.</p>
   </article>
