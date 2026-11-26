@@ -8,7 +8,7 @@ const href = (p: string) => `${base}${p.replace(/^\//, '')}`;
 const appUrl = `${APP_ORIGIN}/quincena/`;
 const schema = { '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'Mi Quincena', applicationCategory: 'FinanceApplication', operatingSystem: 'Web', ...(QUINCENA_MOVED ? { url: appUrl } : {}), offers: { '@type': 'Offer', price: '0', priceCurrency: 'PAB' } };
 ---
-<Layout title="Calculadora de Quincena y Presupuesto Personal en Panamá | Calcula Panamá" description="Organiza tu quincena, calcula cuánto puedes gastar diariamente y controla gastos, deudas y ahorros hasta tu próximo pago." canonicalPath="/finanzas/mi-quincena/" schema={schema} frameSrc={QUINCENA_MOVED ? APP_ORIGIN : undefined}>
+<Layout title="Calculadora de Quincena y Presupuesto Personal en Panamá | Calcula Panamá" description="Organiza tu quincena, calcula cuánto puedes gastar diariamente y controla gastos, deudas y ahorros hasta tu próximo pago." canonicalPath="/finanzas/mi-quincena/" schema={schema} frameSrc={QUINCENA_MOVED ? APP_ORIGIN : undefined} variant={QUINCENA_MOVED ? undefined : 'functional'}>
   {QUINCENA_MOVED ? (
     <>
       <header class="page-head container">
@@ -52,6 +52,6 @@ const schema = { '@context': 'https://schema.org', '@type': 'SoftwareApplication
       </script>
     </>
   ) : (
-    <MiQuincenaApp blue={href('/blue-flotante.webp')} loanHref={href('/finanzas/calculadora-prestamos/')} breadcrumbs />
+    <MiQuincenaApp loanHref={href('/finanzas/calculadora-prestamos/')} breadcrumbs />
   )}
 </Layout>

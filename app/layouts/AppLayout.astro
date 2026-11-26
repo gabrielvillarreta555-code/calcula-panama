@@ -5,6 +5,7 @@
  */
 import '../../src/styles/global.css';
 import '../../src/styles/share.css';
+import '../../src/styles/functional.css';
 import { STRICT_CSP } from '../../src/data/ad-policy';
 import { MAIN_ORIGIN } from '../../src/data/isolation';
 interface Props { title: string; description?: string; bare?: boolean }
@@ -25,21 +26,13 @@ const main = (path: string) => `${MAIN_ORIGIN}${path}`;
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <script is:inline>try{var t=localStorage.getItem('cp-theme');if(t==='dark'||t==='light')document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
-<body>
+<body class="fx">
   {!bare && (
-    <header class="site-header">
-      <nav class="nav container" aria-label="Navegación principal">
-        <a class="brand" href={main('/')} aria-label="Calcula Panamá, inicio"><span class="brand-mark" aria-hidden="true"><span></span></span><span class="brand-name">Calcula<b>Panamá</b></span></a>
-      </nav>
-    </header>
+    <header class="fx-header"><div class="fx-wrap fx-header-bar"><a class="fx-wordmark" href={main('/')} aria-label="Calcula Panamá, inicio">CALCULA.</a></div></header>
   )}
   <main id="contenido"><slot /></main>
   {!bare && (
-    <footer class="site-footer">
-      <div class="container">
-        <p class="footer-bottom">Mi Quincena es parte de <a href={main('/')}>Calcula Panamá</a>, de Blue Lab Studios. Esta dirección no muestra publicidad ni carga scripts de terceros. <a href={main('/privacidad/')}>Privacidad</a> · <a href={main('/terminos/')}>Términos</a> · <a href={main('/contacto/')}>Contacto</a></p>
-      </div>
-    </footer>
+    <footer class="fx-footer"><div class="fx-wrap"><nav aria-label="Enlaces"><a href={main('/privacidad/')}>Privacidad</a><a href={main('/terminos/')}>Términos</a><a href={main('/contacto/')}>Contacto</a></nav><p>Mi Quincena es parte de Calcula Panamá, de Blue Lab Studios. Esta dirección no muestra publicidad ni carga scripts de terceros.</p></div></footer>
   )}
 </body>
 </html>

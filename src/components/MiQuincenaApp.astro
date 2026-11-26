@@ -1,59 +1,117 @@
 ---
-/** Aplicación Mi Quincena. Se usa en el origen de la app (app.calculapanama.com) y, mientras no se traslade, en el sitio principal. */
-import Breadcrumbs from './Breadcrumbs.astro';
-import '../styles/pay-period.css';
-interface Props { blue: string; loanHref: string; breadcrumbs?: boolean }
-const { blue, loanHref, breadcrumbs = false } = Astro.props;
+/**
+ * Mi Quincena — Midnight Functional (CP-DESIGN-007). Se usa en el sitio principal mientras no se traslade
+ * y en el origen aislado de la app. Los identificadores y la lógica (budget-ui.ts) no cambian: solo la presentación.
+ * Los datos siguen guardándose únicamente en el almacenamiento local de este origen.
+ */
+import FxCrumb from './fx/FxCrumb.astro';
+import FxIcon from './fx/FxIcon.astro';
+interface Props { loanHref: string; breadcrumbs?: boolean }
+const { loanHref, breadcrumbs = false } = Astro.props;
 ---
-<div class="budget-page" id="budget-app">
-    <header class="budget-head container">
-      {breadcrumbs && <Breadcrumbs items={[{ label: 'Mi Quincena', path: '/finanzas/mi-quincena/' }]} />}
-      <div class="budget-head-grid"><div><span class="eyebrow">Finanzas personales</span><h1>Mi Quincena</h1><p>Un plan claro para lo que tienes hoy, hasta tu próximo pago.</p></div><img src={blue} alt="" width="360" height="432" /></div>
-    </header>
+<div class="fx-wrap budget-page" id="budget-app">
+  {breadcrumbs && <FxCrumb items={[{ label: 'Mi Quincena', path: '/finanzas/mi-quincena/' }]} category={{ label: 'Finanzas', path: '/herramientas/#finanzas' }} />}
+  <div class="fx-title" style={breadcrumbs ? '' : 'margin-top:20px'}><FxIcon name="calendar" size={22} framed class="is-lg" /><h1>Mi Quincena</h1></div>
+  <p class="fx-lede">Un plan claro para lo que tienes hoy, hasta tu próximo pago.</p>
 
-    <div class="budget-content container">
-      <p>¿Consideras un préstamo? <a href={loanHref}>Calcula sus cuotas e intereses →</a></p>
-      <section class="budget-summary" aria-labelledby="summary-title">
-        <div class="budget-summary-top"><div><span class="budget-overline">Tu plan, de un vistazo</span><h2 id="summary-title">Disponible para gastar</h2><strong class="budget-hero-amount" data-result="free">—</strong></div><span class="budget-summary-symbol" aria-hidden="true">✦</span></div>
-        <div class="budget-summary-grid" aria-live="polite">
-          <div><span>Presupuesto diario</span><strong data-result="daily">—</strong></div><div><span>Días hasta tu pago</span><strong data-result="days">—</strong></div>
-          <div><span>Gastos pendientes</span><strong data-result="pending">—</strong></div><div><span>Ahorro reservado</span><strong data-result="savings">—</strong></div>
-        </div>
-        <div class="budget-blue"><img src={blue} alt="" width="360" height="432" /><p data-blue-message>Completa las fechas para empezar tu plan.</p></div>
-        <button class="share-trigger" id="budget-share" type="button">Compartir resultado</button>
-      </section>
+  <div class="fx-tool">
+    <section class="fx-panel fx-o1" aria-labelledby="summary-title" id="budget-summary">
+      <span class="fx-overline" id="summary-title">Saldo disponible</span>
+      <strong class="fx-amount" data-result="free" aria-live="polite">—</strong>
+      <div class="fx-progress" id="budget-progress" role="img" aria-label="Porcentaje del dinero inicial que queda libre"><span></span></div>
+      <p class="fx-sub" id="budget-progress-text">Completa las fechas y los importes para ver tu plan.</p>
+      <div class="fx-stats">
+        <div class="fx-stat"><span><FxIcon name="arrowDownLeft" size={16} />Dinero inicial</span><strong data-result="opening">B/.0.00</strong></div>
+        <div class="fx-stat"><span><FxIcon name="arrowUpRight" size={16} />Gastos</span><strong data-result="expenses">B/.0.00</strong></div>
+      </div>
+      <div class="fx-stats fx-stats-compact" aria-live="polite">
+        <div class="fx-stat"><span>Presupuesto diario</span><strong data-result="daily">—</strong></div>
+        <div class="fx-stat"><span>Días hasta tu pago</span><strong data-result="days">—</strong></div>
+        <div class="fx-stat"><span>Gastos pendientes</span><strong data-result="pending">—</strong></div>
+        <div class="fx-stat"><span>Ahorro reservado</span><strong data-result="savings">—</strong></div>
+        <div class="fx-stat"><span>Ya pagado</span><strong data-result="paid">B/.0.00</strong></div>
+        <div class="fx-stat"><span>Saldo actual</span><strong data-result="current">B/.0.00</strong></div>
+      </div>
+      <p class="fx-hint" style="display:flex;gap:8px;align-items:flex-start;margin-top:14px"><FxIcon name="info" size={16} /><span data-blue-message>Completa las fechas para empezar tu plan.</span></p>
+      <p class="fx-sub" id="budget-alert" role="status" style="margin-top:10px"></p>
+    </section>
 
-      <div class="budget-breakdown" aria-label="Detalle del saldo" aria-live="polite"><div><span>Saldo inicial</span><strong data-result="opening">B/.0.00</strong></div><div><span>Ya pagado</span><strong data-result="paid">B/.0.00</strong></div><div><span>Saldo actual</span><strong data-result="current">B/.0.00</strong></div></div>
-      <p class="budget-alert" id="budget-alert" role="status"></p>
-
-      <section class="budget-panel" aria-labelledby="period-title">
-        <div class="budget-section-head"><div><span class="budget-overline">01 · Tu período</span><h2 id="period-title">¿Cuándo vuelves a cobrar?</h2></div><span aria-hidden="true">◷</span></div>
-        <form id="period-form" novalidate>
-          <div class="budget-fields"><label>Fecha de inicio<input id="budget-start" type="date" required /></label><label>Fecha del próximo pago<input id="budget-payday" type="date" required /></label><label class="budget-wide">Dinero disponible al empezar <span class="budget-field-hint">B/.</span><input id="budget-opening" type="text" inputmode="decimal" autocomplete="off" value="0.00" required /></label></div>
-          <p class="budget-note">Introduce lo que tienes hoy. Registra como pagados solo los gastos que pagues después de empezar este plan, para no descontarlos dos veces.</p>
-          <p class="budget-note">Se cuenta desde el inicio o desde hoy —lo que sea posterior— y se excluye el día del próximo pago. El pago futuro no se suma al saldo actual.</p>
-          <p class="budget-error" id="period-error" role="alert"></p>
+    <div class="fx-o2 fx-col-side" style="display:grid;gap:16px">
+      <section class="fx-panel" aria-labelledby="period-title">
+        <h2 class="fx-panel-title" id="period-title"><span style="display:flex;align-items:center;gap:10px"><FxIcon name="wallet" />Tu quincena</span></h2>
+        <form id="period-form" class="fx-form" novalidate>
+          <div>
+            <label class="fx-label" for="budget-opening">Dinero disponible al empezar</label>
+            <div class="fx-money"><span class="fx-prefix" aria-hidden="true">B/.</span><input id="budget-opening" type="text" inputmode="decimal" autocomplete="off" value="0.00" required /><FxIcon name="pencil" size={18} /></div>
+          </div>
+          <div class="fx-grid-2">
+            <div><label class="fx-label" for="budget-start">Fecha de inicio</label><input id="budget-start" type="date" required /></div>
+            <div><label class="fx-label" for="budget-payday">Fecha del próximo pago</label><input id="budget-payday" type="date" required /></div>
+          </div>
+          <p class="fx-hint">Introduce lo que tienes hoy. Registra como pagados solo los gastos que pagues después de empezar este plan, para no descontarlos dos veces. Se cuenta desde el inicio o desde hoy —lo que sea posterior— y se excluye el día del próximo pago.</p>
+          <p class="fx-error" id="period-error" role="alert"></p>
         </form>
       </section>
 
-      <section class="budget-panel" aria-labelledby="moves-title">
-        <div class="budget-section-head"><div><span class="budget-overline">02 · Gastos y deudas</span><h2 id="moves-title">Lo que tienes por cubrir</h2></div><button type="button" class="budget-text-button" id="unexpected">+ Imprevisto</button></div>
-        <form id="movement-form" novalidate>
-          <div class="budget-fields"><label class="budget-wide">Nombre<input id="move-name" maxlength="80" autocomplete="off" placeholder="Ej. Internet" required /></label><label>Importe en B/.<input id="move-amount" type="text" inputmode="decimal" autocomplete="off" placeholder="0.00" required /></label><label>Categoría<select id="move-category"><option value="alimentacion">Alimentación</option><option value="transporte">Transporte</option><option value="vivienda">Vivienda</option><option value="servicios">Servicios</option><option value="deudas">Deudas</option><option value="salud">Salud</option><option value="otros">Otros</option></select></label><label>Tipo<select id="move-kind"><option value="gasto">Gasto</option><option value="deuda">Deuda</option></select></label><label>Fecha prevista <span class="budget-field-hint">(opcional)</span><input id="move-date" type="date" /></label></div>
-          <label class="budget-check"><input id="move-recurring" type="checkbox" /> Repetir en el próximo período si lo elijo</label>
-          <p class="budget-error" id="movement-error" role="alert"></p><button type="submit" class="budget-primary">+ Añadir movimiento</button>
+      <section class="fx-panel" aria-labelledby="moves-title">
+        <h2 class="fx-panel-title" id="moves-title"><span style="display:flex;align-items:center;gap:10px"><FxIcon name="receipt" />Registrar gasto</span><button type="button" class="fx-btn is-ghost" id="unexpected" style="min-height:44px;padding:0 12px;font-size:14px">+ Imprevisto</button></h2>
+        <form id="movement-form" class="fx-form" novalidate>
+          <div><label class="fx-label" for="move-name">Nombre del gasto</label><input id="move-name" maxlength="80" autocomplete="off" placeholder="Ej. Internet" required /></div>
+          <div class="fx-grid-2">
+            <div><label class="fx-label" for="move-amount">Importe en B/.</label><input id="move-amount" type="text" inputmode="decimal" autocomplete="off" placeholder="0.00" required /></div>
+            <div><label class="fx-label" for="move-category">Categoría</label><div class="fx-select"><select id="move-category"><option value="alimentacion">Alimentación</option><option value="transporte">Transporte</option><option value="vivienda">Vivienda</option><option value="servicios">Servicios</option><option value="deudas">Deudas</option><option value="salud">Salud</option><option value="otros">Otros</option></select><FxIcon name="chevronDown" size={18} /></div></div>
+            <div><label class="fx-label" for="move-kind">Tipo</label><div class="fx-select"><select id="move-kind"><option value="gasto">Gasto</option><option value="deuda">Deuda</option></select><FxIcon name="chevronDown" size={18} /></div></div>
+            <div><label class="fx-label" for="move-date">Fecha prevista (opcional)</label><input id="move-date" type="date" /></div>
+          </div>
+          <label class="fx-check"><input id="move-recurring" type="checkbox" /><span>Repetir en el próximo período si lo elijo</span></label>
+          <p class="fx-error" id="movement-error" role="alert"></p>
+          <button type="submit" class="fx-btn is-block"><FxIcon name="plus" size={20} />Añadir movimiento</button>
         </form>
-        <div class="budget-list-header"><h3>Movimientos</h3><span id="movement-count">0</span></div><p id="movement-empty" class="budget-empty">Todavía no hay movimientos. Añade un gasto o deuda para empezar.</p><ul id="movement-list" class="budget-list" aria-label="Movimientos del período"></ul>
       </section>
-
-      <section class="budget-panel" aria-labelledby="savings-title"><div class="budget-section-head"><div><span class="budget-overline">03 · Ahorro</span><h2 id="savings-title">Reserva para tu meta</h2></div><span aria-hidden="true">◇</span></div><label class="budget-savings-label" for="budget-savings">¿Cuánto quieres apartar? <span class="budget-field-hint">B/.</span></label><input id="budget-savings" type="text" inputmode="decimal" autocomplete="off" value="0.00" /><p class="budget-note">El ahorro se resta del dinero libre. Puedes cambiarlo cuando quieras.</p><p class="budget-error" id="savings-error" role="alert"></p></section>
-
-      <section class="budget-panel budget-privacy" aria-labelledby="privacy-title"><div><span class="budget-overline">04 · Tu privacidad</span><h2 id="privacy-title">Tu presupuesto se queda contigo</h2><p>Se guarda solo en este navegador, sin cuenta ni sincronización. Si borras los datos del navegador, puedes perderlo. Cualquier persona con acceso a este navegador podría verlo.</p><p id="storage-status" role="status">Comprobando almacenamiento en este dispositivo.</p></div><label class="budget-check"><input id="keep-recurring" type="checkbox" /> Conservar gastos recurrentes al iniciar otro período</label><div class="budget-actions"><button type="button" id="new-period">Iniciar nuevo período</button><button type="button" id="delete-data">Eliminar datos guardados</button></div><p class="budget-note">Modo Pasillo no descuenta compras automáticamente. Si registras una compra aquí, añádela una sola vez.</p></section>
     </div>
+
+    <section class="fx-panel fx-o3" aria-labelledby="list-title">
+      <h2 class="fx-panel-title" id="list-title">Mis gastos <span class="fx-meta"><span id="movement-count">0</span> registros</span></h2>
+      <p id="movement-empty" class="fx-sub">Todavía no hay movimientos. Añade un gasto o deuda para empezar.</p>
+      <ul id="movement-list" class="fx-rows fx-budget-list" aria-label="Movimientos del período"></ul>
+    </section>
+
+    <section class="fx-panel fx-o4" aria-labelledby="dist-title">
+      <h2 class="fx-panel-title" id="dist-title">Distribución de gastos</h2>
+      <p class="fx-sub" id="budget-distribution-empty">Aparecerá cuando registres tus gastos.</p>
+      <ul class="fx-dist" id="budget-distribution" aria-label="Gastos por categoría"></ul>
+    </section>
+
+    <div class="fx-o5">
+      <div class="fx-actions" role="group" aria-label="Acciones del plan">
+        <button class="fx-action" type="button" id="budget-copy"><FxIcon name="copy" size={20} />Copiar</button>
+        <button class="fx-action" type="button" id="budget-share"><FxIcon name="share" size={20} />Compartir</button>
+        <button class="fx-action" type="button" id="new-period"><FxIcon name="reset" size={20} />Reiniciar</button>
+      </div>
+      <label class="fx-check" style="margin-top:12px"><input id="keep-recurring" type="checkbox" /><span>Al reiniciar, conservar los gastos recurrentes para el nuevo período</span></label>
+      <p class="fx-status" id="budget-action-status" role="status"></p>
+    </div>
+
+    <section class="fx-panel fx-o6" aria-labelledby="savings-title">
+      <h2 class="fx-panel-title" id="savings-title"><span style="display:flex;align-items:center;gap:10px"><FxIcon name="piggy" />Ahorro</span></h2>
+      <label class="fx-label" for="budget-savings">¿Cuánto quieres apartar?</label>
+      <div class="fx-money" style="min-height:52px"><span class="fx-prefix" aria-hidden="true" style="font-size:1.1rem">B/.</span><input id="budget-savings" type="text" inputmode="decimal" autocomplete="off" value="0.00" style="font-size:1.1rem" /></div>
+      <p class="fx-hint">El ahorro se resta del dinero libre. Puedes cambiarlo cuando quieras.</p>
+      <p class="fx-error" id="savings-error" role="alert"></p>
+    </section>
+
+    <section class="fx-panel fx-o6" aria-labelledby="privacy-title">
+      <h2 class="fx-panel-title" id="privacy-title"><span style="display:flex;align-items:center;gap:10px"><FxIcon name="lock" />Privacidad y protección de tus datos</span></h2>
+      <p class="fx-sub">Tu presupuesto se guarda solo en este navegador, sin cuenta ni sincronización. Si borras los datos del navegador, puedes perderlo. Cualquier persona con acceso a este navegador podría verlo.</p>
+      <p class="fx-hint" id="storage-status" role="status">Comprobando almacenamiento en este dispositivo.</p>
+      <button type="button" class="fx-btn is-ghost" id="delete-data" style="margin-top:12px"><FxIcon name="trash" size={18} />Eliminar datos guardados</button>
+      <p class="fx-hint">Modo Pasillo no descuenta compras automáticamente. Si registras una compra aquí, añádela una sola vez. ¿Consideras un préstamo? <a href={loanHref}>Calcula sus cuotas e intereses</a>.</p>
+    </section>
   </div>
-  <noscript><p class="container">Activa JavaScript para usar Mi Quincena. Tus datos no se enviarán al servidor.</p></noscript>
-  <script>
-    import { mountBudget } from '../lib/finance/budget-ui';
-    const app = document.querySelector<HTMLElement>('#budget-app');
-    if (app) mountBudget(app);
-  </script>
+</div>
+<noscript><p class="fx-wrap">Activa JavaScript para usar Mi Quincena. Tus datos no se enviarán al servidor.</p></noscript>
+<script>
+  import { mountBudget } from '../lib/finance/budget-ui';
+  const app = document.querySelector<HTMLElement>('#budget-app');
+  if (app) mountBudget(app);
+</script>

@@ -82,7 +82,7 @@ const schema = {
 
         <section class="fx-panel fx-o4" aria-labelledby="annual-title">
           <h2 class="fx-panel-title" id="annual-title">Proyección anual</h2>
-          <div class="fx-stats" style="margin-top:0">
+          <div class="fx-stats fx-stats-compact" style="margin-top:0">
             <div class="fx-stat"><span>Neto mensual equivalente</span><strong data-out="netMonthlyEquivalent"></strong></div>
             <div class="fx-stat"><span>Ingreso anual proyectado</span><strong data-out="projectedAnnualIncome"></strong></div>
             <div class="fx-stat"><span>Renta gravable anual</span><strong data-out="taxableAnnual"></strong></div>
@@ -120,7 +120,7 @@ const schema = {
         </fieldset>
         <p class="fx-hint" id="frequency-help">Lo que dice tu contrato antes de descuentos. Quincenal = 24 pagos al año; bisemanal = 26 (cada dos semanas).</p>
       </div>
-      <details class="fx-details more">
+      <details class="fx-details">
         <summary><FxIcon name="sliders" size={18} />Comisiones, deducciones y opciones<span class="fx-chev"><FxIcon name="chevronDown" size={18} /></span></summary>
         <div class="fx-details-body">
           <div>
@@ -138,7 +138,7 @@ const schema = {
         </div>
       </details>
       <p class="fx-error" id="salary-error" role="alert"></p>
-      <button class="fx-btn is-block calculate" type="submit"><FxIcon name="calculator" size={20} />Calcular salario neto</button>
+      <button class="fx-btn is-block" type="submit"><FxIcon name="calculator" size={20} />Calcular salario neto</button>
       <p class="fx-hint" style="display:flex;gap:8px;align-items:center;margin:0"><FxIcon name="lock" size={16} />El cálculo ocurre en tu dispositivo. No se guarda ni se envía.</p>
     </form>
 

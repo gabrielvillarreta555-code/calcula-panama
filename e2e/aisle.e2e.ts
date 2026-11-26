@@ -47,7 +47,7 @@ test('valida entradas y muestra presupuesto excedido a 375 px', async ({ page })
   await page.screenshot({ path: 'test-results/screenshots/modo-pasillo-375.png', fullPage: true });
 });
 
-test('mantiene datos solo en memoria y Blue ofrece ayuda determinista', async ({ page }) => {
+test('mantiene datos solo en memoria y explica que no aplica impuestos', async ({ page }) => {
   await page.goto('/compras/modo-pasillo/');
   await page.locator('#aisle-name').fill('Arroz');
   await page.locator('#aisle-price').fill('2.50');
@@ -55,9 +55,8 @@ test('mantiene datos solo en memoria y Blue ofrece ayuda determinista', async ({
   await expect(page.locator('.aisle-item')).toHaveCount(1);
   expect(await page.evaluate(() => Object.keys(localStorage).filter(key => /aisle|pasillo|product|budget/i.test(key)))).toEqual([]);
 
-  const guide = page.locator('#blue-help');
-  await guide.locator(':scope > summary').click();
-  await expect(guide.locator('.blue-help-content')).toContainText('No se aplican impuestos ni descuentos automáticamente');
+  // CP-DESIGN-007: Blue se retiró de Modo Pasillo; la aclaración sobre impuestos sigue visible junto al formulario.
+  await expect(page.getByText('No se aplica ITBMS, descuento ni recargo automáticamente.')).toBeVisible();
   await page.reload();
   await expect(page.locator('.aisle-item')).toHaveCount(0);
 });
