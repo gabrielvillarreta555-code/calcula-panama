@@ -1,0 +1,1 @@
+{ "$comment": "CP-ADS-003. quincenaMoved: true cuando app.calculapanama.com esté publicado y verificado. Entonces /finanzas/mi-quincena/ pasa a ser la página de presentación con el traslado, y la publicidad puede activarse (con la guardia de datos antiguos).", "quincenaMoved": false }

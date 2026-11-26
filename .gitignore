@@ -7,3 +7,6 @@ test-results/
 playwright-report/
 __pycache__/
 *.py[cod]
+dist-app/
+dist-test-main/
+dist-test-app/

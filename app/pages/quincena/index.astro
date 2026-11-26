@@ -1,0 +1,8 @@
+---
+import AppLayout from '../../layouts/AppLayout.astro';
+import MiQuincenaApp from '../../../src/components/MiQuincenaApp.astro';
+import { MAIN_ORIGIN } from '../../../src/data/isolation';
+---
+<AppLayout title="Mi Quincena | Calcula Panamá" description="Organiza tu quincena: dinero libre, presupuesto diario, gastos, deudas y ahorro hasta tu próximo pago.">
+  <MiQuincenaApp blue="/blue-flotante.webp" loanHref={`${MAIN_ORIGIN}/finanzas/calculadora-prestamos/`} />
+</AppLayout>

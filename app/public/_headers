@@ -1,0 +1,10 @@
+# Cabeceras de app.calculapanama.com (Cloudflare Pages). La CSP estricta va además en cada página (<meta>).
+# frame-ancestors no funciona en <meta>; por eso se declara aquí.
+/importar/*
+  Content-Security-Policy: frame-ancestors https://calculapanama.com
+/quincena/*
+  Content-Security-Policy: frame-ancestors 'none'
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: no-referrer
+  X-Robots-Tag: noindex

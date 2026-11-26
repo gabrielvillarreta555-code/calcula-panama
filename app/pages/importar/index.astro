@@ -1,0 +1,26 @@
+---
+/**
+ * Receptor del traslado de Mi Quincena (CP-ADS-003). Solo acepta mensajes de la página padre cuyo
+ * origen sea exactamente el sitio principal, y solo le responde a ese origen.
+ */
+import AppLayout from '../../layouts/AppLayout.astro';
+import { MAIN_ORIGIN } from '../../../src/data/isolation';
+---
+<AppLayout title="Traslado de Mi Quincena" bare>
+  <p id="importer" data-main-origin={MAIN_ORIGIN}>Receptor del traslado de Mi Quincena. Esta página no muestra contenido por sí sola.</p>
+</AppLayout>
+<script>
+  import { MIGRATION, receiveImport } from '../../../src/lib/finance/migration';
+  import { BUDGET_KEY } from '../../../src/lib/finance/storage-keys';
+  const main = document.getElementById('importer')?.dataset.mainOrigin;
+  if (main && window.parent !== window) {
+    window.addEventListener('message', async event => {
+      if (event.origin !== main || event.source !== window.parent) return;
+      let store: Storage | null = null;
+      try { store = window.localStorage; } catch { store = null; }
+      const result = await receiveImport(event.data, store, BUDGET_KEY);
+      if (result) window.parent.postMessage(result, main);
+    });
+    window.parent.postMessage({ type: MIGRATION.ready }, main);
+  }
+</script>
