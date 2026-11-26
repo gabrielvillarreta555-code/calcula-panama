@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><title>Sitio ajeno</title></head>
+<body>
+<p>Sitio ajeno que intenta usar el receptor de la app.</p>
+<script>
+  // Intenta inyectar un presupuesto en la app desde un origen que no es el sitio principal.
+  window.__received = [];
+  window.addEventListener('message', e => window.__received.push({ origin: e.origin, data: e.data }));
+  const payload = JSON.stringify({ version: 1, start: '2026-11-01', payday: '', openingCents: 999, savingsCents: 0, movements: [] });
+  const frame = document.createElement('iframe');
+  frame.src = 'http://app.calculapanama.localhost:4332/importar/';
+  frame.onload = async () => {
+    const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(payload));
+    const sha256 = [...new Uint8Array(digest)].map(b => b.toString(16).padStart(2, '0')).join('');
+    frame.contentWindow.postMessage({ type: 'cp-quincena-import', version: 1, id: 'ajeno', payload, sha256, overwrite: true }, '*');
+    window.__sent = true;
+  };
+  document.body.append(frame);
+</script>
+</body></html>

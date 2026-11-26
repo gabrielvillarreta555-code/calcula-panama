@@ -29,6 +29,8 @@ jobs:
         run: npm run verify:seo
         env:
           SITE_URL: https://calculapanama.com/
+      - name: Comprobar, construir y verificar la app sin publicidad (app.calculapanama.com)
+        run: npm run check:app && npm run build:app && npm run verify:app
 
   mobile:
     name: Interfaz móvil
@@ -50,6 +52,8 @@ jobs:
           BASE_PATH: /
       - name: Probar calculadoras y Blue en viewports móviles
         run: npm run test:e2e
+      - name: Probar el aislamiento de Mi Quincena y la guardia de publicidad
+        run: npm run test:isolation -- --trace off
       - name: Guardar captura móvil de Modo Pasillo
         if: always()
         uses: actions/upload-artifact@v4
