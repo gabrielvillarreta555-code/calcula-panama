@@ -47,13 +47,13 @@ Los flujos compilan con `SITE_URL=https://calculapanama.com/` y `BASE_PATH=/`, a
 
 ## Google AdSense
 
-- ID de editor: `ca-pub-2150093744862116`, configurado en `ADSENSE.client` de `src/data/site.ts`. Con él, `Layout.astro` añade el script oficial en el `<head>` de todas las páginas:
-  `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2150093744862116" crossorigin="anonymous"></script>`
-- `public/ads.txt` publica `google.com, pub-2150093744862116, DIRECT, f08c47fec0942fa0` en `https://calculapanama.com/ads.txt`.
-- La página de privacidad muestra automáticamente la información sobre cookies de Google.
-- No hay bloques manuales: `ADSENSE.slots` está vacío. Para mostrar anuncios, activa los anuncios automáticos en AdSense o crea bloques y pon su id en `slots` (`afterResult` bajo el resultado de las calculadoras, `inArticle` dentro de las guías). Nunca se colocan entre el formulario y el resultado.
-- Si recibes visitas de la UE, el Reino Unido o Suiza, configura un mensaje de consentimiento certificado en AdSense → Privacidad y mensajes.
-- `npm run verify:seo` comprueba que cada página tiene el script una sola vez y que `ads.txt` coincide con el ID.
+- ID de editor: `ca-pub-2150093744862116` (`ADSENSE.client` en `src/data/site.ts`). `public/ads.txt` publica `google.com, pub-2150093744862116, DIRECT, f08c47fec0942fa0`.
+- **Qué páginas pueden mostrar publicidad lo decide `src/data/ad-policy.json`** (CP-ADS-002): `stage1` = guías, directorios y herramientas sin datos personales; `stage2` = herramientas con datos personales, que solo se monetizarán con la calculadora aislada en otro origen; `never` = Mi Quincena, páginas legales e institucionales y 404. Una ruta sin entrada se trata como `never`.
+- **La publicidad está pausada** (`"active": false`) hasta aislar Mi Quincena en su propio origen: `localStorage` es común a todo el dominio. Ver `docs/cp-ads-002/arquitectura-aislamiento.md`.
+- Toda página sin publicidad aplica la CSP estricta de `src/data/ad-policy.ts` (`STRICT_CSP`). No la relajes.
+- `npm run verify:seo` comprueba en todos los HTML compilados (incluida la 404) la CSP, la ausencia de código publicitario donde no corresponde, el script único en las páginas activas y `ads.txt`.
+- Bloques manuales: `ADSENSE.slots` (`afterResult`, `inArticle`). Nunca entre el formulario y el resultado.
+- Antes de activar: configurar el mensaje de consentimiento certificado (EEE, Reino Unido, Suiza) en AdSense → Privacidad y mensajes, y actualizar la fecha de `/privacidad/`.
 
 ## Antes del lanzamiento público
 
