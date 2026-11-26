@@ -1,6 +1,7 @@
 /** Utilidades de interfaz compartidas por los scripts de las calculadoras (solo navegador). */
 import { openSharePreview } from './share-ui';
 import type { ShareData } from './share';
+import { assertLaborInput } from './labor-input';
 
 export interface Segment {
   label: string;
@@ -33,7 +34,8 @@ export function readNumber(data: FormData, name: string): number | undefined {
   const raw = String(data.get(name) ?? '').trim();
   if (raw === '') return undefined;
   const value = Number(raw);
-  return Number.isFinite(value) ? value : Number.NaN;
+  assertLaborInput(value);
+  return value;
 }
 
 export function readText(data: FormData, name: string): string {
