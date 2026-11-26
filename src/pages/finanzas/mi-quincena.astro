@@ -5,7 +5,7 @@ import '../../styles/pay-period.css';
 const blue = `${import.meta.env.BASE_URL}blue-flotante.webp`;
 const schema = { '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'Mi Quincena', applicationCategory: 'FinanceApplication', operatingSystem: 'Web', offers: { '@type': 'Offer', price: '0', priceCurrency: 'PAB' } };
 ---
-<Layout title="Calculadora de Quincena y Presupuesto Personal en Panamá | Calcula Panamá" description="Organiza tu quincena, calcula cuánto puedes gastar diariamente y controla gastos, deudas y ahorros hasta tu próximo pago." canonicalPath="/finanzas/mi-quincena/" schema={schema} disableAds>
+<Layout title="Calculadora de Quincena y Presupuesto Personal en Panamá | Calcula Panamá" description="Organiza tu quincena, calcula cuánto puedes gastar diariamente y controla gastos, deudas y ahorros hasta tu próximo pago." canonicalPath="/finanzas/mi-quincena/" schema={schema}>
   <div class="budget-page" id="budget-app">
     <header class="budget-head container">
       <Breadcrumbs items={[{ label: 'Mi Quincena', path: '/finanzas/mi-quincena/' }]} />
