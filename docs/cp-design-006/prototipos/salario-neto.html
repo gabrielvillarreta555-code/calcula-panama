@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="es-PA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Prototipo · Salario neto · Calcula Panamá Midnight Edition</title>
+<link rel="stylesheet" href="proto.css">
+</head>
+<body>
+<p class="proto-note">Prototipo CP-DESIGN-006 · Cifras del motor real para B/. 1,500 mensuales</p>
+
+<div class="wrap">
+  <div class="rail"><span class="label">Calcula Panamá — Edición Midnight</span><span class="label">Trabajo</span></div>
+  <header class="masthead">
+    <a class="wordmark" href="index.html"><b>CALCULA.</b><small>PANAMÁ</small></a>
+    <nav aria-label="Secciones" class="sections">
+      <a href="index.html#movilidad">Movilidad</a><a href="index.html#finanzas">Finanzas</a><a href="index.html#trabajo" aria-current="true">Trabajo</a><a href="index.html#hogar">Hogar</a><a href="index.html#educacion">Educación</a><a href="index.html#revista">Revista</a>
+    </nav>
+    <div class="tools"><button type="button">Buscar</button><button type="button">Índice</button></div>
+  </header>
+  <p class="crumb"><a href="index.html">Inicio</a> / <a href="index.html#trabajo">Trabajo</a> / Salario neto</p>
+</div>
+
+<main>
+  <header class="wrap grid tool-head">
+    <span class="label" style="grid-column:1/-1">03.1 — Calculadora laboral</span>
+    <h1>Salario neto.</h1>
+    <p class="lede">Cuánto recibes de verdad después del Seguro Social, el Seguro Educativo y el impuesto sobre la renta.</p>
+    <div class="meta">
+      <span><b>Base legal</b> · Ley 51 de 2005 (CSS), Ley 13 de 1987, Código Fiscal arts. 700 y 704</span>
+      <span><b>Revisado</b> · 24 de octubre de 2026</span>
+      <span><b>Privacidad</b> · Se calcula en tu dispositivo</span>
+    </div>
+  </header>
+
+  <section class="wrap grid workbench" aria-label="Calculadora">
+    <form class="inputs" onsubmit="return false">
+      <div>
+        <span class="label">Frecuencia de pago</span>
+        <div class="tabs" role="group" aria-label="Frecuencia de pago" style="margin-top:14px">
+          <button type="button" aria-pressed="true">Mensual</button><button type="button" aria-pressed="false">Quincenal</button><button type="button" aria-pressed="false">Bisemanal</button><button type="button" aria-pressed="false">Semanal</button>
+        </div>
+      </div>
+      <div class="field">
+        <label class="label" for="gross">Salario bruto por pago</label>
+        <div class="money"><span>B/.</span><input id="gross" inputmode="decimal" value="1,500.00"></div>
+        <p class="hint">Lo que dice tu contrato antes de descuentos.</p>
+      </div>
+      <div class="disclosure" role="button" tabindex="0">Comisiones, deducciones y declaración conjunta <span>+</span></div>
+      <button class="primary" type="submit">Calcular salario neto <span>→</span></button>
+      <p class="privacy">Tus cifras no salen de este dispositivo y no se guardan.</p>
+    </form>
+
+    <section class="statement" aria-label="Resultado">
+      <span class="label">Salario neto estimado · mensual</span>
+      <p class="big-figure"><small>B/.</small>1,236<span class="cents">.92</span></p>
+      <p class="sub">Te descuentan <b>B/. 263.08</b>, el 17.54 % de tu salario bruto.</p>
+      <div class="split-bar" role="img" aria-label="Neto 82.5 %, Seguro Social 9.75 %, Seguro Educativo 1.25 %, ISR 6.5 %"><span style="flex:82.5;background:var(--ivory)"></span><span style="flex:9.75;background:var(--silver)"></span><span style="flex:1.25;background:#5a7593"></span><span style="flex:6.5;background:var(--steel)"></span></div>
+      <div class="split-legend"><span><i style="background:var(--ivory)"></i>Neto</span><span><i style="background:var(--silver)"></i>Seguro Social</span><span><i style="background:#5a7593"></i>Seguro Educativo</span><span><i style="background:var(--steel)"></i>ISR</span></div>
+      <table class="ledger">
+        <tr><td>Salario bruto</td><td>1,500.00</td></tr>
+        <tr><td>Seguro Social<small>9.75 % · Ley 51 de 2005</small></td><td class="neg">− 146.25</td></tr>
+        <tr><td>Seguro Educativo<small>1.25 % · Ley 13 de 1987</small></td><td class="neg">− 18.75</td></tr>
+        <tr><td>Impuesto sobre la renta<small>6.54 % efectivo · Código Fiscal</small></td><td class="neg">− 98.08</td></tr>
+        <tr class="total"><td>Neto por pago</td><td>1,236.92</td></tr>
+      </table>
+      <div class="annual">
+        <div><span class="label">Ingreso anual</span><b>19,500.00</b></div>
+        <div><span class="label">ISR anual</span><b>1,275.00</b></div>
+        <div><span class="label">Tasa marginal</span><b>15 %</b></div>
+      </div>
+      <div class="actions"><a class="arrow-link" href="#como">Ver la fórmula <span>↓</span></a><a class="arrow-link" href="#">Compartir <span>↗</span></a></div>
+    </section>
+  </section>
+
+  <section class="wrap grid essay" id="como" aria-labelledby="como-t">
+    <aside>
+      <span class="label">Metodología</span>
+      <h2 id="como-t">Cómo se calcula.</h2>
+    </aside>
+    <div class="body">
+      <div class="step"><span class="n">1</span><h3>Seguro Social: 9.75 %</h3><p>Se aplica sobre el salario, incluidas comisiones y vacaciones: 1,500.00 × 9.75 % = 146.25.<sup>1</sup></p></div>
+      <div class="step"><span class="n">2</span><h3>Seguro Educativo: 1.25 %</h3><p>Se calcula sobre el salario básico y no se aplica al décimo tercer mes: 1,500.00 × 1.25 % = 18.75.<sup>2</sup></p></div>
+      <div class="step"><span class="n">3</span><h3>Impuesto sobre la renta</h3><p>Se proyecta el ingreso del año, 12 salarios más el décimo (19,500.00), y se aplica la tarifa: 0 % hasta 11,000 y 15 % hasta 50,000. Resultado: (19,500 − 11,000) × 15 % = 1,275.00 al año, retenidos proporcionalmente en cada pago.<sup>3</sup></p></div>
+      <div class="step"><span class="n">4</span><h3>Salario neto</h3><p>1,500.00 − 146.25 − 18.75 − 98.08 = 1,236.92. La retención real puede variar en centavos por los redondeos de las tablas de la DGI.</p></div>
+      <div class="notes"><span>1 · Ley 51 de 2005, texto único de 2025, arts. 85, 86 y 96.</span><span>2 · Ley 13 de 1987.</span><span>3 · Código Fiscal, arts. 700 y 704 (Ley 8 de 2010).</span></div>
+    </div>
+  </section>
+</main>
+
+<footer class="wrap colophon">
+  <p class="big">CALCULA<span>.</span></p>
+  <div class="fine"><span>Una plataforma de Blue Lab Studios</span><span>Resultados orientativos. No constituyen asesoría legal, contable ni tributaria.</span></div>
+</footer>
+</body>
+</html>

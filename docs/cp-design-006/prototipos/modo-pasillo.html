@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="es-PA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Prototipo · Modo Pasillo · Calcula Panamá Midnight Edition</title>
+<link rel="stylesheet" href="proto.css">
+</head>
+<body>
+<p class="proto-note">Prototipo CP-DESIGN-006 · Lista de ejemplo</p>
+
+<div class="wrap">
+  <div class="rail"><span class="label">Calcula Panamá — Edición Midnight</span><span class="label">Compras</span></div>
+  <header class="masthead">
+    <a class="wordmark" href="index.html"><b>CALCULA.</b><small>PANAMÁ</small></a>
+    <nav aria-label="Secciones" class="sections">
+      <a href="index.html#movilidad">Movilidad</a><a href="index.html#finanzas">Finanzas</a><a href="index.html#trabajo">Trabajo</a><a href="index.html#hogar" aria-current="true">Hogar</a><a href="index.html#educacion">Educación</a><a href="index.html#revista">Revista</a>
+    </nav>
+    <div class="tools"><button type="button">Buscar</button><button type="button">Índice</button></div>
+  </header>
+  <p class="crumb"><a href="index.html">Inicio</a> / <a href="index.html#hogar">Hogar y compras</a> / Modo Pasillo</p>
+</div>
+
+<main>
+  <header class="wrap grid tool-head">
+    <span class="label" style="grid-column:1/-1">04.2 — Compras</span>
+    <h1>Modo Pasillo.</h1>
+    <p class="lede">Suma lo que llevas mientras recorres el supermercado y mantén tu presupuesto a la vista.</p>
+    <div class="meta">
+      <span><b>Privacidad</b> · Tu lista vive solo en esta pestaña</span>
+      <span><b>Sin impuestos automáticos</b> · Escribe el precio que pagarás</span>
+    </div>
+  </header>
+
+  <div class="wrap grid aisle">
+    <section class="ticket" aria-label="Resumen de tu compra">
+      <span class="label">Total de tu compra</span>
+      <p class="ticket-figure"><small>B/.</small>13.85</p>
+      <p class="count">4 productos · 5 unidades</p>
+      <div class="budget">
+        <div class="budget-row"><span class="label">Presupuesto</span><span>B/. 50.00</span></div>
+        <div class="meter" role="img" aria-label="Usado el 28 % del presupuesto"><span style="width:27.7%"></span><i style="left:80%"></i></div>
+        <div class="budget-row"><span class="muted">Disponible</span><b>B/. 36.15</b></div>
+      </div>
+      <div class="actions"><a class="arrow-link" href="#">Compartir lista <span>↗</span></a><a class="arrow-link" href="#">Vaciar <span>×</span></a></div>
+    </section>
+
+    <div class="cart">
+      <form class="add" onsubmit="return false" aria-label="Añadir producto">
+        <span class="label">Añadir producto</span>
+        <div class="field">
+          <label class="label" for="price" style="color:var(--muted)">Precio unitario</label>
+          <div class="money"><span>B/.</span><input id="price" inputmode="decimal" placeholder="0.00"></div>
+        </div>
+        <div class="add-row">
+          <div><label class="label" for="name" style="color:var(--muted)">Producto (opcional)</label><input class="line-input" id="name" placeholder="Ej. arroz"></div>
+          <div><span class="label" style="color:var(--muted);display:block;margin-bottom:8px">Cantidad</span><div class="stepper"><button type="button" aria-label="Menos">−</button><output>1</output><button type="button" aria-label="Más">+</button></div></div>
+        </div>
+        <button class="primary" type="submit">Añadir al carrito <span>+</span></button>
+      </form>
+
+      <section aria-labelledby="cart-t">
+        <div class="index-head"><h2 class="label" id="cart-t">Tu carrito</h2><span class="label">4 líneas</span></div>
+        <ul class="receipt">
+          <li><span class="what">Arroz, 5 lb</span><span class="amt">3.25</span><span class="qty">1 × 3.25</span><button class="rm" type="button">Quitar</button></li>
+          <li><span class="what">Leche, 1 L</span><span class="amt">2.90</span><span class="qty">2 × 1.45</span><button class="rm" type="button">Quitar</button></li>
+          <li><span class="what">Huevos, docena</span><span class="amt">3.10</span><span class="qty">1 × 3.10</span><button class="rm" type="button">Quitar</button></li>
+          <li><span class="what">Café molido</span><span class="amt">4.60</span><span class="qty">1 × 4.60</span><button class="rm" type="button">Quitar</button></li>
+        </ul>
+        <div class="receipt-foot"><span>Subtotal</span><span>B/. 13.85</span></div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<footer class="wrap colophon">
+  <p class="big">CALCULA<span>.</span></p>
+  <div class="fine"><span>Una plataforma de Blue Lab Studios</span><span>Modo Pasillo no aplica ITBMS, descuentos ni promociones automáticamente.</span></div>
+</footer>
+</body>
+</html>
