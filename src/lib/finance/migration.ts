@@ -18,7 +18,8 @@ export const MIGRATION = {
   timeoutMs: 15000
 } as const;
 
-export interface ImportMessage { type: typeof MIGRATION.data; version: 1; id: string; payload: string; sha256: string; overwrite?: boolean }
+/** channel 'ensayo': presupuestos ficticios para validar producción; se guardan en una clave aparte. */
+export interface ImportMessage { type: typeof MIGRATION.data; version: 1; id: string; payload: string; sha256: string; overwrite?: boolean; channel?: 'ensayo' }
 export type ImportStatus = 'stored' | 'exists' | 'invalid' | 'error';
 export interface ImportResult { type: typeof MIGRATION.result; id: string; status: ImportStatus; sha256?: string }
 export interface KeyValueStore { getItem(key: string): string | null; setItem(key: string, value: string): void }
@@ -36,7 +37,7 @@ export function isImportMessage(value: unknown): value is ImportMessage {
   const m = value as Record<string, unknown>;
   return m.type === MIGRATION.data && m.version === MIGRATION.version && typeof m.id === 'string' && m.id.length > 0 && m.id.length <= 64
     && typeof m.payload === 'string' && m.payload.length <= MAX_PAYLOAD && typeof m.sha256 === 'string' && /^[0-9a-f]{64}$/.test(m.sha256)
-    && (m.overwrite === undefined || typeof m.overwrite === 'boolean');
+    && (m.overwrite === undefined || typeof m.overwrite === 'boolean') && (m.channel === undefined || m.channel === 'ensayo');
 }
 
 export function isImportResult(value: unknown, id: string): value is ImportResult {

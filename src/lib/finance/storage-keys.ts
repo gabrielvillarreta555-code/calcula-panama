@@ -2,3 +2,6 @@
 export const BUDGET_KEY = 'cp-mi-quincena-v1';
 /** Marca sin datos financieros que indica que este navegador ya trasladó su presupuesto a la app. */
 export const MIGRATED_FLAG_KEY = 'cp-mi-quincena-migrated';
+/** Canal de ensayo (CP-ADS-004): solo presupuestos ficticios, nunca la clave real. */
+export const REHEARSAL_KEY = 'cp-ensayo-quincena-v1';
+export const REHEARSAL_FLAG_KEY = 'cp-ensayo-quincena-migrated';

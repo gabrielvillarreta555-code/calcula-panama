@@ -1,0 +1,39 @@
+name: Validación de producción
+
+# CP-ADS-004: comprueba el sitio publicado y la app con datos FICTICIOS (canal de ensayo)
+# en Chromium, Firefox y WebKit (motor de Safari, escritorio y iPhone). Se lanza a mano.
+on:
+  workflow_dispatch:
+    inputs:
+      check_app:
+        description: 'Comprobar app.calculapanama.com (1) o solo el sitio principal (0)'
+        required: true
+        default: '1'
+
+permissions:
+  contents: read
+
+jobs:
+  produccion:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Instalar Chromium, Firefox y WebKit
+        run: npx playwright install --with-deps chromium firefox webkit
+      - name: Validar producción
+        run: npx playwright test --config playwright.production.config.ts --trace off
+        env:
+          PROD_CHECK_APP: ${{ inputs.check_app }}
+      - name: Guardar informe
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: validacion-produccion
+          path: playwright-report-produccion
+          retention-days: 30

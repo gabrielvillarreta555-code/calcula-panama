@@ -11,14 +11,16 @@ import { MAIN_ORIGIN } from '../../../src/data/isolation';
 </AppLayout>
 <script>
   import { MIGRATION, receiveImport } from '../../../src/lib/finance/migration';
-  import { BUDGET_KEY } from '../../../src/lib/finance/storage-keys';
+  import { BUDGET_KEY, REHEARSAL_KEY } from '../../../src/lib/finance/storage-keys';
   const main = document.getElementById('importer')?.dataset.mainOrigin;
   if (main && window.parent !== window) {
     window.addEventListener('message', async event => {
       if (event.origin !== main || event.source !== window.parent) return;
       let store: Storage | null = null;
       try { store = window.localStorage; } catch { store = null; }
-      const result = await receiveImport(event.data, store, BUDGET_KEY);
+      // El canal de ensayo (presupuestos ficticios) usa una clave aparte y nunca toca el presupuesto real.
+      const key = (event.data as { channel?: unknown } | null)?.channel === 'ensayo' ? REHEARSAL_KEY : BUDGET_KEY;
+      const result = await receiveImport(event.data, store, key);
       if (result) window.parent.postMessage(result, main);
     });
     window.parent.postMessage({ type: MIGRATION.ready }, main);

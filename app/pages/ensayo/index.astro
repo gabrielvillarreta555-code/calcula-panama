@@ -1,0 +1,26 @@
+---
+/** Comprobación del ensayo en la app (CP-ADS-004). Solo la clave de ensayo; nunca el presupuesto real. */
+import AppLayout from '../../layouts/AppLayout.astro';
+import { MAIN_ORIGIN } from '../../../src/data/isolation';
+---
+<AppLayout title="Ensayo del traslado — App">
+  <div class="container article" id="rehearsal-check">
+    <h1>Ensayo del traslado</h1>
+    <p>Presupuesto ficticio de ensayo en esta dirección: <strong data-rehearsal-state>comprobando…</strong></p>
+    <p>SHA-256: <code data-rehearsal-sha>—</code></p>
+    <p><button class="button secondary" type="button" data-rehearsal-clear>Borrar el ensayo</button> <a href={`${MAIN_ORIGIN}/ensayo/traslado-quincena/`}>Volver al ensayo</a></p>
+  </div>
+</AppLayout>
+<script>
+  import { REHEARSAL_KEY } from '../../../src/lib/finance/storage-keys';
+  import { sha256Hex } from '../../../src/lib/finance/migration';
+  const state = document.querySelector('[data-rehearsal-state]')!, sha = document.querySelector('[data-rehearsal-sha]')!;
+  const render = async () => {
+    let value: string | null = null;
+    try { value = localStorage.getItem(REHEARSAL_KEY); } catch { state.textContent = 'almacenamiento no disponible'; return; }
+    state.textContent = value === null ? 'no hay' : `sí (saldo inicial B/.${(JSON.parse(value).openingCents / 100).toFixed(2)})`;
+    sha.textContent = value === null ? '—' : await sha256Hex(value);
+  };
+  document.querySelector('[data-rehearsal-clear]')?.addEventListener('click', () => { try { localStorage.removeItem(REHEARSAL_KEY); } catch { /* nada */ } void render(); });
+  void render();
+</script>

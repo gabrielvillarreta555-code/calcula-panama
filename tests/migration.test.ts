@@ -52,6 +52,13 @@ describe('traslado de Mi Quincena (CP-ADS-003)', () => {
   });
 });
 
+describe('canal de ensayo', () => {
+  it('acepta solo el canal de ensayo como valor opcional', async () => {
+    expect(isImportMessage(await message(SAMPLE_BUDGET, { channel: 'ensayo' }))).toBe(true);
+    expect(isImportMessage(await message(SAMPLE_BUDGET, { channel: 'real' }))).toBe(false);
+  });
+});
+
 describe('activación de la publicidad', () => {
   const on = { active: true, enabled: true, quincenaMoved: true };
   it('exige el traslado de Mi Quincena además del interruptor', () => {

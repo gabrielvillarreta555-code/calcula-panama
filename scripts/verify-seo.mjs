@@ -109,7 +109,7 @@ for (const file of htmlFiles('dist')) {
     if (/<script[^>]+src="https:\/\/pagead2\.googlesyndication\.com/.test(html)) errors.push(`AdSense cargado sin la guardia en ${path}`);
   } else {
     const content = html.match(/http-equiv="Content-Security-Policy" content="([^"]+)"/)?.[1] ?? '';
-    const allowedFrame = path === '/finanzas/mi-quincena/' && /^; frame-src https?:\/\/[a-z0-9.-]+(:\d+)?$/.test(content.slice(strictCsp.length));
+    const allowedFrame = ['/finanzas/mi-quincena/', '/ensayo/traslado-quincena/'].includes(path) && /^; frame-src https?:\/\/[a-z0-9.-]+(:\d+)?$/.test(content.slice(strictCsp.length));
     if (!(content === strictCsp || (content.startsWith(strictCsp) && allowedFrame))) errors.push(`Falta la CSP estricta en la página sin publicidad ${path}`);
     if (/adsbygoogle|googlesyndication|doubleclick/i.test(html)) errors.push(`Código publicitario en una página sin publicidad: ${path}`);
     for (const tag of html.matchAll(/<script\b[^>]*\bsrc=["']([^"']+)["']/gi)) {
