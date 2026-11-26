@@ -1,7 +1,7 @@
 export const SITE = {
   name: 'Calcula Panamá',
   shortName: 'Calcula PA',
-  description: 'Calculadoras laborales gratuitas para Panamá: salario neto, décimo tercer mes, vacaciones y liquidación, con fórmulas explicadas y fuentes oficiales.',
+  description: 'Calculadoras gratuitas para Panamá: salario neto, décimo tercer mes, liquidación, préstamos, autos, compras y presupuesto personal, con fórmulas, límites y fuentes explicadas.',
   locale: 'es-PA',
   repositoryUrl: 'https://github.com/gabrielvillarreta555-code/calcula-panama',
   issuesUrl: 'https://github.com/gabrielvillarreta555-code/calcula-panama/issues'

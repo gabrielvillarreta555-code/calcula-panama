@@ -13,7 +13,7 @@ const categories = [
   { id: 'vida-cotidiana', name: 'Vida cotidiana', tools: expansionTools.filter(t => t.category === 'Vida cotidiana') },
 ];
 ---
-<Layout title="Herramientas y calculadoras gratuitas | Calcula Panamá" description="Encuentra calculadoras de compras, ahorro, autos, salarios, notas y consumo eléctrico. Herramientas gratuitas con ejemplos y límites explicados." canonicalPath="/herramientas/" disableAds>
+<Layout title="Herramientas y calculadoras gratuitas | Calcula Panamá" description="Encuentra calculadoras de compras, ahorro, autos, salarios, notas y consumo eléctrico. Herramientas gratuitas con ejemplos y límites explicados." canonicalPath="/herramientas/">
   <div class="container tools-page">
     <header class="tool-heading"><p class="eyebrow">Tu día, con las cuentas claras</p><h1>Herramientas y calculadoras</h1><p>Elige lo que necesitas resolver. Cada herramienta explica sus datos, su cálculo y sus límites.</p></header>
     <nav class="tool-categories" aria-label="Categorías de herramientas">{categories.map(category => <a href={`#${category.id}`}>{category.name}</a>)}</nav>

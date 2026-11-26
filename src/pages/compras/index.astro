@@ -4,10 +4,12 @@ import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import Icon from '../../components/Icon.astro';
 import ShoppingScene from '../../components/ShoppingScene.astro';
 import '../../styles/home-showcase.css';
+import { expansionTools } from '../../data/expansion-tools';
+const shoppingTools = [{ title: 'Modo Pasillo', description: 'Suma precio por cantidad de cada producto mientras compras y comprueba cuánto te queda del presupuesto.', path: '/compras/modo-pasillo/' }, ...expansionTools.filter(t => t.category === 'Compras')];
 const base = import.meta.env.BASE_URL;
 const href = (path: string) => `${base}${path.replace(/^\//, '')}`;
 ---
-<Layout title="Compras y gastos | Calcula Panamá" description="Organiza tus compras de supermercado y controla tu presupuesto con Modo Pasillo, una herramienta gratuita y privada." canonicalPath="/compras/" blueShowcase>
+<Layout title="Compras y gastos | Calcula Panamá" description="Herramientas gratuitas para comprar en Panamá: suma tu compra con Modo Pasillo, compara el precio por kilo, libra o litro y calcula el ahorro real de descuentos y promociones." canonicalPath="/compras/" blueShowcase>
   <div class="container shopping-breadcrumb"><Breadcrumbs items={[{ label: 'Compras y gastos', path: '/compras/' }]} /></div>
   <section class="shopping-landing" aria-labelledby="shopping-title">
     <div class="container shopping-landing-inner">
@@ -31,6 +33,25 @@ const href = (path: string) => `${base}${path.replace(/^\//, '')}`;
       </div>
       <div class="shopping-bottom-cta"><div><strong>¿Lista o listo para empezar?</strong><p>Tu lista permanece en la memoria de esta pestaña.</p></div><a class="button primary" href={href('/compras/modo-pasillo/')}>Abrir Modo Pasillo <Icon name="arrow" size={18} /></a></div>
       <p class="shopping-disclaimer">Modo Pasillo no aplica ITBMS, descuentos ni promociones automáticamente. Introduce el precio que deseas sumar.</p>
+    </div>
+  </section>
+  <section class="section" aria-labelledby="shopping-tools-title">
+    <div class="container">
+      <div class="section-title"><span class="eyebrow">Herramientas de compras</span><h2 id="shopping-tools-title">Tres preguntas antes de pagar.</h2><p>¿Cuánto llevo? ¿Qué presentación sale más barata? ¿Cuánto ahorro de verdad con la oferta?</p></div>
+      <div class="guide-list">{shoppingTools.map(t => <a class="guide-card" href={href(t.path)}><strong>{t.title}</strong><span>{t.description}</span></a>)}</div>
+    </div>
+  </section>
+  <section class="section" aria-labelledby="shopping-guide-title">
+    <div class="container article">
+      <h2 id="shopping-guide-title">Cómo usarlas juntas en el supermercado</h2>
+      <ol>
+        <li><strong>Antes de salir:</strong> define cuánto puedes gastar. Si organizas tu dinero por quincena, <a href={href('/finanzas/mi-quincena/')}>Mi Quincena</a> te muestra cuánto tienes disponible hasta el próximo pago.</li>
+        <li><strong>Frente al estante:</strong> si el mismo producto viene en varios tamaños, o uno marca el precio por libra y otro por kilo, el <a href={href('/compras/precio-por-unidad/')}>comparador de precio por unidad</a> te dice cuál cuesta menos por kilo, litro o unidad. Una libra equivale a 0.45359237 kg.</li>
+        <li><strong>Ante una oferta:</strong> un 2x1 con un número impar de unidades o dos descuentos sucesivos no ahorran lo que parece. La <a href={href('/compras/descuentos-y-promociones/')}>calculadora de descuentos</a> muestra el ahorro efectivo sobre la cantidad que vas a llevar.</li>
+        <li><strong>En el carrito:</strong> <a href={href('/compras/modo-pasillo/')}>Modo Pasillo</a> suma cada producto por su cantidad y te avisa si te pasas del presupuesto.</li>
+      </ol>
+      <h3>Qué no hacen estas herramientas</h3>
+      <p>No consultan precios de supermercados ni aplican impuestos, descuentos o promociones por su cuenta: usan los precios que escribes. La tarifa general del ITBMS en Panamá es 7%, y algunos productos, como muchos alimentos, están exentos. Compara siempre precios con el mismo tratamiento del impuesto. Si en caja te cobran un precio distinto del anunciado, pide la revisión en el comercio y, si no se resuelve, puedes acudir a la ACODECO.</p>
     </div>
   </section>
 </Layout>

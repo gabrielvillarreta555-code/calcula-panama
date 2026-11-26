@@ -1,4 +1,28 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+const base = import.meta.env.BASE_URL;
+const href = (p: string) => `${base}${p.replace(/^\//, '')}`;
 ---
-<Layout title="Términos y condiciones | Calcula Panamá" description="Condiciones de uso y alcance orientativo de las calculadoras de Calcula Panamá." canonicalPath="/terminos/"><header class="page-head"><div class="container"><span class="eyebrow">Legal</span><h1>Términos y condiciones</h1><p>Última actualización: 23 de octubre de 2026.</p></div></header><article class="container article"><h2>Uso informativo</h2><p>Las estimaciones son orientativas y no constituyen asesoría legal, fiscal, contable o financiera. Un resultado no crea derechos, obligaciones ni una relación profesional.</p><h2>Responsabilidad del usuario</h2><p>Debes verificar los datos introducidos y contrastar el resultado con tu empleador y las autoridades competentes. Los casos con fueros, convenciones colectivas, salarios variables, pagos en especie o decisiones judiciales pueden requerir análisis especializado.</p><h2>Exactitud y actualizaciones</h2><p>Procuramos identificar las reglas y fechas de revisión, pero la legislación y los criterios administrativos pueden cambiar. Podemos corregir o actualizar la plataforma sin aviso previo.</p><h2>Disponibilidad</h2><p>La plataforma se ofrece sin garantía de disponibilidad continua. No respondemos por decisiones tomadas exclusivamente sobre una estimación.</p></article></Layout>
+<Layout title="Términos y condiciones | Calcula Panamá" description="Condiciones de uso de Calcula Panamá: alcance orientativo de las calculadoras laborales, financieras, de compras y de vehículos, responsabilidad, publicidad y enlaces externos." canonicalPath="/terminos/">
+  <header class="page-head container">
+    <Breadcrumbs items={[{ label: 'Términos y condiciones', path: '/terminos/' }]} />
+    <span class="eyebrow">Legal</span>
+    <h1>Términos y condiciones</h1>
+    <p>Última actualización: 26 de noviembre de 2026.</p>
+  </header>
+  <article class="container article">
+    <h2>Quién ofrece el sitio</h2>
+    <p>Calcula Panamá es un proyecto de Blue Lab Studios (<a href={href('/sobre-nosotros/')}>quiénes somos</a>). Usar el sitio implica aceptar estas condiciones.</p>
+    <h2>Uso informativo</h2>
+    <p>Todas las herramientas (laborales, financieras, de compras, de vehículos, de educación y de vida cotidiana) dan estimaciones orientativas. No son asesoría legal, fiscal, contable, financiera ni académica. Un resultado no crea derechos ni obligaciones, ni establece una relación profesional.</p>
+    <h2>Datos que introduces</h2>
+    <p>Los resultados dependen de los datos que escribes. Las herramientas financieras no incluyen tasas, precios ni tarifas por defecto: usa los de tu cotización, tu factura o tu comercio. Verifica tus datos y contrasta el resultado con tu empleador, tu banco o la autoridad competente. Los casos con fueros, convenciones colectivas, salarios variables, pagos en especie, decisiones judiciales o condiciones especiales de crédito pueden requerir un análisis especializado.</p>
+    <h2>Exactitud y actualizaciones</h2>
+    <p>Identificamos las normas y fuentes de cada cálculo y su fecha de consulta, pero la legislación, las tarifas y los criterios administrativos pueden cambiar. Podemos corregir o actualizar el sitio sin aviso previo.</p>
+    <h2>Publicidad y enlaces externos</h2>
+    <p>El sitio puede mostrar publicidad de terceros, identificada como tal y separada de los resultados. Los anuncios y los enlaces externos son responsabilidad de quienes los ofrecen, y la publicidad no influye en las fórmulas ni en las fuentes. El tratamiento de datos se explica en la <a href={href('/privacidad/')}>política de privacidad</a>.</p>
+    <h2>Disponibilidad y responsabilidad</h2>
+    <p>El sitio se ofrece sin garantía de disponibilidad continua. No respondemos por decisiones tomadas exclusivamente a partir de una estimación.</p>
+  </article>
+</Layout>

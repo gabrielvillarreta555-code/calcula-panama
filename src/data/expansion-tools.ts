@@ -10,11 +10,16 @@ export interface Tool {
   sources: { title: string; url: string }[]; related: { title: string; path: string }[];
   /** Preguntas frecuentes con respuestas verificables (CP-EXP-001). */
   faq?: { q: string; a: string }[];
+  /** Contexto práctico para Panamá (CP-ADS-002). */
+  context?: string[];
+  /** Nota metodológica cuando la fórmula no depende de una norma ni de una fuente externa. */
+  sourceNote?: string;
   /** Fecha ISO en que se consultaron las fuentes; por defecto, la de la expansión 3. */
   checkedOn?: string;
 }
 const nist = { title: 'NIST — unidades de medida, Handbook 44 (2026)', url: 'https://www.nist.gov/system/files/documents/2025/12/30/appc-26-HB44-20251222.pdf' };
-const math = { title: 'SEP — cálculo de porcentajes y descuentos', url: 'https://aprendeencasa.sep.gob.mx/secundaria/calculo-de-porcentajes-2/' };
+/** Ley 8 de 2010 (DGI): fija la tarifa general del ITBMS en 7%. El mismo documento lo cita src/data/legal.ts. */
+const itbms = { title: 'DGI — Ley 8 de 2010: tarifa general del ITBMS de 7%', url: 'https://dgi.mef.gob.pa/itbms/Normativa/Ley-8-15-marzo-2010.pdf' };
 const shopping = { title: 'Sumar mi compra con Modo Pasillo', path: '/compras/modo-pasillo/' };
 const budget = { title: 'Organizar mi dinero con Mi Quincena', path: '/finanzas/mi-quincena/' };
 export const expansionTools: Tool[] = [
@@ -32,7 +37,17 @@ export const expansionTools: Tool[] = [
     formula: 'Precio comparable = precio del paquete ÷ contenido convertido a kg, litros o unidades. Una libra equivale a 0.45359237 kg.',
     example: 'Ejemplo hipotético: 500 g a B/.2.00 cuestan B/.4.00 por kg. Otro paquete de 750 g a B/.2.70 cuesta B/.3.60 por kg: su precio por kg es 10% menor, aunque el paquete cuesta más.',
     limits: ['No consulta precios de supermercados ni compara calidad. Los precios los introduces tú.', 'No convierte masa a volumen: gramos y mililitros no son equivalentes sin conocer la densidad.', 'Acepta hasta 20 productos. Precio hasta B/.10,000,000 con dos decimales; contenido entre 0.001 y 10,000,000. Las unidades contables deben ser enteras.', 'El precio comparable se muestra con hasta cuatro decimales; la comparación usa el valor sin redondear.'],
-    sources: [nist], related: [shopping, { title: 'Comparar descuentos y promociones', path: '/compras/descuentos-y-promociones/' }],
+    context: [
+      'En los supermercados de Panamá es habitual ver carnes, verduras y granos con precio por libra, y los productos envasados con su contenido en gramos o mililitros. Para compararlos, la herramienta convierte todo a la misma unidad: B/.1.99 la libra equivalen a B/.4.39 el kilo.',
+      'Los paquetes múltiples se comparan por su contenido total: un paquete de 6 latas de 355 ml (2,130 ml) a B/.4.50 cuesta B/.2.11 por litro, y una botella de 2 litros a B/.2.75 cuesta B/.1.38 por litro.',
+      'Compara precios con el mismo tratamiento del ITBMS: todos con el impuesto incluido o todos sin él. La tarifa general del ITBMS es 7%, y algunos productos, como muchos alimentos, están exentos.',
+    ],
+    sources: [nist, itbms], related: [shopping, { title: 'Comparar descuentos y promociones', path: '/compras/descuentos-y-promociones/' }],
+    faq: [
+      { q: '¿Cómo comparo un precio por libra con uno por kilo?', a: 'Una libra equivale exactamente a 0.45359237 kg. Divide el precio por libra entre 0.45359237 para obtener el precio por kilo: B/.1.99 la libra son B/.4.39 el kilo. La herramienta hace la conversión si eliges la unidad de cada producto.' },
+      { q: '¿Puedo comparar gramos con mililitros?', a: 'No. Son medidas de masa y de volumen, y para convertirlas hace falta la densidad de cada producto. Compara productos que la etiqueta exprese en la misma magnitud.' },
+      { q: '¿El precio más bajo por kilo siempre conviene?', a: 'No siempre. Una presentación grande solo ahorra si la usas antes de que caduque y si tienes dónde guardarla. Compara también la calidad y lo que realmente vas a consumir.' },
+    ],
   },
   {
     id: 'discount', path: '/compras/descuentos-y-promociones/', category: 'Compras', title: 'Calculadora de descuentos y promociones',
@@ -47,7 +62,17 @@ export const expansionTools: Tool[] = [
     formula: 'Descuento simple: total × (1 − descuento/100). Dos descuentos: total × (1 − d1/100) × (1 − d2/100). En 3x2 se descuenta una unidad por cada grupo completo de tres.',
     example: 'Ejemplos hipotéticos: tres productos de B/.6.00 en 3x2 cuestan B/.12.00, un ahorro de B/.6.00 (33.33%). Dos descuentos sucesivos de 20% y 10% sobre B/.100.00 dejan B/.72.00: la rebaja es 28%, no 30%.',
     limits: ['Supone productos de igual precio y promociones aplicables a toda la cantidad indicada. Las unidades fuera de un grupo completo pagan precio normal.', 'No añade ITBMS, envío ni cargos. Introduce precios comparables y consulta las condiciones del comercio.', 'Redondea el total final al centésimo; el comercio puede redondear por artículo y obtener una diferencia.', 'Precio hasta B/.10,000,000, cantidad entera de 1 a 10,000 y descuentos entre 0% y 100%.'],
-    sources: [math], related: [shopping, { title: 'Comparar precio por unidad', path: '/compras/precio-por-unidad/' }],
+    context: [
+      'Un 2x1 solo equivale a pagar la mitad si llevas un número par de unidades: tres productos de B/.6.00 en 2x1 cuestan B/.12.00, un ahorro del 33.33%, no del 50%.',
+      'Los descuentos sucesivos no se suman. Un 30% más un 20% adicional deja el 56% del precio: el ahorro real es 44%, no 50%.',
+      'La herramienta no añade el ITBMS. Si comparas precios sin impuesto, súmalo igual en todas las opciones: la tarifa general en Panamá es 7%.',
+    ],
+    sources: [itbms], related: [shopping, { title: 'Comparar precio por unidad', path: '/compras/precio-por-unidad/' }],
+    faq: [
+      { q: '¿Un 2x1 es lo mismo que un 50% de descuento?', a: 'Solo si compras las unidades en pares. Con un número impar, la unidad sobrante paga el precio normal: tres productos de B/.6.00 en 2x1 cuestan B/.12.00 y el ahorro efectivo es 33.33%.' },
+      { q: '¿Cuánto ahorro con la segunda unidad al 50%?', a: 'Un 25% sobre las dos unidades. Si cada una cuesta B/.10.00, pagas B/.10.00 + B/.5.00 = B/.15.00 en lugar de B/.20.00.' },
+      { q: '¿Qué hago si en caja me cobran un precio distinto del anunciado?', a: 'Pide la revisión en el comercio y conserva la factura y, si puedes, una foto del anuncio. Si no se resuelve, puedes presentar una queja ante la Autoridad de Protección al Consumidor y Defensa de la Competencia (ACODECO).' },
+    ],
   },
   {
     id: 'savings', path: '/finanzas/meta-de-ahorro/', category: 'Finanzas', title: 'Calculadora de metas de ahorro',
@@ -62,8 +87,18 @@ export const expansionTools: Tool[] = [
     formula: 'Faltante = máximo de cero y (meta − ahorro inicial). Se reparte en centésimos entre las fechas disponibles; los primeros aportes reciben, si hace falta, un centésimo adicional.',
     example: 'Ejemplo hipotético: meta B/.600.00, ahorro inicial B/.120.00, del 1 de enero al 30 de junio de 2027 con aportes el 15 y fin de mes. Hay 12 aportes de B/.40.00: B/.120.00 + 12 × B/.40.00 = B/.600.00.',
     limits: ['No incluye intereses, inflación, comisiones ni condiciones de cuentas bancarias. No comprueba tu capacidad de ahorro.', 'Quincenal significa dos veces por mes (15 y último día), no cada 14 días. En mensual se conserva el día inicial; si no existe, se usa el último del mes.', 'Admite fechas de 2000 a 2100 y hasta 600 aportes. Meta y ahorro inicial hasta B/.10,000,000 con dos decimales.', 'La lista se pierde al recargar. No se transfiere automáticamente a Mi Quincena.'],
-    sources: [{ title: 'CFPB — Su dinero, sus metas: planificación del ahorro', url: 'https://files.consumerfinance.gov/f/documents/bcfp_your-money-goals_a-financial-empowerment-toolkit_es.pdf' }],
-    related: [budget, { title: 'Estimar una cuota de préstamo', path: '/finanzas/calculadora-prestamos/' }],
+    context: [
+      'Muchas personas en Panamá cobran por quincena, los días 15 y 30 o el último día del mes. La frecuencia quincenal de esta herramienta usa esas fechas, para que el aporte coincida con el día de pago.',
+      'El décimo tercer mes se paga en tres partidas: el 15 de abril, el 15 de agosto y el 15 de diciembre. Si destinas parte de una partida a tu meta, súmala al ahorro inicial y calcula su importe neto con la calculadora del décimo.',
+      'Ejemplo hipotético: para reunir B/.1,200 entre el 1 de febrero de 2027 y el 31 de enero de 2028, con aportes mensuales desde el día de inicio, hacen falta 12 aportes de B/.100.00.',
+    ],
+    sources: [{ title: 'CFPB — Su dinero, sus metas: planificación del ahorro (guía en español)', url: 'https://files.consumerfinance.gov/f/documents/bcfp_your-money-goals_a-financial-empowerment-toolkit_es.pdf' }],
+    related: [budget, { title: 'Calcular el décimo tercer mes', path: '/calculadoras/decimo-tercer-mes/' }, { title: 'Estimar una cuota de préstamo', path: '/finanzas/calculadora-prestamos/' }],
+    faq: [
+      { q: '¿La calculadora tiene en cuenta los intereses de mi cuenta de ahorros?', a: 'No. Reparte la diferencia entre la meta y tu ahorro inicial sin intereses. Si tu cuenta paga intereses, el resultado es conservador: con los intereses alcanzarías la meta aportando algo menos.' },
+      { q: '¿Qué frecuencia de aportes conviene elegir?', a: 'La que coincida con tu día de pago. Si cobras por quincena, el aporte quincenal te permite separar el dinero apenas lo recibes, antes de gastarlo.' },
+      { q: '¿Puedo usar el décimo tercer mes para mi meta?', a: 'Sí. Las partidas se pagan el 15 de abril, el 15 de agosto y el 15 de diciembre. Calcula el importe neto con la calculadora del décimo y súmalo al ahorro inicial cuando lo recibas.' },
+    ],
   },
   {
     id: 'grades', path: '/educacion/promedio-de-notas/', category: 'Educación', title: 'Calculadora de promedio de notas y nota necesaria',
@@ -76,8 +111,19 @@ export const expansionTools: Tool[] = [
     formula: 'Puntos acumulados = suma de (nota × peso/100). Promedio actual = puntos × 100 / peso evaluado. Nota necesaria = (objetivo − puntos) × 100 / peso pendiente.',
     example: 'Ejemplos hipotéticos: 80 con peso 40% y 90 con peso 60% dan 86 de nota final. Si solo llevas 80 con peso 40% y buscas 70, necesitas un promedio de 63.33 en el 60% restante (valor aproximado).',
     limits: ['No aplica automáticamente reglamentos de MEDUCA ni de universidades. Configura los pesos de tu curso y confirma sus reglas de redondeo.', 'Escala desde cero hasta una nota máxima entre 1 y 1000. Admite de 1 a 20 evaluaciones; cada peso debe ser mayor que cero y el total no puede superar 100%.', 'Si la nota necesaria supera la máxima de la escala, el objetivo no es alcanzable con los pesos introducidos. No equivale a una decisión oficial de aprobación.', 'Los resultados se muestran con dos decimales; usa el valor completo y las reglas del curso para decisiones de redondeo.'],
-    sources: [{ title: 'LibreTexts / Cálculo activo — ejemplo de promedio ponderado de notas', url: 'https://espanol.libretexts.org/Bookshelves/Matematicas/Libro%3A_Calculo_activo_%28Boelkins_et_al.%29/06%3A_Uso_de_Integrales_Definitas/6.03%3A_Densidad%2C_Masa_y_Centro_de_Masa' }],
+    context: [
+      'En muchos centros de Panamá las notas se expresan de 1.0 a 5.0 y la mínima de aprobación es 3.0. Otros centros y las universidades usan escalas de 0 a 100 o letras. Configura la nota máxima y el objetivo según el reglamento de tu centro.',
+      'Ejemplo hipotético en escala de 1.0 a 5.0: con 4.0 en una evaluación que pesa 30% y 3.5 en otra del 30%, llevas 2.25 puntos. Para terminar con 3.0, necesitas un promedio de 1.88 en el 40% restante.',
+      'Si tu escala empieza en 1.0, no escribas notas menores que 1.0: la herramienta acepta notas desde cero.',
+    ],
+    sources: [],
+    sourceNote: 'El promedio ponderado es una fórmula matemática estándar y no depende de una norma. La escala, los pesos y el redondeo los fija el reglamento de evaluación de cada centro o universidad: confírmalos con tu docente o con la secretaría académica.',
     related: [{ title: 'Planear el ahorro para estudiar', path: '/finanzas/meta-de-ahorro/' }, { title: 'Ver todas las herramientas', path: '/herramientas/' }],
+    faq: [
+      { q: '¿Cómo se calcula un promedio ponderado?', a: 'Multiplica cada nota por su peso, suma los resultados y divide entre la suma de los pesos. Con 80 (40%) y 90 (60%): 80 × 0.4 + 90 × 0.6 = 86.' },
+      { q: '¿Qué significa que el objetivo no es alcanzable?', a: 'Que incluso con la nota máxima en todo lo que falta no llegarías a la nota final que buscas con los pesos introducidos. Revisa los pesos o habla con tu docente; el resultado no es una decisión oficial de aprobación.' },
+      { q: '¿Cómo se redondea la nota final?', a: 'Depende del reglamento de tu centro. La herramienta muestra dos decimales y no redondea al alza ni a la baja para decidir si apruebas.' },
+    ],
   },
   {
     id: 'energy', path: '/vida-cotidiana/consumo-electrico/', category: 'Vida cotidiana', title: 'Calculadora de consumo eléctrico en kWh',
@@ -88,8 +134,18 @@ export const expansionTools: Tool[] = [
     formula: 'Energía (kWh) = potencia (W) ÷ 1000 × horas al día × días × porcentaje activo/100. Costo orientativo de energía = kWh × precio introducido.',
     example: 'Ejemplo hipotético: 100 W durante 5 horas al día, 30 días y 100% de tiempo activo consumen 15 kWh. Con un precio supuesto de B/.0.20/kWh, la energía costaría B/.3.00. Ese precio no es una tarifa oficial.',
     limits: ['No calcula la factura completa de ENSA ni de Naturgy: excluye cargos fijos, bloques, subsidios, impuestos y otros ajustes.', 'La potencia nominal no siempre equivale al consumo real. Neveras y aires acondicionados trabajan por ciclos; el porcentaje activo es un supuesto editable.', 'Potencia de 0 a 100,000 W, hasta 24 horas al día, entre 1 y 366 días y tiempo activo entre 0% y 100%. Precio opcional de 0 a B/.100/kWh.', 'Para medir consumo real utiliza un medidor adecuado. No estima ahorro garantizado.'],
+    context: [
+      'En Panamá la electricidad la distribuyen ENSA y Naturgy (Edemet y Edechi), y la ASEP aprueba sus tarifas. Tu factura mide el consumo en kWh, la misma unidad que calcula esta herramienta.',
+      'Los aires acondicionados indican su capacidad de enfriamiento en BTU/h (por ejemplo, 12,000 BTU/h), pero lo que consume electricidad es su potencia en vatios, que figura aparte en la placa o la ficha técnica. Usa siempre los vatios.',
+      'Ejemplo hipotético: un aire acondicionado de 1,100 W encendido 8 horas cada noche, con el compresor activo el 60% del tiempo durante 30 días, consume 158.4 kWh. Con un precio supuesto de B/.0.20 por kWh, la energía costaría B/.31.68.',
+    ],
     sources: [{ title: 'ENSA — definición de energía eléctrica (potencia por tiempo)', url: 'https://ensa.com.pa/preguntas-frecuentes/que-es-la-energia-electrica/' }, { title: 'ASEP — pliegos tarifarios 2026–2030 (contexto; no se incorporan tarifas)', url: 'https://asep.gob.pa/direcciones/services/reglamentaciones/pliegos-tarifarios-2027-2030/' }],
     related: [budget, { title: 'Planear una meta de ahorro', path: '/finanzas/meta-de-ahorro/' }],
+    faq: [
+      { q: '¿Qué precio por kWh escribo?', a: 'El de tu propia factura. Una aproximación es dividir el cargo por energía entre los kWh facturados, sin incluir los cargos fijos ni otros conceptos. No uses una tarifa supuesta: varía según la distribuidora, el bloque de consumo y el período.' },
+      { q: '¿Por qué el resultado no coincide con mi factura?', a: 'Porque la factura incluye cargos fijos, bloques de consumo, subsidios, impuestos y otros aparatos de la casa. Esta herramienta estima solo la energía de un aparato.' },
+      { q: '¿Qué porcentaje de tiempo activo uso para una nevera o un aire acondicionado?', a: 'Trabajan por ciclos: el compresor se enciende y se apaga. Si no conoces el valor, prueba con varios porcentajes para ver un rango; para medir el consumo real, usa un medidor de enchufe.' },
+    ],
   },
 ];
 

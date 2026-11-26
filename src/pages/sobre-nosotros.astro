@@ -1,4 +1,45 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import { LEGAL_PARAMETERS } from '../data/legal';
+import { ADS_ACTIVE } from '../data/ad-policy';
+const base = import.meta.env.BASE_URL;
+const href = (p: string) => `${base}${p.replace(/^\//, '')}`;
+const reviewed = new Intl.DateTimeFormat('es-PA', { dateStyle: 'long', timeZone: 'UTC' }).format(new Date(`${LEGAL_PARAMETERS.reviewedOn}T00:00:00Z`));
 ---
-<Layout title="Sobre Calcula Panamá" description="Conoce el propósito, criterios editoriales y enfoque de privacidad de Calcula Panamá." canonicalPath="/sobre-nosotros/"><header class="page-head"><div class="container"><span class="eyebrow">Nuestro propósito</span><h1>Hacer comprensibles los cálculos laborales.</h1></div></header><article class="container article"><p>Calcula Panamá es una plataforma informativa independiente creada para que residentes y trabajadores puedan explorar estimaciones laborales sin entregar sus datos personales.</p><h2>Cómo trabajamos</h2><p>Separamos las reglas y parámetros del diseño, explicamos los supuestos y enlazamos las instituciones competentes. Cuando una regla necesita datos que no tenemos o interpretación jurídica particular, lo decimos y evitamos producir una falsa precisión.</p><h2>Lo que no somos</h2><p>No somos una institución gubernamental, firma de abogados, empleador ni proveedor de contabilidad. Las herramientas no reemplazan una liquidación oficial, una declaración tributaria ni asesoría profesional.</p><h2>Quién está detrás</h2><p>Calcula Panamá es un proyecto de <a href="https://gabrielvillarreta555-code.github.io/" rel="author">Gabriel Villarreta</a>, de Blue Lab Studios, también creador de Despierta, una app de alarmas para turnos rotativos.</p><h2>Privacidad por diseño</h2><p>Las cifras introducidas se procesan en el navegador. Esta primera versión no requiere cuentas y no transmite salarios a un servidor.</p></article></Layout>
+<Layout title="Sobre Calcula Panamá | Quién lo hace y cómo trabajamos" description="Quién está detrás de Calcula Panamá, qué herramientas ofrece, cómo se verifican las fórmulas y fuentes, y cómo se financia el sitio." canonicalPath="/sobre-nosotros/">
+  <header class="page-head container">
+    <Breadcrumbs items={[{ label: 'Sobre nosotros', path: '/sobre-nosotros/' }]} />
+    <span class="eyebrow">Sobre nosotros</span>
+    <h1>Cuentas claras para la vida diaria en Panamá</h1>
+    <p>Última actualización: 26 de noviembre de 2026.</p>
+  </header>
+  <article class="container article">
+    <h2>Qué es Calcula Panamá</h2>
+    <p>Calcula Panamá es un sitio informativo e independiente con calculadoras gratuitas para quienes viven y trabajan en Panamá. Reúne herramientas de <a href={href('/herramientas/#trabajo')}>trabajo y salarios</a> (salario neto, décimo tercer mes, vacaciones y liquidación), <a href={href('/herramientas/#finanzas')}>finanzas personales</a> (presupuesto, préstamos y metas de ahorro), <a href={href('/compras/')}>compras</a>, <a href={href('/herramientas/#vehiculos')}>vehículos</a>, <a href={href('/herramientas/#educacion')}>educación</a> y <a href={href('/herramientas/#vida-cotidiana')}>vida cotidiana</a>, además de <a href={href('/guias/')}>guías</a> que explican las reglas con ejemplos.</p>
+
+    <h2>Quién está detrás</h2>
+    <p>Calcula Panamá es un proyecto de <a href="https://gabrielvillarreta555-code.github.io/" rel="author">Gabriel Villarreta</a>, de Blue Lab Studios, también creador de Despierta, una app de alarmas para turnos rotativos. Blue Lab Studios es responsable del contenido, de las fórmulas y del mantenimiento del sitio.</p>
+
+    <h2>Cómo verificamos los cálculos</h2>
+    <ul>
+      <li>Cada regla laboral y tributaria se guarda con la norma que la respalda: Código de Trabajo, Ley Orgánica de la Caja de Seguro Social y Código Fiscal. Los parámetros legales se contrastaron con el texto de las normas el {reviewed}.</li>
+      <li>Las fórmulas tienen pruebas automáticas con casos calculados de forma independiente. Los ejemplos de las guías se generan con las mismas funciones que las calculadoras, para que nunca se contradigan.</li>
+      <li>Cada herramienta explica su fórmula, incluye un ejemplo que puedes comprobar a mano, enumera sus límites e indica la fecha en que se consultaron sus fuentes.</li>
+      <li>Cuando un caso depende de datos que no tenemos o de una interpretación jurídica, lo decimos en lugar de dar una cifra con falsa precisión.</li>
+    </ul>
+    <p><strong>Lo que todavía no hemos hecho:</strong> los parámetros legales no han sido revisados por un abogado ni por un contador externos. Mientras tanto, trata los resultados como estimaciones y confírmalos con tu empleador, la institución competente o un profesional idóneo.</p>
+
+    <h2>Lo que no somos</h2>
+    <p>No somos una entidad del Gobierno de Panamá, una firma de abogados, un banco, un empleador ni un proveedor de contabilidad. Las herramientas no reemplazan una liquidación oficial, una cotización bancaria, una declaración tributaria ni la asesoría de un profesional.</p>
+
+    <h2>Privacidad por diseño</h2>
+    <p>Las cifras que escribes se procesan en tu navegador y no se envían a ningún servidor. No pedimos cuentas, nombres ni números de cédula. Solo Mi Quincena guarda tus datos, en el almacenamiento local de tu navegador, para que los recuperes en este dispositivo. Los detalles están en la <a href={href('/privacidad/')}>política de privacidad</a>.</p>
+
+    <h2>Cómo se financia</h2>
+    <p>El sitio es gratuito. Para cubrir su mantenimiento prevemos mostrar publicidad de Google AdSense solo en guías, directorios y herramientas que no piden datos personales, nunca entre un formulario y su resultado, y nunca en Mi Quincena. {ADS_ACTIVE ? 'Algunas de esas páginas ya muestran anuncios, identificados como «Publicidad».' : 'Por ahora la publicidad está pausada en todo el sitio.'} La publicidad no influye en las fórmulas ni en las fuentes.</p>
+
+    <h2>Correcciones</h2>
+    <p>Si encuentras un error, te pedimos que lo reportes desde la página de <a href={href('/contacto/')}>contacto</a>. Corregimos las fórmulas solo con una norma o fuente verificable, añadimos una prueba para el caso y actualizamos la fecha de revisión.</p>
+  </article>
+</Layout>

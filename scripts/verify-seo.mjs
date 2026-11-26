@@ -1,6 +1,7 @@
 // Verifica el sitio compilado (dist/) antes de publicarlo: sitemap.xml, robots.txt y URL canónicas.
 // Uso: SITE_URL=https://calculapanama.com/ node scripts/verify-seo.mjs
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { join, relative } from 'node:path';
 
 const site = process.env.SITE_URL || 'https://calculapanama.com/';
 const errors = [];
@@ -77,20 +78,40 @@ const robots = read('dist/robots.txt');
 if (!robots.includes(`Sitemap: ${site}sitemap.xml`)) errors.push('robots.txt no enlaza sitemap.xml');
 if (/^Disallow:\s*\/\s*$/m.test(robots)) errors.push('robots.txt bloquea todo el sitio');
 
-// AdSense: el script oficial debe estar una vez en el <head> de cada página y ads.txt debe coincidir.
+// Publicidad (CP-ADS-002): la decide src/data/ad-policy.json para TODAS las páginas HTML, incluida la 404.
+// Sin publicidad: CSP estricta, ningún script de terceros. Con publicidad (solo 'stage1' y política activa):
+// el script oficial una sola vez en el <head>. ads.txt debe coincidir con el ID en cualquier caso.
 const siteConfig = readFileSync('src/data/site.ts', 'utf8');
 const client = siteConfig.match(/client: '(ca-pub-\d{16})'/)?.[1];
-if (client) {
-  const tag = `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${client}" crossorigin="anonymous"></script>`;
-  for (const loc of locs) {
-    const file = `dist/${loc.slice(site.length)}index.html`;
-    if (!existsSync(file)) continue;
-    const html = readFileSync(file, 'utf8');
-    const head = html.split('</head>')[0];
-    if (['herramientas/', 'compras/precio-por-unidad/', 'compras/descuentos-y-promociones/', 'finanzas/meta-de-ahorro/', 'educacion/promedio-de-notas/', 'vida-cotidiana/consumo-electrico/', 'vehiculos/financiamiento-de-auto/', 'vehiculos/combustible-por-viaje/', 'vehiculos/costo-mensual-de-un-auto/', 'finanzas/mi-quincena/', 'finanzas/calculadora-prestamos/', 'compras/modo-pasillo/', 'calculadoras/salario-neto/', 'calculadoras/decimo-tercer-mes/', 'calculadoras/vacaciones/', 'calculadoras/liquidacion-laboral/'].some(path => loc === new URL(path, site).toString())) {
-      if (html.includes('adsbygoogle.js')) errors.push(`AdSense no debe cargarse en la herramienta privada ${loc}`);
-    } else if (head.split(tag).length !== 2 || html.split('adsbygoogle.js').length !== 2) errors.push(`Script de AdSense ausente o duplicado en ${loc}`);
+const policy = JSON.parse(readFileSync('src/data/ad-policy.json', 'utf8'));
+const strictCsp = readFileSync('src/data/ad-policy.ts', 'utf8').match(/STRICT_CSP = "([^"]+)"/)?.[1];
+if (!strictCsp) errors.push('No se encontró STRICT_CSP en src/data/ad-policy.ts');
+const htmlFiles = dir => readdirSync(dir, { withFileTypes: true }).flatMap(entry => {
+  const file = join(dir, entry.name);
+  return entry.isDirectory() ? htmlFiles(file) : file.endsWith('.html') ? [file] : [];
+});
+let adPages = 0;
+for (const file of htmlFiles('dist')) {
+  const path = '/' + relative('dist', file).replaceAll('\\', '/').replace(/index\.html$/, '').replace(/\.html$/, '/');
+  const html = readFileSync(file, 'utf8');
+  const head = html.split('</head>')[0];
+  const tier = policy.pages[path]?.tier ?? 'never';
+  const shouldHaveAds = Boolean(policy.active && client && tier === 'stage1');
+  const csp = html.match(/<meta http-equiv="Content-Security-Policy" content="([^"]+)"/g) ?? [];
+  if (csp.length !== 1) errors.push(`Debe haber exactamente una CSP en ${path}`);
+  if (shouldHaveAds) {
+    adPages++;
+    const tag = `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${client}" crossorigin="anonymous"></script>`;
+    if (head.split(tag).length !== 2 || html.split('adsbygoogle.js').length !== 2) errors.push(`Script de AdSense ausente o duplicado en ${path}`);
+  } else {
+    if (!html.includes(`content="${strictCsp}"`)) errors.push(`Falta la CSP estricta en la página sin publicidad ${path}`);
+    if (/adsbygoogle|googlesyndication|doubleclick/i.test(html)) errors.push(`Código publicitario en una página sin publicidad: ${path}`);
+    for (const tag of html.matchAll(/<script\b[^>]*\bsrc=["']([^"']+)["']/gi)) {
+      if (new URL(tag[1], site).origin !== new URL(site).origin) errors.push(`Script externo en una página sin publicidad: ${path}`);
+    }
   }
+}
+if (client) {
   const adsTxt = read('dist/ads.txt');
   if (!adsTxt.includes(`google.com, ${client.replace('ca-', '')}, DIRECT, f08c47fec0942fa0`)) errors.push('ads.txt no coincide con el ID de AdSense');
 }
@@ -99,4 +120,4 @@ if (errors.length) {
   console.error(`Verificación SEO fallida:\n- ${errors.join('\n- ')}`);
   process.exit(1);
 }
-console.log(`Verificación SEO correcta: ${locs.length} URL en sitemap.xml, robots.txt y canonical coherentes con ${site}${client ? '; AdSense excluido de las herramientas privadas y ads.txt correcto' : ''}`);
+console.log(`Verificación SEO correcta: ${locs.length} URL en sitemap.xml, robots.txt y canonical coherentes con ${site}; publicidad ${policy.active ? `activa en ${adPages} páginas` : 'pausada en todo el sitio'}, CSP estricta en las demás${client ? ' y ads.txt correcto' : ''}`);

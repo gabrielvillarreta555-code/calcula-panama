@@ -1,9 +1,11 @@
 ---
-import { ADSENSE, isAdsenseEnabled, type AdSlotName } from '../data/site';
+import { ADSENSE, type AdSlotName } from '../data/site';
+import { adsAllowed } from '../data/ad-policy';
 interface Props { name: AdSlotName }
 const slot = ADSENSE.slots[Astro.props.name];
-// Sin cuenta aprobada no se renderiza nada: ni marcadores ni scripts de terceros.
-const enabled = isAdsenseEnabled() && /^\d{6,}$/.test(slot);
+// Solo se renderiza si la política de la página lo permite (src/data/ad-policy.json) y hay un id de bloque.
+// Con la publicidad pausada no se genera ningún marcador ni script de terceros.
+const enabled = adsAllowed(Astro.url.pathname) && /^\d{6,}$/.test(slot);
 ---
 {enabled && (
   <aside class="ad-slot" aria-label="Publicidad">
