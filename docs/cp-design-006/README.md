@@ -72,25 +72,31 @@ Sin desplazamiento horizontal en ninguna de las seis vistas y sin errores de con
 | Blue presente en portada y herramientas | Sin Blue en la interfaz |
 | Portada como lista de accesos | Portada como sumario, con «El dato» y dobles páginas |
 
-## Imágenes
+## Imágenes (revisión 2)
 
-| Sección | Estado en el prototipo |
-|---|---|
-| Portada: Ciudad de Panamá | ✅ Fotografía real, Elemaki, CC BY 3.0 (Wikimedia Commons, ya verificada) |
-| Trabajo: Canal de Panamá | ✅ Fotografía real, GameOfLight, CC BY-SA 3.0 (Wikimedia Commons, ya verificada) |
-| Movilidad: Toyota Hilux negra | ⏳ Espacio rotulado: **falta el archivo** |
-| Finanzas: oficina panorámica | ⏳ Espacio rotulado |
-| Hogar: apartamento moderno | ⏳ Espacio rotulado |
-| Compras: supermercado | ⏳ Espacio rotulado |
-| Educación: biblioteca moderna | ⏳ Espacio rotulado |
-| Revista: escritorio editorial | ⏳ Espacio rotulado |
+| Sección | Imagen | Tipo | Crédito mostrado |
+|---|---|---|---|
+| Portada | Ciudad de Panamá al anochecer | Fotografía real | Elemaki · CC BY 3.0 (Wikimedia Commons) |
+| Trabajo | Esclusas de Miraflores, Canal de Panamá | Fotografía real | GameOfLight · CC BY-SA 3.0 (Wikimedia Commons) |
+| Movilidad | Toyota Hilux negra | Generada con IA | Recurso de Calcula Panamá |
+| Finanzas | Oficina panorámica | Generada con IA | Recurso de Calcula Panamá |
+| Hogar | Apartamento moderno | Generada con IA | Recurso de Calcula Panamá |
+| Compras | Supermercado | Generada con IA | Recurso de Calcula Panamá |
+| Educación | Biblioteca moderna | Generada con IA | Recurso de Calcula Panamá |
+| Revista | Escritorio editorial | Generada con IA | Recurso de Calcula Panamá |
 
-Las seis imágenes aprobadas no están en el repositorio ni en esta sesión, y la instrucción prohíbe nuevas búsquedas. Las imágenes de las capturas de referencia llevan créditos de Instagram y de Yahoo sin licencia documentada, así que no se usaron. Para integrarlas hacen falta, por cada una:
-- el archivo original;
-- el autor y la licencia o permiso de uso comercial;
-- si es **fotografía real** o **imagen generada por IA**.
+- Las seis imágenes de IA las entregó el CEO el 26-11-2026. Están en `prototipos/img/`, convertidas a AVIF y WebP en 800 y 1600 px: de 24 a 39 KB en móvil (AVIF).
+- Cada pie indica «Imagen generada con IA» o «Fotografía real».
+- La composición, la tipografía y la navegación no cambiaron. Solo se corrigió un error de CSS que solapaba el pie de foto en móvil.
 
-Cada pie de foto lo indicará («Fotografía real» o «Imagen generada con IA»).
+**Observaciones para el CEO:**
+- Se recibió una séptima imagen (equipo de seguridad industrial) que no figura en la lista. No se usó.
+- El **apartamento** parece una fotografía real tomada con un móvil, con elementos personales: llaves, router y televisor encendido. Conviene confirmar su origen. Si es una foto real, hace falta el permiso de su autor o propietario, y el pie debería decir «Fotografía real».
+- La **Hilux** muestra el logotipo de Toyota y el nombre «HILUX». En la sección de financiamiento podría sugerir una relación con la marca. Conviene confirmar si se acepta o si se prefiere una versión sin logotipo.
+
+**Capturas de revisión:** `capturas/revision-2/`.
+- La portada, sección por sección, en móvil (390 px @2x) y escritorio (1440 px).
+- Salario neto, Modo Pasillo y el índice de navegación, recortados de las capturas existentes, sin volver a renderizarlos.
 
 ## Decisiones que requieren aprobación del CEO antes de generalizar
 
