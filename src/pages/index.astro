@@ -14,7 +14,7 @@ const href = (p: string) => `${base}${p.replace(/^\//, '')}`;
 const example = calculateNetSalary({ grossPerPay: 1500, frequency: 'monthly' });
 const share = (n: number) => `${((n / example.gross) * 100).toFixed(1)}%`;
 const cat = (id: string) => CATEGORIES.find(c => c.id === id)!;
-const [movilidad, finanzas, trabajo, cotidiano, educacion] = ['vehiculos', 'finanzas', 'trabajo', 'vida-cotidiana', 'educacion'].map(cat);
+const movilidad = cat('vehiculos'), finanzas = cat('finanzas'), trabajo = cat('trabajo'), cotidiano = cat('vida-cotidiana'), educacion = cat('educacion');
 const allTools = CATEGORIES.flatMap(c => c.tools);
 const schema = [
   { '@context': 'https://schema.org', '@type': 'WebSite', name: SITE.name, description: SITE.description, inLanguage: 'es-PA', url: new URL(base, Astro.site ?? Astro.url.origin).toString() },

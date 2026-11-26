@@ -39,7 +39,8 @@ test('sin rojos, vinos ni dorados en los elementos de la interfaz', async ({ pag
 test('buscador de herramientas: filtra, navega con teclado y no hace peticiones', async ({ page }) => {
   await page.goto('/');
   const requests: string[] = [];
-  page.on('request', r => requests.push(r.url()));
+  // Lo que escribes no sale del navegador: ninguna petición fetch/XHR ni ninguna URL con el texto buscado.
+  page.on('request', r => { if (['xhr', 'fetch'].includes(r.resourceType()) || /liquidacion|xyzxyz|combustible/i.test(r.url())) requests.push(r.url()); });
   const search = page.locator('#home-search');
   await search.fill('liquidacion');
   const result = page.locator('[data-tool-search]').filter({ has: search }).getByRole('link', { name: /Liquidación laboral/ });
@@ -47,6 +48,7 @@ test('buscador de herramientas: filtra, navega con teclado y no hace peticiones'
   await search.fill('xyzxyz');
   await expect(page.getByText('Sin resultados.', { exact: false }).first()).toBeVisible();
   expect(requests).toEqual([]);
+  page.removeAllListeners('request');
   await page.locator('.search-button').click();
   await expect(page.locator('#header-search')).toBeFocused();
   await page.keyboard.type('combustible');

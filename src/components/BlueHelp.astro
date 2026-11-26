@@ -59,14 +59,14 @@ const { guide } = Astro.props;
       });
     });
     guide.querySelector<HTMLAnchorElement>('.blue-help-sources')?.addEventListener('click', () => { guide.open = false; });
-    document.querySelector('form')?.addEventListener('focusin', (event) => {
+    document.querySelector('form:not([role=search])')?.addEventListener('focusin', (event) => {
       const target = event.target;
       if (!(target instanceof HTMLElement) || !target.id || !context) return;
       const topic = Array.from(guide.querySelectorAll<HTMLElement>('[data-blue-field]')).find((item) => item.dataset.blueField === target.id);
       context.textContent = topic?.dataset.blueHint || '';
       context.hidden = !context.textContent;
     });
-    document.querySelector('form')?.addEventListener('calculator:result', (event) => {
+    document.querySelector('form:not([role=search])')?.addEventListener('calculator:result', (event) => {
       if (!(event instanceof CustomEvent) || !context || !bubble || !trigger) return;
       const success = event.detail?.status === 'success';
       if (!success && event.detail?.status !== 'invalid') return;

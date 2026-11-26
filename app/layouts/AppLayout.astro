@@ -5,6 +5,8 @@
  */
 import '../../src/styles/global.css';
 import '../../src/styles/share.css';
+import '../../src/styles/midnight.css';
+import fontUrl from '@fontsource-variable/inter-tight/files/inter-tight-latin-wght-normal.woff2?url';
 import { STRICT_CSP } from '../../src/data/ad-policy';
 import { MAIN_ORIGIN } from '../../src/data/isolation';
 interface Props { title: string; description?: string; bare?: boolean }
@@ -16,7 +18,10 @@ const main = (path: string) => `${MAIN_ORIGIN}${path}`;
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="color-scheme" content="light dark" />
+  <meta name="color-scheme" content="dark light" />
+  <meta name="theme-color" content="#08090C" />
+  <link rel="preload" href={fontUrl} as="font" type="font/woff2" crossorigin />
+  <style is:inline set:html={`@font-face{font-family:'Inter Tight Variable';font-style:normal;font-display:swap;font-weight:100 900;src:url(${fontUrl}) format('woff2-variations')}`} />
   <meta http-equiv="Content-Security-Policy" content={STRICT_CSP} />
   <meta name="referrer" content="no-referrer" />
   <meta name="robots" content="noindex" />
@@ -29,7 +34,7 @@ const main = (path: string) => `${MAIN_ORIGIN}${path}`;
   {!bare && (
     <header class="site-header">
       <nav class="nav container" aria-label="Navegación principal">
-        <a class="brand" href={main('/')} aria-label="Calcula Panamá, inicio"><span class="brand-mark" aria-hidden="true"><span></span></span><span class="brand-name">Calcula<b>Panamá</b></span></a>
+        <a class="wordmark" href={main('/')} aria-label="Calcula Panamá, inicio"><span class="wordmark-main">CALCULA.</span><span class="wordmark-sub">PANAMÁ</span></a>
       </nav>
     </header>
   )}

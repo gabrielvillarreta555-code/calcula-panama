@@ -26,5 +26,61 @@
     "sha1": "2316a90efac4ba19f4a14e8e5b5c61091a3ccb28",
     "attributionRequired": true,
     "modified": "Redimensionada y convertida a AVIF/WebP"
+  },
+  "finanzas": {
+    "alt": "Torres de oficinas de cristal en la ciudad de Panamá, entre ellas la torre F&F.",
+    "width": 1600,
+    "height": 1067,
+    "author": "Mariordo (Mario Roberto Duran Ortiz)",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:F%26F_Tower_03_2015_Panama_1332.JPG",
+    "title": "File:F&F Tower 03 2015 Panama 1332.JPG",
+    "camera": "SONY NEX-5",
+    "sha1": "84b6603e02d478f51e98bff738772235509de3a4",
+    "attributionRequired": true,
+    "modified": "Redimensionada y convertida a AVIF/WebP"
+  },
+  "trabajo": {
+    "alt": "Esclusas de Miraflores del Canal de Panamá, con su edificio de control y las cámaras de agua.",
+    "width": 1600,
+    "height": 953,
+    "author": "GameOfLight",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Miraflores_Locks_Panama_canal.jpg",
+    "title": "File:Miraflores Locks Panama canal.jpg",
+    "camera": "SONY NEX-6",
+    "sha1": "dea6dcb0c4ce494cf5fdd4214f6b308fc2922a69",
+    "attributionRequired": true,
+    "modified": "Redimensionada y convertida a AVIF/WebP"
+  },
+  "cotidiano": {
+    "alt": "Puesto de mariscos con camarones y precios escritos a mano en un mercado de la ciudad de Panamá.",
+    "width": 1600,
+    "height": 938,
+    "author": "Bernal Saborio",
+    "license": "CC BY-SA 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Seafood_market.jpg",
+    "title": "File:Seafood market.jpg",
+    "camera": "Panasonic DMC-G1",
+    "sha1": "59930d1bf436b5ef406dca53dbae153cecfb0180",
+    "attributionRequired": true,
+    "modified": "Redimensionada y convertida a AVIF/WebP"
+  },
+  "revista": {
+    "alt": "Vista aérea de la bahía y el distrito financiero de la ciudad de Panamá.",
+    "width": 1600,
+    "height": 899,
+    "author": "Dronepicr",
+    "license": "CC BY 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Panama_City_financial_district.jpg",
+    "title": "File:Panama City financial district.jpg",
+    "camera": "DJI FC300X",
+    "sha1": "a3f22187bdef8cd4369910b0d3d4c28cb710dd40",
+    "attributionRequired": true,
+    "modified": "Redimensionada y convertida a AVIF/WebP"
   }
 }

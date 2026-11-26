@@ -31,7 +31,9 @@ const { id, label = 'Buscar una herramienta', placeholder = '¿Qué necesitas ca
       const words = normalize(input.value).split(/\s+/).filter(Boolean);
       list.replaceChildren();
       if (!words.length) { list.hidden = true; status.textContent = ''; return; }
-      const hits = load().filter(e => words.every(w => e.n.includes(w))).slice(0, 8);
+      // Primero las herramientas cuyo título contiene lo buscado; después el resto de coincidencias.
+      const inTitle = (e: { t: string }) => words.every(w => normalize(e.t).includes(w));
+      const hits = load().filter(e => words.every(w => e.n.includes(w))).sort((a, b) => Number(inTitle(b)) - Number(inTitle(a))).slice(0, 8);
       for (const hit of hits) {
         const li = document.createElement('li'), a = document.createElement('a'), small = document.createElement('small');
         a.href = hit.p; a.textContent = hit.t; small.textContent = hit.c; a.append(small); li.append(a); list.append(li);

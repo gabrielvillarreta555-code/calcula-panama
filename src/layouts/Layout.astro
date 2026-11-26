@@ -116,7 +116,7 @@ const adsense = !disableAds && adsAllowed(relativePath);
         {CATEGORIES.map(c => (
           <div>
             <h2>{c.label}</h2>
-            {c.tools.map(tool => <a href={href(tool.path)}>{tool.title.replace(/^Calculadora (de |del )?/, '').replace(/^./, m => m.toUpperCase())}</a>)}
+            {c.tools.map(tool => <a href={href(tool.path)}>{tool.title.replace(/^(Calculadora|Comparador) (de |del )?/, '').replace(/^./, m => m.toUpperCase())}</a>)}
           </div>
         ))}
         <div>

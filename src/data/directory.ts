@@ -27,7 +27,7 @@ export const CATEGORIES: Category[] = [
   {
     id: 'vehiculos', number: '01', label: 'Movilidad', kicker: 'Vehículos', photo: 'movilidad',
     headline: 'Más allá del precio.', lede: 'Comprar, financiar y mantener tu próximo vehículo, con la tasa y los costos que tú escribes.',
-    tools: vehicleTools.map(tool => fromTool(tool, 'carro auto letra gasolina diésel combustible'))
+    tools: vehicleTools.map(tool => fromTool(tool, ({ 'car-loan': 'carro auto letra financiamiento banco préstamo', 'fuel-trip': 'gasolina diésel combustible viaje galón litro', 'car-cost': 'carro auto mantenimiento seguro placa peaje' } as Record<string, string>)[tool.id] ?? ''))
   },
   {
     id: 'finanzas', number: '02', label: 'Finanzas', kicker: 'Finanzas personales', photo: 'finanzas',

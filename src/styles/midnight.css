@@ -163,7 +163,8 @@ input[type=checkbox], input[type=radio], input[type=range], progress, meter { ac
 .segmented label:has(input:checked) { background: var(--button-bg); color: var(--button-ink); }
 .tool-field [aria-invalid=true], [aria-invalid=true] { border-color: var(--text) !important; box-shadow: inset 3px 0 0 var(--text); }
 /* Errores: sin rojo. Texto de alto contraste con un filete lateral y un símbolo. */
-.form-error, .tool-error, .budget-error, .loan-field-error, .error { color: var(--text) !important; font-weight: 600; border-left: 2px solid var(--text); padding-left: 10px; }
+.form-error, .tool-error, .budget-error, .loan-field-error, .error { color: var(--text) !important; font-weight: 600; }
+.form-error:not(:empty), .tool-error:not(:empty), .budget-error:not(:empty), .loan-field-error:not(:empty), .error:not(:empty) { border-left: 2px solid var(--text); padding-left: 10px; }
 .form-error:not(:empty)::before, .tool-error:not(:empty)::before, .budget-error:not(:empty)::before, .loan-field-error:not(:empty)::before { content: '⚠ '; }
 
 /* Resultados */
@@ -178,6 +179,7 @@ input[type=checkbox], input[type=radio], input[type=range], progress, meter { ac
 .breakdown li { border-color: var(--line); }
 
 /* Botones con colores fijos en hojas antiguas */
+.calculate { background: var(--button-bg) !important; color: var(--button-ink) !important; border-radius: var(--radius-sm) !important; box-shadow: none !important; font-weight: 650 !important; }
 .budget-page .budget-primary, .aisle-add, .share-dialog button.share-whatsapp { background: var(--button-bg) !important; border-color: var(--button-bg) !important; color: var(--button-ink) !important; border-radius: var(--radius-sm) !important; box-shadow: none !important; }
 .share-trigger { background: transparent !important; color: var(--ivory) !important; border: 1px solid rgba(231, 233, 237, .45) !important; border-radius: var(--radius-sm) !important; }
 .share-dialog { border-color: var(--line-strong) !important; border-radius: var(--radius) !important; }
@@ -198,8 +200,10 @@ input[type=checkbox], input[type=radio], input[type=range], progress, meter { ac
 .shopping-steps span { color: var(--brand-2) !important; }
 
 /* Blue: presencia discreta y coherente */
-.blue-help > summary, .blue-visibility { border-color: var(--line-strong) !important; background: var(--surface) !important; color: var(--text) !important; }
-.blue-help-bubble, .blue-help-content { background: var(--surface) !important; border-color: var(--line-strong) !important; color: var(--text) !important; }
+.blue-help > summary, .blue-visibility { background: transparent !important; border: 0 !important; box-shadow: none !important; }
+.blue-visibility { color: var(--brand-2) !important; }
+.blue-help-bubble { background: var(--surface-3) !important; border: 1px solid var(--line-strong) !important; color: var(--text) !important; box-shadow: none !important; border-radius: var(--radius-sm) !important; }
+.blue-help-content { background: var(--surface) !important; border-color: var(--line-strong) !important; color: var(--text) !important; }
 
 /* Pie de página */
 .site-footer { background: var(--obsidian); border-top: 1px solid var(--line); padding-block: 56px 32px; color: var(--text); }
@@ -221,3 +225,13 @@ input[type=checkbox], input[type=radio], input[type=range], progress, meter { ac
 .tabbar a[aria-current='page'] .icon { background: var(--surface-3); }
 
 @media (prefers-reduced-motion: reduce) { .mn-rows li > .icon { transition: none; } }
+
+/* Ajustes tras la revisión visual */
+.tool-search input:not([type=checkbox]) { background: transparent !important; border: 0 !important; border-radius: 0 !important; padding-inline: 0; }
+.mn-dates h3.eyebrow { font-size: .74rem; line-height: 1.4; letter-spacing: .16em; font-weight: 560; }
+.date-chip { border-radius: var(--radius-sm); background: var(--surface); border-color: var(--line-strong); }
+.date-chip.next { border-color: var(--silver); box-shadow: none; }
+.footer-studio img { display: inline-block; }
+/* Campos dentro de paneles de resultado (siempre oscuros, también en Marfil) */
+.aisle-summary input:not([type=checkbox]) { background: rgba(231, 233, 237, .06) !important; color: var(--ivory) !important; border: 0 !important; }
+.aisle-summary input::placeholder { color: #a7b4c3 !important; }

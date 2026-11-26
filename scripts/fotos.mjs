@@ -3,7 +3,7 @@
 // la licencia (solo CC0, dominio público, CC BY o CC BY-SA: uso comercial permitido) y el EXIF de
 // cámara (fotografía real), descarga el original y genera AVIF y WebP en 800 y 1600 px en public/fotos/.
 // Escribe src/data/photos.json con autoría, licencia y procedencia para los créditos.
-// Uso: NODE_USE_ENV_PROXY=1 node scripts/fotos.mjs   (requiere la dependencia de desarrollo sharp)
+// Uso: NODE_USE_ENV_PROXY=1 node scripts/fotos.mjs   (usa sharp, que ya instala Astro como dependencia)
 import sharp from 'sharp';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 
