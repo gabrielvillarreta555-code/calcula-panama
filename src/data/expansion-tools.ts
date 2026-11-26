@@ -40,8 +40,9 @@ export const expansionTools: Tool[] = [
     context: [
       'En los supermercados de Panamá es habitual ver carnes, verduras y granos con precio por libra, y los productos envasados con su contenido en gramos o mililitros. Para compararlos, la herramienta convierte todo a la misma unidad: B/.1.99 la libra equivalen a B/.4.39 el kilo.',
       'Los paquetes múltiples se comparan por su contenido total: un paquete de 6 latas de 355 ml (2,130 ml) a B/.4.50 cuesta B/.2.11 por litro, y una botella de 2 litros a B/.2.75 cuesta B/.1.38 por litro.',
-      'Compara precios con el mismo tratamiento del ITBMS: todos con el impuesto incluido o todos sin él. La tarifa general del ITBMS es 7%, y algunos productos, como muchos alimentos, están exentos.',
+      'Compara precios con el mismo tratamiento del ITBMS: todos con el impuesto incluido o todos sin él. La tarifa general del ITBMS es 7% (Ley 8 de 2010); algunos productos tienen otra tarifa o están exentos, así que revisa la etiqueta o tu factura.',
     ],
+    checkedOn: '2026-11-26',
     sources: [nist, itbms], related: [shopping, { title: 'Comparar descuentos y promociones', path: '/compras/descuentos-y-promociones/' }],
     faq: [
       { q: '¿Cómo comparo un precio por libra con uno por kilo?', a: 'Una libra equivale exactamente a 0.45359237 kg. Divide el precio por libra entre 0.45359237 para obtener el precio por kilo: B/.1.99 la libra son B/.4.39 el kilo. La herramienta hace la conversión si eliges la unidad de cada producto.' },
@@ -67,6 +68,7 @@ export const expansionTools: Tool[] = [
       'Los descuentos sucesivos no se suman. Un 30% más un 20% adicional deja el 56% del precio: el ahorro real es 44%, no 50%.',
       'La herramienta no añade el ITBMS. Si comparas precios sin impuesto, súmalo igual en todas las opciones: la tarifa general en Panamá es 7%.',
     ],
+    checkedOn: '2026-11-26',
     sources: [itbms], related: [shopping, { title: 'Comparar precio por unidad', path: '/compras/precio-por-unidad/' }],
     faq: [
       { q: '¿Un 2x1 es lo mismo que un 50% de descuento?', a: 'Solo si compras las unidades en pares. Con un número impar, la unidad sobrante paga el precio normal: tres productos de B/.6.00 en 2x1 cuestan B/.12.00 y el ahorro efectivo es 33.33%.' },
@@ -112,8 +114,8 @@ export const expansionTools: Tool[] = [
     example: 'Ejemplos hipotéticos: 80 con peso 40% y 90 con peso 60% dan 86 de nota final. Si solo llevas 80 con peso 40% y buscas 70, necesitas un promedio de 63.33 en el 60% restante (valor aproximado).',
     limits: ['No aplica automáticamente reglamentos de MEDUCA ni de universidades. Configura los pesos de tu curso y confirma sus reglas de redondeo.', 'Escala desde cero hasta una nota máxima entre 1 y 1000. Admite de 1 a 20 evaluaciones; cada peso debe ser mayor que cero y el total no puede superar 100%.', 'Si la nota necesaria supera la máxima de la escala, el objetivo no es alcanzable con los pesos introducidos. No equivale a una decisión oficial de aprobación.', 'Los resultados se muestran con dos decimales; usa el valor completo y las reglas del curso para decisiones de redondeo.'],
     context: [
-      'En muchos centros de Panamá las notas se expresan de 1.0 a 5.0 y la mínima de aprobación es 3.0. Otros centros y las universidades usan escalas de 0 a 100 o letras. Configura la nota máxima y el objetivo según el reglamento de tu centro.',
-      'Ejemplo hipotético en escala de 1.0 a 5.0: con 4.0 en una evaluación que pesa 30% y 3.5 en otra del 30%, llevas 2.25 puntos. Para terminar con 3.0, necesitas un promedio de 1.88 en el 40% restante.',
+      'Cada centro educativo y cada universidad fija su escala, su nota mínima de aprobación y sus reglas de redondeo. Si tu centro califica de 1.0 a 5.0 con 3.0 como mínima de aprobación, escribe 5 como nota máxima y 3 como objetivo; si usa una escala de 0 a 100, escribe 100 y tu objetivo.',
+      'Ejemplo hipotético con una escala de 1.0 a 5.0: con 4.0 en una evaluación que pesa 30% y 3.5 en otra del 30%, llevas 2.25 puntos. Para terminar con 3.0, necesitas un promedio de 1.88 en el 40% restante.',
       'Si tu escala empieza en 1.0, no escribas notas menores que 1.0: la herramienta acepta notas desde cero.',
     ],
     sources: [],

@@ -497,3 +497,4 @@ caption { caption-side: bottom; padding: 10px 12px; text-align: left; color: var
   @keyframes blue-interactive-happy { 50% { transform: rotate(-3deg) scale(1.02); } }
   @keyframes blue-interactive-surprise { 50% { transform: rotate(3deg) scale(1.03); } }
 }
+.legacy-notice { margin-top: 12px; padding: 12px 16px; border-radius: 12px; border: 1px solid var(--line); background: var(--info-soft); }

@@ -1,12 +1,13 @@
 import policy from './ad-policy.json';
 import { isAdsenseEnabled } from './site';
+import { ADS_TEST_ACTIVE, QUINCENA_MOVED } from './isolation';
 
 export type AdTier = 'stage1' | 'stage2' | 'never';
 export interface AdPolicyEntry { tier: AdTier; reason: string }
 
 export const AD_POLICY = policy.pages as Record<string, AdPolicyEntry>;
-/** Interruptor global. Mientras sea false, ninguna página carga AdSense. */
-export const ADS_ACTIVE: boolean = policy.active;
+/** Interruptor global. Mientras sea false, ninguna página carga AdSense. (CP_TEST_ADS_ACTIVE solo en compilaciones *.localhost.) */
+export const ADS_ACTIVE: boolean = policy.active || ADS_TEST_ACTIVE;
 export const ADS_PAUSED_REASON: string = policy.pausedReason;
 
 /** Normaliza una ruta pública a la clave de la política (`/ruta/`). */
@@ -20,11 +21,15 @@ export const adPolicyFor = (path: string): AdPolicyEntry =>
   AD_POLICY[policyKey(path)] ?? { tier: 'never', reason: 'Ruta sin política explícita.' };
 
 /**
- * ¿Puede esta página cargar el script de AdSense?
- * Solo las páginas de la primera etapa, y solo con el interruptor global activo.
- * La segunda etapa necesita la arquitectura aislada y nunca carga anuncios desde aquí.
+ * Regla de decisión, separada para poder probarla: solo páginas de la primera etapa, con el
+ * interruptor global activo, un ID de AdSense válido y Mi Quincena ya trasladada a su propio origen.
+ * La segunda etapa necesita la calculadora aislada y nunca carga anuncios desde aquí.
  */
-export const adsAllowed = (path: string) => ADS_ACTIVE && isAdsenseEnabled() && adPolicyFor(path).tier === 'stage1';
+export const adsAllowedWith = (state: { active: boolean; enabled: boolean; quincenaMoved: boolean }, path: string) =>
+  state.active && state.enabled && state.quincenaMoved && adPolicyFor(path).tier === 'stage1';
+
+/** ¿Puede esta página cargar AdSense? (Además, en el navegador actúa la guardia de datos antiguos.) */
+export const adsAllowed = (path: string) => adsAllowedWith({ active: ADS_ACTIVE, enabled: isAdsenseEnabled(), quincenaMoved: QUINCENA_MOVED }, path);
 
 export const pagesByTier = (tier: AdTier) => Object.keys(AD_POLICY).filter(path => AD_POLICY[path]?.tier === tier);
 

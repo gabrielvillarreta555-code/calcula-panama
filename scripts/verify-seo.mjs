@@ -84,6 +84,9 @@ if (/^Disallow:\s*\/\s*$/m.test(robots)) errors.push('robots.txt bloquea todo el
 const siteConfig = readFileSync('src/data/site.ts', 'utf8');
 const client = siteConfig.match(/client: '(ca-pub-\d{16})'/)?.[1];
 const policy = JSON.parse(readFileSync('src/data/ad-policy.json', 'utf8'));
+const isolation = JSON.parse(readFileSync('src/data/isolation.json', 'utf8'));
+// CP-ADS-003: la publicidad no puede activarse mientras Mi Quincena guarde datos en este origen.
+if (policy.active && !isolation.quincenaMoved) errors.push('ad-policy.json activa la publicidad, pero Mi Quincena no se ha trasladado a su propio origen (isolation.json)');
 const strictCsp = readFileSync('src/data/ad-policy.ts', 'utf8').match(/STRICT_CSP = "([^"]+)"/)?.[1];
 if (!strictCsp) errors.push('No se encontró STRICT_CSP en src/data/ad-policy.ts');
 const htmlFiles = dir => readdirSync(dir, { withFileTypes: true }).flatMap(entry => {
@@ -96,15 +99,18 @@ for (const file of htmlFiles('dist')) {
   const html = readFileSync(file, 'utf8');
   const head = html.split('</head>')[0];
   const tier = policy.pages[path]?.tier ?? 'never';
-  const shouldHaveAds = Boolean(policy.active && client && tier === 'stage1');
+  const shouldHaveAds = Boolean(policy.active && isolation.quincenaMoved && client && tier === 'stage1');
   const csp = html.match(/<meta http-equiv="Content-Security-Policy" content="([^"]+)"/g) ?? [];
   if (csp.length !== 1) errors.push(`Debe haber exactamente una CSP en ${path}`);
   if (shouldHaveAds) {
     adPages++;
-    const tag = `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${client}" crossorigin="anonymous"></script>`;
-    if (head.split(tag).length !== 2 || html.split('adsbygoogle.js').length !== 2) errors.push(`Script de AdSense ausente o duplicado en ${path}`);
+    // AdSense se carga solo a través de la guardia de datos antiguos, nunca con una etiqueta estática.
+    if ((head.match(/data-ads-guard/g) ?? []).length !== 1 || html.split('adsbygoogle.js').length !== 2 || !head.includes(client)) errors.push(`Guardia de AdSense ausente o duplicada en ${path}`);
+    if (/<script[^>]+src="https:\/\/pagead2\.googlesyndication\.com/.test(html)) errors.push(`AdSense cargado sin la guardia en ${path}`);
   } else {
-    if (!html.includes(`content="${strictCsp}"`)) errors.push(`Falta la CSP estricta en la página sin publicidad ${path}`);
+    const content = html.match(/http-equiv="Content-Security-Policy" content="([^"]+)"/)?.[1] ?? '';
+    const allowedFrame = path === '/finanzas/mi-quincena/' && /^; frame-src https?:\/\/[a-z0-9.-]+(:\d+)?$/.test(content.slice(strictCsp.length));
+    if (!(content === strictCsp || (content.startsWith(strictCsp) && allowedFrame))) errors.push(`Falta la CSP estricta en la página sin publicidad ${path}`);
     if (/adsbygoogle|googlesyndication|doubleclick/i.test(html)) errors.push(`Código publicitario en una página sin publicidad: ${path}`);
     for (const tag of html.matchAll(/<script\b[^>]*\bsrc=["']([^"']+)["']/gi)) {
       if (new URL(tag[1], site).origin !== new URL(site).origin) errors.push(`Script externo en una página sin publicidad: ${path}`);

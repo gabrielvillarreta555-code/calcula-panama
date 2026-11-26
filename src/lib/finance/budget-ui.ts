@@ -2,7 +2,7 @@ import { CATEGORIES, MAX_MOVEMENTS, civilDay, emptyBudget, isBudgetState, localT
 import { openSharePreview } from '../share-ui';
 import type { ShareData } from '../share';
 
-const KEY = 'cp-mi-quincena-v1';
+import { BUDGET_KEY as KEY } from './storage-keys';
 const money = (cents: number) => `B/.${(cents / 100).toFixed(2)}`;
 const errorMessage = (error: unknown) => error instanceof Error ? error.message : 'Revisa los datos.';
 

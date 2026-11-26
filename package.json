@@ -10,7 +10,11 @@
     "test": "vitest run",
     "check": "astro check",
     "verify:seo": "node scripts/verify-seo.mjs",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "build:app": "SITE_TARGET=app astro build",
+    "verify:app": "node scripts/verify-app.mjs",
+    "check:app": "SITE_TARGET=app astro check",
+    "test:isolation": "playwright test --config playwright.isolation.config.ts"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.2.1",

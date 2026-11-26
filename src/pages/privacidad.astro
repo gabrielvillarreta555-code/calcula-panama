@@ -3,6 +3,8 @@ import Layout from '../layouts/Layout.astro';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
 import { SITE, isAdsenseEnabled } from '../data/site';
 import { ADS_ACTIVE, pagesByTier } from '../data/ad-policy';
+import { APP_ORIGIN, QUINCENA_MOVED } from '../data/isolation';
+const appHost = new URL(APP_ORIGIN).host;
 const ads = ADS_ACTIVE && isAdsenseEnabled();
 const adPages = pagesByTier('stage1').length;
 const base = import.meta.env.BASE_URL;
@@ -21,7 +23,11 @@ const href = (p: string) => `${base}${p.replace(/^\//, '')}`;
     <h2>Datos que escribes en las herramientas</h2>
     <p>Todas las calculadoras hacen sus cálculos en tu navegador. Las cifras que escribes (salarios, importes, fechas, precios, notas o consumos) no se envían a ningún servidor nuestro ni de terceros. No pedimos cuentas, nombres, correos ni números de cédula.</p>
     <ul>
-      <li><strong>Mi Quincena</strong> guarda las fechas, importes y movimientos de tu presupuesto en el almacenamiento local del navegador, para que los recuperes en este dispositivo. Puedes eliminarlos desde la propia herramienta.</li>
+      {QUINCENA_MOVED ? (
+        <li><strong>Mi Quincena</strong> funciona en <strong>{appHost}</strong>, una dirección separada sin publicidad ni scripts de terceros. Guarda las fechas, importes y movimientos de tu presupuesto en el almacenamiento local de tu navegador para esa dirección, que el navegador aísla del resto del sitio. Si guardaste un presupuesto en la dirección anterior, la página de Mi Quincena te permite trasladarlo: se copia dentro de tu navegador, se comprueba que llegó completo y solo entonces se borra de la dirección anterior. No pasa por ningún servidor. Puedes eliminar los datos desde la propia herramienta.</li>
+      ) : (
+        <li><strong>Mi Quincena</strong> guarda las fechas, importes y movimientos de tu presupuesto en el almacenamiento local del navegador, para que los recuperes en este dispositivo. Puedes eliminarlos desde la propia herramienta.</li>
+      )}
       <li><strong>Las demás herramientas</strong> no guardan lo que escribes: al recargar o cerrar la página, los datos se pierden.</li>
       <li><strong>Compartir:</strong> antes de compartir un resultado ves el texto y eliges si incluir importes o productos. Si eliges WhatsApp u otra aplicación, esa aplicación recibe el texto y aplica su propia política. La dirección de WhatsApp contiene el mensaje elegido y pueden tratarla el navegador y WhatsApp, así que no incluyas información que no quieras compartir.</li>
     </ul>
@@ -38,8 +44,8 @@ const href = (p: string) => `${base}${p.replace(/^\//, '')}`;
     <h2>Publicidad y cookies de terceros</h2>
     {ads ? (
       <>
-        <p>Algunas páginas ({adPages} como máximo: guías, directorios y herramientas que no piden datos personales) muestran anuncios de Google AdSense. En esas páginas, Google y sus socios publicitarios pueden usar cookies u otros identificadores para mostrar anuncios y medir su rendimiento, incluidos anuncios basados en tus visitas a este y a otros sitios web.</p>
-        <p>Puedes desactivar la publicidad personalizada en la <a href="https://adssettings.google.com/" target="_blank" rel="noopener noreferrer">configuración de anuncios de Google</a>. Más información sobre <a href="https://policies.google.com/technologies/partner-sites" target="_blank" rel="noopener noreferrer">cómo utiliza Google la información de los sitios que usan sus servicios</a>.</p>
+        <p>Algunas páginas ({adPages} como máximo: guías, directorios y herramientas que no piden datos personales) muestran anuncios de Google AdSense. Proveedores externos, incluido Google, usan cookies para mostrar anuncios basados en las visitas anteriores de una persona a este sitio web o a otros sitios web. Las cookies de publicidad de Google permiten que Google y sus socios muestren anuncios a los usuarios según sus visitas a este sitio o a otros sitios de Internet.</p>
+        <p>Puedes inhabilitar la publicidad personalizada en la <a href="https://adssettings.google.com/" target="_blank" rel="noopener noreferrer">configuración de anuncios de Google</a>, o inhabilitar el uso de cookies de algunos proveedores externos para publicidad personalizada en <a href="https://www.aboutads.info/" target="_blank" rel="noopener noreferrer">www.aboutads.info</a>. Más información sobre <a href="https://policies.google.com/technologies/partner-sites" target="_blank" rel="noopener noreferrer">cómo utiliza Google la información de los sitios que usan sus servicios</a>.</p>
         <p>Si visitas el sitio desde el Espacio Económico Europeo, el Reino Unido o Suiza, se te pedirá el consentimiento mediante el mensaje de Google antes de usar cookies publicitarias.</p>
       </>
     ) : (
