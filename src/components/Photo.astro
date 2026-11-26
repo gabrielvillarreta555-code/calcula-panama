@@ -1,0 +1,21 @@
+---
+/**
+ * Fotografía editorial (CP-DESIGN-005): AVIF y WebP en 800 y 1600 px, dimensiones fijas para evitar
+ * saltos de diseño y crédito visible con autor y licencia (obligatorio en CC BY y CC BY-SA).
+ */
+import photos from '../data/photos.json';
+interface Props { id: keyof typeof photos; class?: string; sizes?: string; priority?: boolean; alt?: string }
+const { id, class: className = '', sizes = '(min-width: 900px) 60vw, 100vw', priority = false } = Astro.props;
+const photo = photos[id];
+const base = `${import.meta.env.BASE_URL}fotos/${id}`;
+const set = (ext: string) => `${base}-800.${ext} 800w, ${base}-1600.${ext} 1600w`;
+const author = photo.author.length > 42 ? `${photo.author.slice(0, 40)}…` : photo.author;
+---
+<figure class:list={['mn-photo', className]}>
+  <picture>
+    <source type="image/avif" srcset={set('avif')} sizes={sizes} />
+    <source type="image/webp" srcset={set('webp')} sizes={sizes} />
+    <img src={`${base}-800.webp`} alt={Astro.props.alt ?? photo.alt} width={photo.width} height={photo.height} loading={priority ? 'eager' : 'lazy'} decoding={priority ? 'sync' : 'async'} fetchpriority={priority ? 'high' : 'auto'} />
+  </picture>
+  <figcaption>Foto: <a href={photo.source} rel="noopener">{author}</a> · <a href={photo.licenseUrl || photo.source} rel="license noopener">{photo.license}</a></figcaption>
+</figure>

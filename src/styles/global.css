@@ -1,111 +1,86 @@
 /* Calcula Panamá — estilos globales. Mobile first; sin fuentes externas para cargar rápido en Android. */
 
-:root {
-  color-scheme: light;
-  --bg: #f1f6fd;
-  --surface: #ffffff;
-  --surface-2: #e8f1fd;
-  --surface-3: #dbe9fa;
-  --text: #102442;
-  --muted: #526683;
-  --line: #d2e0f1;
-  --brand: #102d58;
-  --brand-2: #1555bb;
-  --button-bg: #1555bb;
-  --accent: #d6334a;
-  --accent-soft: #fde8eb;
-  --ok: #18865f;
-  --warn: #b26a00;
-  --warn-soft: #fff4e0;
-  --info-soft: #e3f3f9;
-  --focus: #1555bb;
-  --hero-from: #102d58;
-  --hero-to: #1555bb;
-  --on-hero: #ffffff;
-  --tone-net: #18865f;
-  --tone-css: #1555bb;
-  --tone-edu: #6f8fb0;
-  --tone-isr: #d6334a;
-  --tone-a: #1555bb;
-  --tone-b: #18865f;
-  --tone-c: #c4831a;
-  --tone-d: #d6334a;
-  --shadow-sm: 0 1px 2px rgba(15, 34, 41, .06), 0 4px 14px rgba(15, 34, 41, .05);
-  --shadow: 0 18px 50px rgba(11, 61, 82, .12);
-  --radius: 20px;
-  --radius-sm: 12px;
-  --max: 1160px;
-  --header-h: 64px;
-  --tabbar-h: 64px;
-  --font: system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans', Ubuntu, sans-serif;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
-    color-scheme: dark;
-    --bg: #071426;
-    --surface: #10223d;
-    --surface-2: #172e50;
-    --surface-3: #203b61;
-    --text: #edf5ff;
-    --muted: #adc2dd;
-    --line: #294462;
-    --brand: #e0efff;
-    --brand-2: #8bc5ff;
-    --button-bg: #1555bb;
-    --accent: #ff7a8c;
-    --accent-soft: #3a1e25;
-    --ok: #4cd29c;
-    --warn: #f2b44f;
-    --warn-soft: #33290f;
-    --info-soft: #12313b;
-    --focus: #8bc5ff;
-    --hero-from: #0d2c5f;
-    --hero-to: #164fa8;
-    --tone-net: #3cc48d;
-    --tone-css: #45a9cf;
-    --tone-edu: #8ea9c6;
-    --tone-isr: #ff7a8c;
-    --tone-a: #45a9cf;
-    --tone-b: #3cc48d;
-    --tone-c: #e5a542;
-    --tone-d: #ff7a8c;
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, .3);
-    --shadow: 0 18px 50px rgba(0, 0, 0, .35);
-  }
-}
-
-:root[data-theme='dark'] {
+/* Midnight Edition (CP-DESIGN-005). Paleta: obsidiana #08090C, medianoche #101824, acero #25364B,
+   plata azul #8CABC9 y marfil frío #E7E9ED. Oscuro por defecto; «Marfil» es la variante clara elegida
+   por el usuario con el botón de tema. Sin rojos, vinos, dorados ni degradados brillantes. */
+:root, :root[data-theme='dark'] {
   color-scheme: dark;
-  --bg: #071426;
-  --surface: #10223d;
-  --surface-2: #172e50;
-  --surface-3: #203b61;
-  --text: #edf5ff;
-  --muted: #adc2dd;
-  --line: #294462;
-  --brand: #e0efff;
-  --brand-2: #8bc5ff;
-  --button-bg: #1555bb;
-  --accent: #ff7a8c;
-  --accent-soft: #3a1e25;
-  --ok: #4cd29c;
-  --warn: #f2b44f;
-  --warn-soft: #33290f;
-  --info-soft: #12313b;
-  --focus: #8bc5ff;
-  --hero-from: #0d2c5f;
-  --hero-to: #164fa8;
-  --tone-net: #3cc48d;
-  --tone-css: #45a9cf;
-  --tone-edu: #8ea9c6;
-  --tone-isr: #ff7a8c;
-  --tone-a: #45a9cf;
-  --tone-b: #3cc48d;
-  --tone-c: #e5a542;
-  --tone-d: #ff7a8c;
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, .3);
-  --shadow: 0 18px 50px rgba(0, 0, 0, .35);
+  --obsidian: #08090C;
+  --midnight: #101824;
+  --steel: #25364B;
+  --silver: #8CABC9;
+  --ivory: #E7E9ED;
+  --bg: var(--obsidian);
+  --surface: var(--midnight);
+  --surface-2: #131d2b;
+  --surface-3: #1a2636;
+  --text: var(--ivory);
+  --muted: #a7b4c3;
+  --line: #1f2c3d;
+  --line-strong: var(--steel);
+  --brand: var(--ivory);
+  --brand-2: var(--silver);
+  --button-bg: var(--ivory);
+  --button-ink: var(--obsidian);
+  --accent: var(--silver);
+  --accent-soft: #1a2636;
+  --ok: #c3d3e3;
+  --warn: var(--ivory);
+  --warn-soft: #1a2636;
+  --info-soft: #131d2b;
+  --focus: var(--silver);
+  --hero-from: var(--midnight);
+  --hero-to: var(--steel);
+  --on-hero: var(--ivory);
+  --tone-net: #c9d6e3;
+  --tone-css: var(--silver);
+  --tone-edu: #5a7593;
+  --tone-isr: #34495f;
+  --tone-a: var(--silver);
+  --tone-b: #c9d6e3;
+  --tone-c: #5a7593;
+  --tone-d: #34495f;
+  --shadow-sm: 0 1px 0 rgba(0, 0, 0, .4);
+  --shadow: 0 24px 60px rgba(0, 0, 0, .45);
+  --radius: 10px;
+  --radius-sm: 6px;
+  --max: 1200px;
+  --header-h: 72px;
+  --tabbar-h: 64px;
+  --font: 'Inter Tight Variable', system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans', sans-serif;
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+  --bg: var(--ivory);
+  --surface: #f3f4f6;
+  --surface-2: #dfe3e9;
+  --surface-3: #d3d9e1;
+  --text: var(--obsidian);
+  --muted: #3b4a5c;
+  --line: #c6ced8;
+  --line-strong: #8a9bb0;
+  --brand: var(--midnight);
+  --brand-2: var(--steel);
+  --button-bg: var(--midnight);
+  --button-ink: var(--ivory);
+  --accent: var(--steel);
+  --accent-soft: #d3d9e1;
+  --ok: var(--steel);
+  --warn: var(--obsidian);
+  --warn-soft: #dfe3e9;
+  --info-soft: #dfe3e9;
+  --focus: var(--steel);
+  --tone-net: var(--midnight);
+  --tone-css: var(--steel);
+  --tone-edu: #5a7593;
+  --tone-isr: var(--silver);
+  --tone-a: var(--steel);
+  --tone-b: var(--midnight);
+  --tone-c: #5a7593;
+  --tone-d: var(--silver);
+  --shadow-sm: 0 1px 0 rgba(8, 9, 12, .06);
+  --shadow: 0 24px 60px rgba(8, 9, 12, .12);
 }
 
 /* ---------------------------------------------------------------- base */

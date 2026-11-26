@@ -1,10 +1,5 @@
 /* Shared visual language for the homepage and shopping hub. */
-/* En estas dos páginas los acentos y el ejemplo usan solo azules. */
-body.blue-showcase { --accent: #238be5; --ok: #135ca5; --tone-net: #135ca5; --tone-css: #2779c8; --tone-edu: #64a9e5; --tone-isr: #9ccdf3; }
-:root[data-theme='dark'] body.blue-showcase { --accent: #65c7ff; --ok: #8bd5ff; --tone-net: #8bd5ff; --tone-css: #56aff2; --tone-edu: #398bd0; --tone-isr: #b7ddfa; }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) body.blue-showcase { --accent: #65c7ff; --ok: #8bd5ff; --tone-net: #8bd5ff; --tone-css: #56aff2; --tone-edu: #398bd0; --tone-isr: #b7ddfa; }
-}
+/* Midnight Edition: los tokens vienen de global.css; los paneles se ajustan en midnight.css. */
 .hero-shopping-link { display: inline-flex; align-items: center; gap: 7px; margin-top: 16px; color: var(--brand-2); font-weight: 700; text-underline-offset: 4px; }
 .shopping-feature-section { padding-top: 20px; }
 .shopping-feature { position: relative; display: grid; gap: 4px; overflow: hidden; padding: clamp(24px,5vw,48px); border-radius: 28px; background: linear-gradient(120deg,#0c2d61,#1454a4 70%,#347dc1); color: #fff; box-shadow: 0 20px 45px #10386626; }
@@ -68,5 +63,4 @@ body.blue-showcase .blue-example-guide img, body.blue-showcase .shopping-scene-b
 body.blue-showcase .blue-example-guide img { width: 112px; height: auto; }
 body.blue-showcase .blue-example-guide { border: 1px solid color-mix(in srgb, var(--brand-2) 20%, var(--line)); border-radius: 20px; padding: 12px 16px; background: color-mix(in srgb, var(--surface) 92%, var(--brand-2)); }
 :root[data-theme='dark'] body.blue-showcase .hero { background: radial-gradient(ellipse at 84% 25%, #075d9e80, transparent 58%); }
-@media (prefers-color-scheme: dark) { :root:not([data-theme='light']) body.blue-showcase .hero { background: radial-gradient(ellipse at 84% 25%, #075d9e80, transparent 58%); } }
 .home-budget-feature{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:clamp(1.5rem,4vw,2.5rem);border-radius:26px;border:1px solid var(--line);background:linear-gradient(135deg,var(--surface),#1489df1c)}.home-budget-feature h2{margin:.5rem 0}.home-budget-feature p{max-width:44rem;color:var(--muted)}.home-budget-feature img{width:clamp(75px,15vw,150px);height:auto}

@@ -1,0 +1,30 @@
+{
+  "hero": {
+    "alt": "Rascacielos de la ciudad de Panamá iluminados al anochecer, reflejados en la bahía bajo un cielo azul.",
+    "width": 1600,
+    "height": 567,
+    "author": "Elemaki",
+    "license": "CC BY 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:03._Ciudad_de_Panama_de_noche..JPG",
+    "title": "File:03. Ciudad de Panama de noche..JPG",
+    "camera": "Canon Canon PowerShot A630",
+    "sha1": "95f6f464bc1a678932b7ccb682a12ac048077d0b",
+    "attributionRequired": true,
+    "modified": "Redimensionada y convertida a AVIF/WebP"
+  },
+  "movilidad": {
+    "alt": "Avenidas de la ciudad de Panamá de noche, con estelas de luz de los autos entre los edificios.",
+    "width": 1600,
+    "height": 1067,
+    "author": "Dronepicr",
+    "license": "CC BY 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Panama_City_2016.jpg",
+    "title": "File:Panama City 2016.jpg",
+    "camera": "NIKON CORPORATION NIKON D5500",
+    "sha1": "2316a90efac4ba19f4a14e8e5b5c61091a3ccb28",
+    "attributionRequired": true,
+    "modified": "Redimensionada y convertida a AVIF/WebP"
+  }
+}

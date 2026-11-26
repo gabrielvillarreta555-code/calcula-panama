@@ -1,11 +1,11 @@
 ---
+/** Portada — Midnight Edition (CP-DESIGN-005). Título, descripción, datos estructurados y enlaces internos se conservan. */
 import Layout from '../layouts/Layout.astro';
 import Icon from '../components/Icon.astro';
-import CalculatorArtwork from '../components/CalculatorArtwork.astro';
-import ShoppingScene from '../components/ShoppingScene.astro';
-import { CALCULATORS, SITE } from '../data/site';
-import { expansionTools, vehicleTools } from '../data/expansion-tools';
-import '../styles/home-showcase.css';
+import Photo from '../components/Photo.astro';
+import ToolSearch from '../components/ToolSearch.astro';
+import { SITE } from '../data/site';
+import { CATEGORIES, MAGAZINE } from '../data/directory';
 import { calculateNetSalary } from '../lib/calculations';
 import { formatMoney } from '../lib/format';
 
@@ -13,165 +13,147 @@ const base = import.meta.env.BASE_URL;
 const href = (p: string) => `${base}${p.replace(/^\//, '')}`;
 const example = calculateNetSalary({ grossPerPay: 1500, frequency: 'monthly' });
 const share = (n: number) => `${((n / example.gross) * 100).toFixed(1)}%`;
-const moreTools = [...vehicleTools, ...expansionTools.filter(t => t.category !== 'Compras')];
-const allTools = [
-  ...CALCULATORS.map(c => ({ name: c.label, path: c.path })),
-  { name: 'Mi Quincena', path: '/finanzas/mi-quincena/' },
-  { name: 'Calculadora de préstamos', path: '/finanzas/calculadora-prestamos/' },
-  { name: 'Modo Pasillo', path: '/compras/modo-pasillo/' },
-  ...[...expansionTools, ...vehicleTools].map(t => ({ name: t.title, path: t.path }))
-];
+const cat = (id: string) => CATEGORIES.find(c => c.id === id)!;
+const [movilidad, finanzas, trabajo, cotidiano, educacion] = ['vehiculos', 'finanzas', 'trabajo', 'vida-cotidiana', 'educacion'].map(cat);
+const allTools = CATEGORIES.flatMap(c => c.tools);
 const schema = [
-  {
-    '@context': 'https://schema.org',
-    '@type': 'WebSite',
-    name: SITE.name,
-    description: SITE.description,
-    inLanguage: 'es-PA',
-    url: new URL(base, Astro.site ?? Astro.url.origin).toString()
-  },
-  {
-    '@context': 'https://schema.org',
-    '@type': 'ItemList',
-    name: 'Herramientas de Calcula Panamá',
-    itemListElement: allTools.map((c, i) => ({ '@type': 'ListItem', position: i + 1, name: c.name, url: new URL(c.path.replace(/^\//, ''), Astro.site ?? Astro.url.origin).toString() }))
-  }
+  { '@context': 'https://schema.org', '@type': 'WebSite', name: SITE.name, description: SITE.description, inLanguage: 'es-PA', url: new URL(base, Astro.site ?? Astro.url.origin).toString() },
+  { '@context': 'https://schema.org', '@type': 'ItemList', name: 'Herramientas de Calcula Panamá', itemListElement: allTools.map((c, i) => ({ '@type': 'ListItem', position: i + 1, name: c.title, url: new URL(c.path.replace(/^\//, ''), Astro.site ?? Astro.url.origin).toString() })) }
 ];
+const short = (title: string) => title.replace(/^Calculadora (de |del )?/, '').replace(/^Comparador de /, '').replace(/^./, m => m.toUpperCase());
 ---
-<Layout title="Calcula Panamá: calculadoras de salario, finanzas, compras y autos" description="Calculadoras gratuitas para Panamá: salario neto, décimo, liquidación, préstamos, financiamiento de autos, combustible, compras y presupuesto, con fórmulas y fuentes explicadas." canonicalPath="/" schema={schema} blueShowcase>
-  <section class="hero">
-    <div class="container hero-inner">
-      <div>
-        <span class="eyebrow">Hecho para Panamá</span>
-        <h1>Tus cuentas de cada día, <em>más claras.</em></h1>
-        <p class="lead">Desde tu salario hasta las compras del supermercado: calcula con herramientas sencillas, gratuitas y hechas para Panamá.</p>
-        <div class="actions">
-          <a class="button primary" href={href('/calculadoras/salario-neto/')}>Calcular mi salario <Icon name="arrow" size={18} /></a>
-          <a class="button secondary" href="#calculadoras">Ver calculadoras</a>
+<Layout title="Calcula Panamá: calculadoras de salario, finanzas, compras y autos" description="Calculadoras gratuitas para Panamá: salario neto, décimo, liquidación, préstamos, financiamiento de autos, combustible, compras y presupuesto, con fórmulas y fuentes explicadas." canonicalPath="/" schema={schema}>
+  <section class="mn-hero" aria-labelledby="hero-title">
+    <Photo id="hero" priority sizes="100vw" />
+    <div class="container mn-hero-inner">
+      <span class="eyebrow">Panamá / Economía / Vida</span>
+      <h1 id="hero-title">Decisiones inteligentes. <span>Una vida mejor.</span></h1>
+      <p class="lead">Descubre cuánto cuesta lo que realmente importa. Calculadoras gratuitas para Panamá, con fórmulas, fuentes y límites explicados.</p>
+      <a class="button primary" href={href('/herramientas/')}>Explorar herramientas <Icon name="external" size={20} /></a>
+      <ToolSearch id="home-search" />
+    </div>
+  </section>
+
+  <section class="mn-section" aria-labelledby="movilidad-title">
+    <div class="container">
+      <div class="mn-section-head"><h2 id="movilidad-title">{movilidad.label}.</h2><span class="mn-index">{movilidad.number} — {movilidad.kicker}</span></div>
+      <div class="mn-split">
+        <Photo id="movilidad" class="mn-ratio-photo" />
+        <div class="mn-copy">
+          <h3>{movilidad.headline}</h3>
+          <p>{movilidad.lede}</p>
+          <ul class="mn-rows">{movilidad.tools.map(t => <li><a href={href(t.path)}><strong>{short(t.title)}</strong></a><span>{t.description}</span><Icon name="external" size={20} /></li>)}</ul>
         </div>
-        <a class="hero-shopping-link" href={href('/compras/modo-pasillo/')}>¿Vas de compras? Abre Modo Pasillo <Icon name="arrow" size={16} /></a>
-        <ul class="trust-row">
-          <li><Icon name="check" size={18} />Gratis y sin registro</li>
-          <li><Icon name="check" size={18} />Tus datos no salen del teléfono</li>
-          <li><Icon name="check" size={18} />Basado en el Código de Trabajo</li>
-        </ul>
       </div>
-      <div class="hero-example">
-        <aside class="hero-preview" aria-label="Ejemplo de cálculo">
-          <h2 class="preview-title">Ejemplo de salario neto</h2>
-          <div class="preview-head"><small>Salario de {formatMoney(example.gross)} al mes</small><small>Estimación</small></div>
-          <div class="preview-amount">{formatMoney(example.net)}</div>
-          <small>neto estimado por mes</small>
-          <div class="stack-bar" role="img" aria-label={`Neto ${share(example.net)}, Seguro Social ${share(example.socialSecurity)}, Seguro Educativo ${share(example.educationalInsurance)}, ISR ${share(example.incomeTax)}`} style="margin-top:14px">
-            <span class="tone-net" style={`width:${share(example.net)}`}></span>
-            <span class="tone-css" style={`width:${share(example.socialSecurity)}`}></span>
-            <span class="tone-edu" style={`width:${share(example.educationalInsurance)}`}></span>
-            <span class="tone-isr" style={`width:${share(example.incomeTax)}`}></span>
-          </div>
-          <ul class="breakdown">
-            <li class="minus"><span>Seguro Social 9.75%</span><strong>{formatMoney(example.socialSecurity)}</strong></li>
-            <li class="minus"><span>Seguro Educativo 1.25%</span><strong>{formatMoney(example.educationalInsurance)}</strong></li>
-            <li class="minus"><span>ISR estimado</span><strong>{formatMoney(example.incomeTax)}</strong></li>
-          </ul>
-        </aside>
-        <div class="blue-example-guide">
-          <img src={href('/blue-orienta.webp')} alt="" width="88" height="106" />
-          <div>
-            <strong>Blue te orienta</strong>
-            <p>Conoce cómo se calcula el salario neto y qué descuentos se aplican.</p>
-            <a href={href('/calculadoras/salario-neto/#como-se-calcula')}>Entender este cálculo <Icon name="arrow" size={16} /></a>
+    </div>
+  </section>
+
+  <section class="mn-section is-midnight" aria-labelledby="finanzas-title">
+    <div class="container">
+      <span class="mn-index">{finanzas.number} — {finanzas.kicker}</span>
+      <div class="mn-split is-reverse" style="margin-top:18px">
+        <Photo id="finanzas" class="mn-ratio-tall" />
+        <div class="mn-copy">
+          <h2 id="finanzas-title" class="mn-feature-title" style="margin-top:0">{finanzas.headline}</h2>
+          <p>{finanzas.lede}</p>
+          <div class="mn-tiles">
+            {finanzas.tools.map((t, i) => <a class="mn-tile" href={href(t.path)}><Icon name={(['spark', 'shield', 'salary'] as const)[i] ?? 'spark'} size={26} /><strong>{['Préstamos', 'Ahorro', 'Mi Quincena'][i] ?? short(t.title)}</strong><span>{t.description}</span></a>)}
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <section class="section shopping-feature-section" aria-labelledby="shopping-feature-title">
+  <section class="mn-section" id="calculadoras" aria-labelledby="trabajo-title">
     <div class="container">
-      <div class="shopping-feature">
-        <div class="shopping-feature-copy">
-          <span class="shopping-kicker">Compras y gastos <span aria-hidden="true">✦</span></span>
-          <h2 id="shopping-feature-title">Tu supermercado, con las cuentas claras.</h2>
-          <p>Organiza tus compras, añade productos y cantidades, calcula el total y controla cuánto queda de tu presupuesto mientras recorres los pasillos.</p>
-          <div class="shopping-feature-actions">
-            <a class="shopping-feature-button" href={href('/compras/modo-pasillo/')}>Abrir Modo Pasillo <Icon name="arrow" size={19} /></a>
-            <a class="shopping-feature-more" href={href('/compras/')}>Conoce Compras y gastos</a>
-          </div>
-          <span class="shopping-feature-note"><Icon name="shield" size={16} /> Tu lista se calcula en tu dispositivo.</span>
-        </div>
-        <ShoppingScene />
-      </div>
-    </div>
-  </section>
-
-  <section class="section" aria-labelledby="home-budget-title">
-    <div class="container"><div class="home-budget-feature">
-      <div><span class="eyebrow">Finanzas personales</span><h2 id="home-budget-title">Haz que tu dinero llegue más lejos.</h2><p>Organiza tus gastos hasta tu próximo pago o calcula y compara préstamos.</p><div class="actions"><a class="button primary" href={href('/finanzas/mi-quincena/')}>Abrir Mi Quincena <Icon name="arrow" size={18} /></a><a class="button secondary" href={href('/finanzas/calculadora-prestamos/')}>Calcular préstamo <Icon name="arrow" size={18} /></a></div></div>
-      <img src={href('/blue-flotante.webp')} alt="" width="150" height="180" loading="lazy" />
-    </div></div>
-  </section>
-
-  <section class="section labor-showcase" id="calculadoras">
-    <div class="container">
-      <div class="section-title">
-        <span class="eyebrow">Trabajo e ingresos</span>
-        <h2>Entiende lo que te corresponde.</h2>
-        <p>Cuatro calculadoras para tus preguntas laborales, con resultados desglosados y supuestos explicados.</p>
-      </div>
-      <div class="labor-cards">
-        {CALCULATORS.map(c => (
-          <a class:list={['labor-card', `labor-card-${c.icon}`]} href={href(c.path)}>
-            <div class="labor-card-copy">
-              <span class="labor-card-label">Calculadora laboral</span>
-              <h3>{c.label}</h3>
-              <p>{c.description}</p>
-              <span class="labor-card-link">Comenzar <Icon name="arrow" size={17} /></span>
+      <div class="mn-section-head"><h2 id="trabajo-title">{trabajo.label}.</h2><span class="mn-index">{trabajo.number} — {trabajo.kicker}</span></div>
+      <div class="mn-split">
+        <div>
+          <Photo id="trabajo" class="mn-ratio-photo" />
+          <aside class="mn-example" aria-label="Ejemplo de salario neto">
+            <span class="eyebrow">Ejemplo: salario de {formatMoney(example.gross)} al mes</span>
+            <span class="amount">{formatMoney(example.net)}</span>
+            <small>neto estimado al mes</small>
+            <div class="stack-bar" role="img" aria-label={`Neto ${share(example.net)}, Seguro Social ${share(example.socialSecurity)}, Seguro Educativo ${share(example.educationalInsurance)}, ISR ${share(example.incomeTax)}`} style="margin-top:14px">
+              <span class="tone-net" style={`width:${share(example.net)}`}></span>
+              <span class="tone-css" style={`width:${share(example.socialSecurity)}`}></span>
+              <span class="tone-edu" style={`width:${share(example.educationalInsurance)}`}></span>
+              <span class="tone-isr" style={`width:${share(example.incomeTax)}`}></span>
             </div>
-            <CalculatorArtwork type={c.icon} />
-          </a>
-        ))}
+            <ul class="breakdown">
+              <li class="minus"><span>Seguro Social 9.75%</span><strong>{formatMoney(example.socialSecurity)}</strong></li>
+              <li class="minus"><span>Seguro Educativo 1.25%</span><strong>{formatMoney(example.educationalInsurance)}</strong></li>
+              <li class="minus"><span>ISR estimado</span><strong>{formatMoney(example.incomeTax)}</strong></li>
+            </ul>
+            <a href={href('/calculadoras/salario-neto/#como-se-calcula')}>Entender este cálculo</a>
+          </aside>
+        </div>
+        <div class="mn-copy">
+          <h3>{trabajo.headline}</h3>
+          <p>{trabajo.lede}</p>
+          <ul class="mn-rows">{trabajo.tools.map(t => <li><a href={href(t.path)}><strong>{t.title}</strong></a><span>{t.description}</span><Icon name="external" size={20} /></li>)}</ul>
+          <div class="mn-dates" aria-labelledby="fechas-decimo">
+            <h3 id="fechas-decimo" class="eyebrow" style="margin:30px 0 12px">Fechas de pago del décimo tercer mes</h3>
+            <div class="dates-strip" id="decimo-dates">
+              <div class="date-chip" data-month="4"><strong>15 abr</strong><span>16 dic – 15 abr</span></div>
+              <div class="date-chip" data-month="8"><strong>15 ago</strong><span>16 abr – 15 ago</span></div>
+              <div class="date-chip" data-month="12"><strong>15 dic</strong><span>16 ago – 15 dic</span></div>
+            </div>
+            <p class="muted" style="margin-top:12px">Cada partida cubre cuatro meses. <a href={href('/guias/fechas-de-pago-del-decimo-tercer-mes/')}>Ver períodos y reglas</a>.</p>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
-  <section class="section" aria-labelledby="fechas-decimo">
+  <section class="mn-section is-midnight" aria-labelledby="cotidiano-title">
     <div class="container">
-      <div class="section-title">
-        <span class="eyebrow">Calendario</span>
-        <h2 id="fechas-decimo">Fechas de pago del décimo tercer mes</h2>
-        <p>Cada partida cubre cuatro meses y se paga el día 15. <a href={href('/guias/fechas-de-pago-del-decimo-tercer-mes/')}>Ver períodos y reglas</a>.</p>
-      </div>
-      <div class="dates-strip" id="decimo-dates">
-        <div class="date-chip" data-month="4"><strong>15 abr</strong><span>16 dic – 15 abr</span></div>
-        <div class="date-chip" data-month="8"><strong>15 ago</strong><span>16 abr – 15 ago</span></div>
-        <div class="date-chip" data-month="12"><strong>15 dic</strong><span>16 ago – 15 dic</span></div>
+      <div class="mn-section-head"><h2 id="cotidiano-title">{cotidiano.label}.</h2><span class="mn-index">{cotidiano.number} — {cotidiano.kicker}</span></div>
+      <div class="mn-split is-reverse">
+        <Photo id="cotidiano" class="mn-ratio-photo" />
+        <div class="mn-copy">
+          <h3>{cotidiano.headline}</h3>
+          <p>{cotidiano.lede}</p>
+          <ul class="mn-rows">{cotidiano.tools.map(t => <li><a href={href(t.path)}><strong>{short(t.title)}</strong></a><span>{t.description}</span><Icon name="external" size={20} /></li>)}</ul>
+          <p style="margin-top:18px"><a class="button secondary" href={href('/compras/')}>Compras y gastos: guía de uso</a></p>
+        </div>
       </div>
     </div>
   </section>
 
-  <section class="section" aria-labelledby="home-more-title">
+  <section class="mn-section" aria-labelledby="educacion-title">
+    <div class="container mn-split">
+      <div class="mn-copy">
+        <span class="mn-index">{educacion.number} — {educacion.kicker}</span>
+        <h2 id="educacion-title" class="mn-feature-title" style="margin-top:14px">{educacion.headline}</h2>
+        <p>{educacion.lede}</p>
+      </div>
+      <ul class="mn-rows" style="margin-top:0">{educacion.tools.map(t => <li><a href={href(t.path)}><strong>{t.title}</strong></a><span>{t.description}</span><Icon name="external" size={20} /></li>)}</ul>
+    </div>
+  </section>
+
+  <section class="mn-section is-midnight" aria-labelledby="revista-title">
     <div class="container">
-      <div class="section-title">
-        <span class="eyebrow">Más herramientas</span>
-        <h2 id="home-more-title">Autos, ahorro, estudios y hogar.</h2>
-        <p>Cada herramienta explica su fórmula con un ejemplo verificable, sus límites y sus fuentes. <a href={href('/herramientas/')}>Ver todas las herramientas</a>.</p>
-      </div>
-      <div class="guide-list">
-        {moreTools.map(t => <a class="guide-card" href={href(t.path)}><strong>{t.title}</strong><span>{t.description}</span></a>)}
-      </div>
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="container">
-      <div class="feature-grid">
-        <div class="feature"><Icon name="shield" size={28} /><h3>Privado por diseño</h3><p>Los cálculos se hacen en tu navegador. No pedimos nombre, cédula ni correo, y no enviamos tus cifras a ningún servidor.</p></div>
-        <div class="feature"><Icon name="book" size={28} /><h3>Con fuentes</h3><p>Las calculadoras laborales citan el artículo de cada regla (Código de Trabajo, Ley Orgánica de la CSS y Código Fiscal), y las financieras, los acuerdos de la Superintendencia de Bancos.</p></div>
-        <div class="feature"><Icon name="alert" size={28} /><h3>Sin falsa precisión</h3><p>Cuando un caso depende de datos que no tenemos o de una interpretación jurídica, te lo decimos en lugar de inventar una cifra.</p></div>
+      <span class="mn-index">Revista / Guías</span>
+      <h2 id="revista-title" class="mn-feature-title" style="font-size:clamp(2rem,6vw,3.6rem)">Conocimiento que vale.</h2>
+      <div class="mn-magazine">
+        <a href={href(MAGAZINE[0]!.path)} style="text-decoration:none;color:inherit">
+          <Photo id="revista" class="mn-ratio-wide" />
+          <h3 class="mn-feature-title">Entender la economía de nuestra vida cotidiana.</h3>
+          <p class="muted">Guías prácticas para tomar mejores decisiones en Panamá, con ejemplos y la norma que respalda cada regla.</p>
+        </a>
+        <ul class="mn-rows">{MAGAZINE.map(g => <li><a href={href(g.path)}><strong>{g.title}</strong></a><span>{g.description}</span><Icon name="external" size={20} /></li>)}</ul>
       </div>
     </div>
   </section>
 
+  <section class="mn-section" aria-label="Cómo trabajamos">
+    <div class="container mn-principles">
+      <div><h3>Privado por diseño</h3><p>Los cálculos se hacen en tu navegador. No pedimos nombre, cédula ni correo, y no enviamos tus cifras a ningún servidor.</p></div>
+      <div><h3>Con fuentes</h3><p>Las calculadoras laborales citan el artículo de cada regla (Código de Trabajo, Ley Orgánica de la CSS y Código Fiscal), y las financieras, los acuerdos de la Superintendencia de Bancos.</p></div>
+      <div><h3>Sin falsa precisión</h3><p>Cuando un caso depende de datos que no tenemos o de una interpretación jurídica, te lo decimos en lugar de inventar una cifra.</p></div>
+    </div>
+  </section>
 </Layout>
 
 <script is:inline>

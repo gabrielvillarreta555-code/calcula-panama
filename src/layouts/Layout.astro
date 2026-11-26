@@ -1,8 +1,12 @@
 ---
 import '../styles/global.css';
 import '../styles/share.css';
+import '../styles/midnight.css';
+import fontUrl from '@fontsource-variable/inter-tight/files/inter-tight-latin-wght-normal.woff2?url';
+import ToolSearch from '../components/ToolSearch.astro';
+import { CATEGORIES, SEARCH_INDEX } from '../data/directory';
 import Icon from '../components/Icon.astro';
-import { ADSENSE, CALCULATORS, SITE } from '../data/site';
+import { ADSENSE, SITE } from '../data/site';
 import { ADS_CSP, STRICT_CSP, adsAllowed } from '../data/ad-policy';
 import { BUDGET_KEY } from '../data/isolation';
 
@@ -38,9 +42,10 @@ const adsense = !disableAds && adsAllowed(relativePath);
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#1555bb" media="(prefers-color-scheme: light)" />
-  <meta name="theme-color" content="#071426" media="(prefers-color-scheme: dark)" />
-  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#08090C" />
+  <meta name="color-scheme" content="dark light" />
+  <link rel="preload" href={fontUrl} as="font" type="font/woff2" crossorigin />
+  <style is:inline set:html={`@font-face{font-family:'Inter Tight Variable';font-style:normal;font-display:swap;font-weight:100 900;src:url(${fontUrl}) format('woff2-variations');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}`} />
   <meta http-equiv="Content-Security-Policy" content={adsense ? ADS_CSP : frameSrc ? `${STRICT_CSP}; frame-src ${new URL(frameSrc).origin}` : STRICT_CSP} />
   <title>{title}</title>
   <meta name="description" content={description} />
@@ -78,20 +83,24 @@ const adsense = !disableAds && adsAllowed(relativePath);
   <a class="skip" href="#contenido">Saltar al contenido</a>
   <header class="site-header">
     <nav class="nav container" aria-label="Navegación principal">
-      <a class="brand" href={href('/')} aria-label={`${SITE.name}, inicio`}>
-        <span class="brand-mark" aria-hidden="true"><span></span></span>
-        <span class="brand-name">Calcula<b>Panamá</b></span>
+      <a class="brand wordmark" href={href('/')} aria-label={`${SITE.name}, inicio`}>
+        <span class="wordmark-main">CALCULA.</span><span class="wordmark-sub">PANAMÁ</span>
       </a>
       <div class="nav-links" id="menu">
-        {CALCULATORS.map(item => <a href={href(item.path)} aria-current={isCurrent(item.path) ? 'page' : undefined}>{item.label}</a>)}
-        <a href={href('/compras/')} aria-current={isCurrent('/compras/') ? 'page' : undefined}>Compras</a>
-        <a href={href('/herramientas/')} aria-current={isCurrent('/herramientas/') ? 'page' : undefined}>Herramientas</a>
-        <a href={href('/guias/')} aria-current={isCurrent('/guias/') ? 'page' : undefined}>Guías</a>
+        <p class="menu-label">Categorías</p>
+        {CATEGORIES.map(c => <a href={href(`/herramientas/#${c.id}`)}><span class="menu-num">{c.number}</span>{c.label}</a>)}
+        <a href={href('/guias/')} aria-current={isCurrent('/guias/') ? 'page' : undefined}><span class="menu-num">—</span>Guías</a>
+        <a href={href('/herramientas/')} aria-current={isCurrent('/herramientas/') ? 'page' : undefined}><span class="menu-num">—</span>Todas las herramientas</a>
       </div>
-      <button class="icon-button theme-button" type="button" aria-label="Cambiar entre modo claro y oscuro"><Icon name="theme" size={20} /></button>
+      <button class="icon-button search-button" type="button" aria-label="Buscar una herramienta" aria-expanded="false" aria-controls="site-search"><Icon name="search" size={20} /></button>
+      <button class="icon-button theme-button" type="button" aria-label="Cambiar entre modo oscuro y claro"><Icon name="theme" size={20} /></button>
       <button class="icon-button menu-button" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="menu"><Icon name="menu" size={20} /></button>
     </nav>
+    <div class="search-panel" id="site-search" hidden>
+      <div class="container"><ToolSearch id="header-search" /></div>
+    </div>
   </header>
+  <script type="application/json" id="tool-index" set:html={JSON.stringify(SEARCH_INDEX.map(item => ({ ...item, p: href(item.p) })))} />
 
   {adsense && <p class="container legacy-notice" data-legacy-notice hidden>Tienes un presupuesto de Mi Quincena guardado en este navegador en la dirección anterior. <a href={href('/finanzas/mi-quincena/')}>Trasládalo a la nueva dirección</a>; mientras tanto, esta página no muestra publicidad.</p>}
   {adsense && <script is:inline>if (document.documentElement.dataset.ads === 'blocked') { var n = document.querySelector('[data-legacy-notice]'); if (n) n.hidden = false; }</script>}
@@ -99,26 +108,20 @@ const adsense = !disableAds && adsAllowed(relativePath);
 
   <footer class="site-footer">
     <div class="container">
+      <div class="footer-brand">
+        <a class="wordmark" href={href('/')}><span class="wordmark-main">CALCULA.</span><span class="wordmark-sub">PANAMÁ</span></a>
+        <p class="footer-studio"><img src={href('/blue-flotante.webp')} alt="" width="28" height="34" loading="lazy" /> Una plataforma de Blue Lab Studios</p>
+      </div>
       <div class="footer-grid">
+        {CATEGORIES.map(c => (
+          <div>
+            <h2>{c.label}</h2>
+            {c.tools.map(tool => <a href={href(tool.path)}>{tool.title.replace(/^Calculadora (de |del )?/, '').replace(/^./, m => m.toUpperCase())}</a>)}
+          </div>
+        ))}
         <div>
-          <a class="brand" href={href('/')}><span class="brand-mark" aria-hidden="true"><span></span></span><span class="brand-name">Calcula<b>Panamá</b></span></a>
-          <p class="muted">Calculadoras gratuitas para Panamá: trabajo y salarios, finanzas personales, compras, vehículos y vida cotidiana. Los cálculos se hacen en tu dispositivo y cada herramienta explica su fórmula, sus límites y sus fuentes.</p>
-        </div>
-        <div>
-          <h2>Trabajo y salarios</h2>
-          {CALCULATORS.map(item => <a href={href(item.path)}>{item.label}</a>)}
-          <h2>Más usadas</h2>
-          <a href={href('/finanzas/calculadora-prestamos/')}>Préstamos</a>
-          <a href={href('/vehiculos/financiamiento-de-auto/')}>Financiamiento de autos</a>
-          <a href={href('/compras/modo-pasillo/')}>Modo Pasillo</a>
-        </div>
-        <div>
-          <h2>Información</h2>
+          <h2>Calcula Panamá</h2>
           <a href={href('/herramientas/')}>Todas las herramientas</a>
-          <a href={href('/herramientas/#finanzas')}>Finanzas personales</a>
-          <a href={href('/herramientas/#vehiculos')}>Vehículos</a>
-          <a href={href('/herramientas/#educacion')}>Educación</a>
-          <a href={href('/herramientas/#vida-cotidiana')}>Vida cotidiana</a>
           <a href={href('/compras/')}>Compras y gastos</a>
           <a href={href('/guias/')}>Guías</a>
           <a href={href('/sobre-nosotros/')}>Sobre nosotros</a>
@@ -133,7 +136,8 @@ const adsense = !disableAds && adsAllowed(relativePath);
 
   <nav class="tabbar" aria-label="Accesos rápidos">
     <a href={href('/')} aria-current={relativePath === '/' ? 'page' : undefined}><Icon name="home" size={22} /><span>Inicio</span></a>
-    {CALCULATORS.slice(0, 2).map(item => <a href={href(item.path)} aria-current={isCurrent(item.path) ? 'page' : undefined}><Icon name={item.icon} size={22} /><span>{item.short}</span></a>)}
+    <a href={href('/calculadoras/salario-neto/')} aria-current={isCurrent('/calculadoras/salario-neto/') ? 'page' : undefined}><Icon name="salary" size={22} /><span>Salario</span></a>
+    <a href={href('/calculadoras/decimo-tercer-mes/')} aria-current={isCurrent('/calculadoras/decimo-tercer-mes/') ? 'page' : undefined}><Icon name="thirteenth" size={22} /><span>Décimo</span></a>
     <a href={href('/herramientas/')} aria-current={isCurrent('/herramientas/') ? 'page' : undefined}><Icon name="spark" size={22} /><span>Herramientas</span></a>
     <a href={href('/guias/')} aria-current={isCurrent('/guias/') ? 'page' : undefined}><Icon name="book" size={22} /><span>Guías</span></a>
   </nav>
@@ -145,9 +149,14 @@ const adsense = !disableAds && adsAllowed(relativePath);
         menu.addEventListener('click',function(){var open=links.classList.toggle('open');menu.setAttribute('aria-expanded',String(open));menu.setAttribute('aria-label',open?'Cerrar menú':'Abrir menú')});
         document.addEventListener('keydown',function(e){if(e.key==='Escape'&&links.classList.contains('open')){links.classList.remove('open');menu.setAttribute('aria-expanded','false');menu.focus()}});
       }
+      var sb=document.querySelector('.search-button'),panel=document.getElementById('site-search');
+      if(sb&&panel){
+        sb.addEventListener('click',function(){var open=panel.hidden;panel.hidden=!open;sb.setAttribute('aria-expanded',String(open));if(open){var i=panel.querySelector('input');if(i)i.focus()}});
+        document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!panel.hidden){panel.hidden=true;sb.setAttribute('aria-expanded','false');sb.focus()}});
+      }
       var theme=document.querySelector('.theme-button');
       if(theme)theme.addEventListener('click',function(){
-        var dark=root.dataset.theme?root.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches;
+        var dark=root.dataset.theme!=='light';
         var next=dark?'light':'dark';root.dataset.theme=next;try{localStorage.setItem('cp-theme',next)}catch(e){}
       });
     })();
