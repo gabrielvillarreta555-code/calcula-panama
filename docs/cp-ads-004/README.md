@@ -94,4 +94,17 @@ Resultados: ver §Resultados.
 
 ## Resultados
 
-_(Se completa tras ejecutar el workflow.)_
+### Ejecución 1 — sitio principal (26-11-2026, [run 45887935045](https://github.com/gabrielvillarreta555-code/calcula-panama/actions/runs/45887935045)), `check_app=0`
+
+| Comprobación | Resultado |
+|---|---|
+| `http://calculapanama.com/` y `http://www.calculapanama.com/` → 301/308 a `https://` | ✅ |
+| `https://www.calculapanama.com/` → `https://calculapanama.com/` | ✅ |
+| `ads.txt` exacto y `robots.txt` enlazando el sitemap | ✅ |
+| 26 URL del sitemap: 200, canonical propio, CSP estricta y **sin AdSense** | ✅ |
+| URL inexistente → 404 | ✅ |
+| App, ensayo del traslado y conservación ante errores (Chromium, Firefox, WebKit, iPhone) | ⏸ Omitidas: la app aún no existe (pendiente de la Fase B) |
+
+### Ejecución 2 — con la app
+
+Pendiente: lanzar «Validación de producción» con `check_app=1` cuando `app.calculapanama.com` esté activo.
