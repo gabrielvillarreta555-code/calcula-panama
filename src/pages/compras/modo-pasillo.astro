@@ -29,7 +29,7 @@ const schema = {
             <label for="aisle-budget" style="display:flex;gap:6px;color:var(--fx-muted);font-size:14px">Presupuesto <small>(opcional)</small></label>
             <div class="fx-inline-money"><span aria-hidden="true">B/.</span><input id="aisle-budget" name="budget" form="aisle-form" type="text" inputmode="decimal" autocomplete="off" placeholder="0.00" aria-describedby="budget-help" /></div>
           </div>
-          <div class="fx-stat is-accent is-balance"><span>Disponible</span><strong data-aisle-balance>Añade un presupuesto para ver el saldo</strong></div>
+          <div class="fx-stat is-accent is-balance"><span>Saldo</span><strong data-aisle-balance>Añade un presupuesto para ver el saldo</strong></div>
         </div>
         <small class="visually-hidden" id="budget-help">Opcional. Puedes cambiarlo durante la compra.</small>
         <p class="fx-overbudget" role="status"><FxIcon name="alert" size={18} />Superaste tu presupuesto.</p>
