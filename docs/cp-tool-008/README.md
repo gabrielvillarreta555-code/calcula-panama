@@ -174,7 +174,7 @@ Las capturas móviles son de 390 px a @2x; las de escritorio, de 1440 px.
 | e2e de la herramienta en Chromium (`e2e/horas-extras.e2e.ts`) | **9/9**. Cubren: ambos modos, edición, duplicado, eliminación, descanso inválido, feriado sugerido, medianoche, CSV, copiar, compartir, reiniciar, privacidad, 360/390/412/768/1440 px, áreas táctiles, campos etiquetados, color de alerta, barra inferior, CSP, sin AdSense y fuera de los sitemaps |
 | e2e del sitio completo (Chromium) | **103/103** |
 | Aislamiento (`test:isolation`) | **9/9** |
-| Firefox, WebKit y WebKit iPhone | Job «Navegadores» de CI (`playwright.browsers.config.ts` incluye `horas-extras.e2e.ts`); resultado en la §9 |
+| Firefox, WebKit (Safari) y WebKit iPhone | **99/99** en CI, sin reintentos: las 9 pruebas de horas extras en cada motor, más Salario neto, Mi Quincena y Modo Pasillo (ejecución 45964574623) |
 | `astro check` y `check:app` | 0 errores, 0 advertencias |
 | `verify:seo` y `verify:app` | Correctos (26 URL; la página nueva queda fuera) |
 | Contraste de todo el texto visible (4 páginas Midnight Functional) | Sin fallos AA tras la corrección de la §8 |
@@ -211,7 +211,12 @@ La auditoría de contraste detectó texto ilegible en **Salario neto**, ya publi
 ## 9. Rama y commit
 
 - Rama: `feat/cp-tool-008-horas-extras`.
-- Commit y resultado de CI en Firefox y WebKit: ver el informe de entrega.
+- Commit del prototipo: `87450d1`.
+- CI ejecutada a mano sobre la rama, sin PR (ejecución 45964574623), con los tres jobs en verde:
+  - `test`: vitest, `astro check`, build, `verify:seo`, `check:app`, `build:app` y `verify:app`;
+  - «Interfaz móvil»: e2e en Chromium y aislamiento;
+  - «Navegadores (Firefox y Safari)»: 99/99.
+- Sin PR, sin fusión y sin publicar.
 - Para publicar, tras la aprobación del CEO:
   1. cambiar `published: true` en `src/data/launch.ts`;
   2. revisar la fecha del título;
