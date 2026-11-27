@@ -14,7 +14,7 @@ body.ed {
   --pad: clamp(20px, 4vw, 56px);
 }
 body.ed *, body.ed *::before, body.ed *::after { box-sizing: border-box; }
-html:has(> body.ed) { background: var(--obsidian); }
+html:has(> body.ed) { background: #08090C; color-scheme: dark; } /* las variables viven en body.ed */
 body.ed { margin: 0; background: var(--obsidian); color: var(--ivory); font: 400 16px/1.6 var(--sans); -webkit-font-smoothing: antialiased; }
 body.ed a { color: inherit; text-decoration: none; }
 body.ed img { display: block; max-width: 100%; }

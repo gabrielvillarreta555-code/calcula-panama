@@ -57,3 +57,21 @@ test('SEO y política se conservan: título, canónica, datos estructurados, CSP
   await expect(page.locator('script[src*="adsbygoogle"]')).toHaveCount(0);
   await expect(page.locator('.datum .figure')).toContainText('1,236.92');
 });
+
+test('la portada es solo oscura, aunque el sistema o la preferencia guardada sean claros', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'light' });
+  await page.addInitScript(() => { try { localStorage.setItem('cp-theme', 'light'); } catch { /* sin almacenamiento */ } });
+  await page.goto('/');
+  await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(8, 9, 12)');
+  expect(await page.evaluate(() => getComputedStyle(document.documentElement).backgroundColor)).toBe('rgb(8, 9, 12)');
+  await expect(page.locator('h1')).toHaveCSS('color', 'rgb(231, 233, 237)');
+  await expect(page.locator('.theme-button')).toHaveCount(0);
+});
+
+test('imágenes identificadas: IA, ilustrativa y sin afiliación con Toyota', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('#hogar figcaption').first()).toContainText('Imagen generada con IA');
+  await expect(page.locator('#movilidad figcaption')).toContainText('Imagen ilustrativa generada con IA');
+  await expect(page.locator('#movilidad figcaption')).toContainText('no tiene afiliación con Toyota');
+  await expect(page.locator('#movilidad img')).not.toHaveAttribute('alt', /Toyota|Hilux/);
+});

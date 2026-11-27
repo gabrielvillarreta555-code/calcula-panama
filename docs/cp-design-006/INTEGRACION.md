@@ -81,8 +81,13 @@ Sección por sección, en móvil (390 px @2x) y escritorio (1440 px):
 | Rendimiento de la portada (móvil, 4G lenta, CPU ×4) | LCP 0.96 s, CLS 0.001, 155 KB |
 | Contraste | Sin fallos, salvo el punto decorativo del colofón (`aria-hidden`, igual que en el prototipo) |
 
-## 6. Decisiones pendientes del CEO (heredadas de CP-DESIGN-006)
+## 6. Decisiones del CEO (27-11-2026)
 
-1. **Tema único oscuro** en la portada: se pierde el selector claro/oscuro solo en esta página.
-2. **Imágenes:** el origen del «apartamento» (¿foto real con elementos personales?) y el logotipo de Toyota en la Hilux.
-3. **Rail «Edición Midnight»:** el texto del prototipo se mantiene.
+1. **Solo modo oscuro:** la portada es siempre oscura, también con el sistema en modo claro o con el tema claro guardado (prueba e2e). El resto del sitio conserva su selector.
+2. **Apartamento:** generado con IA; el pie dice «Imagen generada con IA».
+3. **Hilux:** imagen ilustrativa, sin sugerir afiliación.
+   - Pie: «Camioneta pickup · Imagen ilustrativa generada con IA. Calcula Panamá no tiene afiliación con Toyota ni con sus marcas».
+   - El texto alternativo ya no menciona la marca.
+4. **Publicación autorizada** tras superar las verificaciones. La calculadora de horas extras sigue sin publicar.
+
+**Corrección añadida:** el fondo de `<html>` usaba una variable definida solo en `body.ed`. Ahora es `#08090C` literal, para que la zona de rebote al desplazarse también sea negra.
