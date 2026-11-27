@@ -22,7 +22,8 @@ const related = [
   { label: 'Salario neto', path: '/calculadoras/salario-neto/', icon: 'wallet' },
   { label: 'Mi Quincena', path: '/finanzas/mi-quincena/', icon: 'calendar' },
   { label: 'Décimo tercer mes', path: '/calculadoras/decimo-tercer-mes/', icon: 'calendar' },
-  { label: 'Vacaciones', path: '/calculadoras/vacaciones/', icon: 'sun' }
+  { label: 'Vacaciones', path: '/calculadoras/vacaciones/', icon: 'sun' },
+  { label: 'Días hábiles y feriados', path: '/vida-cotidiana/dias-habiles-y-feriados/', icon: 'calendar' }
 ] as const;
 
 // Ejemplos verificables, calculados con el mismo motor que la herramienta.
@@ -48,7 +49,7 @@ const schema = {
   inLanguage: 'es-PA', isAccessibleForFree: true, offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' }
 };
 ---
-<Layout title="Calculadora de horas extras en Panamá 2026" description="Calcula el valor de tus horas extras en Panamá: recargos del 25%, 50% y 75%, jornadas nocturnas y mixtas, domingos y feriados, con registro de turnos y fuentes del Código de Trabajo." canonicalPath={path} schema={schema} variant="functional" noindex={!OVERTIME_TOOL.published}>
+<Layout title="Calculadora de horas extras en Panamá 2026" description="Calcula tus horas extras en Panamá: recargos del 25%, 50% y 75%, jornada nocturna y mixta, domingos y feriados, según el Código de Trabajo." canonicalPath={path} schema={schema} variant="functional" noindex={!OVERTIME_TOOL.published}>
 <div class="fx-wrap">
   <FxCrumb items={[{ label: 'Horas extras', path }]} category={{ label: 'Trabajo', path: '/herramientas/#trabajo' }} />
   <div class="fx-title"><FxIcon name="clock" size={22} framed class="is-lg" /><h1><span class="visually-hidden">Calculadora de </span><span class="fx-cap">horas extras</span></h1></div>

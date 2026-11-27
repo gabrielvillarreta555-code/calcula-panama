@@ -2,13 +2,21 @@
 /** Lista de herramientas relacionadas de Midnight Functional (misma marca que Salario neto). */
 import FxIcon from './FxIcon.astro';
 import { CALCULATORS } from '../../data/site';
+import { OVERTIME_TOOL } from '../../data/launch';
 import type { FxIconName } from '../../lib/fx-icons';
-interface Props { current?: string; title?: string }
-const { current, title = 'Herramientas relacionadas' } = Astro.props;
+type Item = { label: string; path: string; icon: FxIconName };
+/** extra: enlaces contextuales de la página (CP-SEO-003), después de las calculadoras laborales. */
+interface Props { current?: string; title?: string; extra?: Item[] }
+const { current, title = 'Herramientas relacionadas', extra = [] } = Astro.props;
 const base = import.meta.env.BASE_URL;
 const href = (path: string) => `${base}${path.replace(/^\//, '')}`;
 const icons: Record<string, FxIconName> = { salary: 'wallet', thirteenth: 'calendar', vacation: 'sun', termination: 'receipt' };
-const items = [...CALCULATORS.filter(c => c.path !== current).map(c => ({ label: c.label, path: c.path, icon: icons[c.icon] ?? 'calculator' })), { label: 'Mi Quincena', path: '/finanzas/mi-quincena/', icon: 'calendar' as FxIconName }];
+const items: Item[] = [
+  ...CALCULATORS.filter(c => c.path !== current).map(c => ({ label: c.label, path: c.path, icon: icons[c.icon] ?? 'calculator' })),
+  ...(current === OVERTIME_TOOL.path || !OVERTIME_TOOL.published ? [] : [{ label: 'Horas extras', path: OVERTIME_TOOL.path, icon: 'clock' as FxIconName }]),
+  ...extra,
+  { label: 'Mi Quincena', path: '/finanzas/mi-quincena/', icon: 'calendar' }
+];
 ---
 <h2 class="fx-section-label">{title}</h2>
 <ul class="fx-related">{items.map(r => <li><a class="fx-linkrow" href={href(r.path)}><FxIcon name={r.icon} size={20} /><span>{r.label}</span><FxIcon name="arrowUpRight" size={18} /></a></li>)}</ul>

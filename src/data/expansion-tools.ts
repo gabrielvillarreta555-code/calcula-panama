@@ -14,6 +14,8 @@ export interface Tool {
   context?: string[];
   /** Nota metodológica cuando la fórmula no depende de una norma ni de una fuente externa. */
   sourceNote?: string;
+  /** Título SEO (<title>) cuando conviene distinto del H1, sin sufijo de marca (CP-SEO-003). */
+  seoTitle?: string;
   /** Fecha ISO en que se consultaron las fuentes; por defecto, la de la expansión 3. */
   checkedOn?: string;
 }
@@ -44,6 +46,7 @@ const budget = { title: 'Organizar mi dinero con Mi Quincena', path: '/finanzas/
 export const expansionTools: Tool[] = [
   {
     id: 'unit', path: '/compras/precio-por-unidad/', category: 'Compras', title: 'Comparador de precio por kilo, litro o unidad',
+    seoTitle: 'Comparador de precio por kilo, libra o litro en Panamá',
     description: 'Compara precios de productos de distintos tamaños. Convierte gramos, libras y mililitros para saber qué presentación cuesta menos por unidad.',
     intro: 'Escribe el precio total de cada paquete y su contenido. Compara presentaciones con la misma medida y descubre cuál cuesta menos por kilo, litro o unidad.',
     fields: [], rowCount: 2, minRows: 2, rowLabel: 'Producto',
@@ -71,6 +74,7 @@ export const expansionTools: Tool[] = [
   },
   {
     id: 'discount', path: '/compras/descuentos-y-promociones/', category: 'Compras', title: 'Calculadora de descuentos y promociones',
+    seoTitle: 'Calculadora de descuentos, 2x1 y 3x2 en Panamá',
     description: 'Calcula descuentos, ofertas 2x1, 3x2 y segunda unidad rebajada. Revisa el precio final, el ahorro y el descuento efectivo de tu compra.',
     intro: 'Comprueba cuánto pagarías por la cantidad que necesitas. Elige una promoción y distingue el porcentaje anunciado del ahorro efectivo sobre toda la compra.',
     fields: [
@@ -88,7 +92,7 @@ export const expansionTools: Tool[] = [
       'La herramienta no añade el ITBMS. Si comparas precios sin impuesto, súmalo igual en todas las opciones: la tarifa general en Panamá es 7%.',
     ],
     checkedOn: '2026-11-26',
-    sources: [itbms], related: [shopping, { title: 'Comparar precio por unidad', path: '/compras/precio-por-unidad/' }],
+    sources: [itbms], related: [shopping, { title: 'Comparar precio por unidad', path: '/compras/precio-por-unidad/' }, { title: 'Calcular el ITBMS de un precio', path: '/impuestos/itbms/' }],
     faq: [
       { q: '¿Un 2x1 es lo mismo que un 50% de descuento?', a: 'Solo si compras las unidades en pares. Con un número impar, la unidad sobrante paga el precio normal: tres productos de B/.6.00 en 2x1 cuestan B/.12.00 y el ahorro efectivo es 33.33%.' },
       { q: '¿Cuánto ahorro con la segunda unidad al 50%?', a: 'Un 25% sobre las dos unidades. Si cada una cuesta B/.10.00, pagas B/.10.00 + B/.5.00 = B/.15.00 en lugar de B/.20.00.' },
@@ -97,6 +101,7 @@ export const expansionTools: Tool[] = [
   },
   {
     id: 'savings', path: '/finanzas/meta-de-ahorro/', category: 'Finanzas', title: 'Calculadora de metas de ahorro',
+    seoTitle: 'Calculadora de metas de ahorro por quincena en Panamá',
     description: 'Calcula cuánto aportar por semana, quincena o mes para alcanzar una meta. Consulta un calendario con tu ahorro inicial y la fecha objetivo.',
     intro: 'Define cuánto quieres reunir y cuándo. Obtén un calendario de aportes que cubra la diferencia entre tu meta y lo que ya tienes ahorrado, sin asumir intereses.',
     fields: [
@@ -114,7 +119,7 @@ export const expansionTools: Tool[] = [
       'Ejemplo hipotético: para reunir B/.1,200 entre el 1 de febrero de 2027 y el 31 de enero de 2028, con aportes mensuales desde el día de inicio, hacen falta 12 aportes de B/.100.00.',
     ],
     sources: [{ title: 'CFPB — Su dinero, sus metas: planificación del ahorro (guía en español)', url: 'https://files.consumerfinance.gov/f/documents/bcfp_your-money-goals_a-financial-empowerment-toolkit_es.pdf' }],
-    related: [budget, { title: 'Calcular el décimo tercer mes', path: '/calculadoras/decimo-tercer-mes/' }, { title: 'Estimar una cuota de préstamo', path: '/finanzas/calculadora-prestamos/' }],
+    related: [budget, { title: 'Calcular el décimo tercer mes', path: '/calculadoras/decimo-tercer-mes/' }, { title: 'Estimar una cuota de préstamo', path: '/finanzas/calculadora-prestamos/' }, { title: 'Calcular cuánto tardas en pagar tu tarjeta', path: '/finanzas/tarjeta-de-credito/' }],
     faq: [
       { q: '¿La calculadora tiene en cuenta los intereses de mi cuenta de ahorros?', a: 'No. Reparte la diferencia entre la meta y tu ahorro inicial sin intereses. Si tu cuenta paga intereses, el resultado es conservador: con los intereses alcanzarías la meta aportando algo menos.' },
       { q: '¿Qué frecuencia de aportes conviene elegir?', a: 'La que coincida con tu día de pago. Si cobras por quincena, el aporte quincenal te permite separar el dinero apenas lo recibes, antes de gastarlo.' },
@@ -123,6 +128,7 @@ export const expansionTools: Tool[] = [
   },
   {
     id: 'grades', path: '/educacion/promedio-de-notas/', category: 'Educación', title: 'Calculadora de promedio de notas y nota necesaria',
+    seoTitle: 'Calculadora de promedio de notas y nota necesaria',
     description: 'Calcula tu promedio ponderado y la nota necesaria para alcanzar tu objetivo. Configura la escala y los porcentajes de tus evaluaciones.',
     intro: 'Introduce las evaluaciones que ya completaste y cuánto pesa cada una en la nota final. Comprueba tu promedio actual y qué promedio necesitarías en lo que falta.',
     fields: [{ key: 'scale', label: 'Nota máxima de la escala', value: '100' }, { key: 'target', label: 'Nota final objetivo', value: '60' }],
@@ -148,6 +154,7 @@ export const expansionTools: Tool[] = [
   },
   {
     id: 'energy', path: '/vida-cotidiana/consumo-electrico/', category: 'Vida cotidiana', title: 'Calculadora de consumo eléctrico en kWh',
+    seoTitle: 'Calculadora de consumo eléctrico en kWh en Panamá',
     description: 'Estima el consumo de un aparato según su potencia y tiempo de uso. Añade tu precio por kWh para calcular un costo de energía orientativo.',
     intro: 'Estima cuánta energía usa un aparato durante un período. Introduce su potencia, las horas de uso y, si lo conoces, el precio de la energía por kWh.',
     fields: [{ key: 'watts', label: 'Potencia del aparato (W)' }, { key: 'hours', label: 'Horas de uso al día' }, { key: 'days', label: 'Días del período', value: '30', digits: 0 }, { key: 'duty', label: 'Porcentaje del tiempo activo (%)', value: '100' }, { key: 'rate', label: 'Precio de energía por kWh (B/., opcional)', optional: true, digits: 6 }],
@@ -170,6 +177,7 @@ export const expansionTools: Tool[] = [
   },
   {
     id: 'itbms', path: '/impuestos/itbms/', category: 'Impuestos', title: 'Calculadora de ITBMS en Panamá: 7%, 10% y 15%',
+    seoTitle: 'Calculadora de ITBMS en Panamá: 7%, 10% y 15%',
     description: 'Agrega el ITBMS a un precio o sepáralo de un total que ya lo incluye. Tarifas del 7%, 10% y 15% según el Código Fiscal de Panamá.',
     intro: 'Calcula el ITBMS de una compra o de una factura. Elige si tu importe ya incluye el impuesto y la tarifa que corresponde; obtienes la base, el impuesto y el total.',
     fields: [
@@ -197,6 +205,7 @@ export const expansionTools: Tool[] = [
   },
   {
     id: 'split', path: '/compras/dividir-la-cuenta/', category: 'Compras', title: 'Calculadora para dividir la cuenta y la propina',
+    seoTitle: 'Dividir la cuenta y la propina: calculadora',
     description: 'Divide la cuenta del restaurante entre varias personas, con propina sobre el consumo sin ITBMS y redondeo a monedas de 5 o 25 centésimos.',
     intro: 'Reparte una cuenta en partes iguales. Añade la propina que quieras dejar y, si lo prefieres, redondea lo que paga cada persona para pagar con monedas.',
     fields: [
@@ -226,6 +235,7 @@ export const expansionTools: Tool[] = [
   },
   {
     id: 'holidays', path: '/vida-cotidiana/dias-habiles-y-feriados/', category: 'Vida cotidiana', title: 'Calculadora de días hábiles y feriados de Panamá',
+    seoTitle: 'Días hábiles y feriados de Panamá: calculadora',
     description: 'Cuenta los días hábiles entre dos fechas sin fines de semana ni feriados nacionales de Panamá. Incluye el calendario de feriados de 2027.',
     intro: 'Elige dos fechas y obtén los días calendario, los días hábiles y las fiestas y duelos nacionales del intervalo, según el Código de Trabajo.',
     fields: [
@@ -254,6 +264,7 @@ export const expansionTools: Tool[] = [
   },
   {
     id: 'card', path: '/finanzas/tarjeta-de-credito/', category: 'Finanzas', title: 'Calculadora de tarjeta de crédito: intereses y pago mínimo',
+    seoTitle: 'Tarjeta de crédito en Panamá: intereses y pago mínimo',
     description: 'Calcula cuántos meses tardas en pagar tu tarjeta de crédito y cuántos intereses pagas con un pago fijo o pagando solo el mínimo.',
     intro: 'Escribe el saldo de tu tarjeta, la tasa de interés anual de tu estado de cuenta y cuánto pagarás cada mes. Compara pagar una cuota fija con pagar solo el mínimo.',
     fields: [
@@ -297,6 +308,7 @@ const vehicleCheck = '2026-11-25';
 export const vehicleTools: Tool[] = [
   {
     id: 'car-loan', path: '/vehiculos/financiamiento-de-auto/', category: 'Vehículos', title: 'Calculadora de financiamiento de autos',
+    seoTitle: 'Calculadora de financiamiento de auto en Panamá',
     description: 'Calcula la letra mensual de un auto financiado en Panamá: abono, tasa, plazo, seguros y comisión de cierre. Incluye tabla de amortización y tasa efectiva.',
     intro: 'Estima la letra mensual de un auto nuevo o usado y cuánto pagarás en total. Escribe la tasa que te ofrece tu banco o financiera: la calculadora no supone ninguna.',
     fields: [
@@ -325,6 +337,7 @@ export const vehicleTools: Tool[] = [
   },
   {
     id: 'fuel-trip', path: '/vehiculos/combustible-por-viaje/', category: 'Vehículos', title: 'Calculadora de combustible por viaje',
+    seoTitle: 'Calculadora de combustible por viaje en Panamá',
     description: 'Calcula cuántos litros o galones de gasolina o diésel gastarás en un viaje y cuánto costará. Acepta km/l, km/galón, mpg o l/100 km y reparte el gasto.',
     intro: 'Estima el combustible y el costo de un viaje por carretera. Escribe el precio que pagas en la bomba, por litro o por galón: la calculadora no incluye precios.',
     fields: [
@@ -351,6 +364,7 @@ export const vehicleTools: Tool[] = [
   },
   {
     id: 'car-cost', path: '/vehiculos/costo-mensual-de-un-auto/', category: 'Vehículos', title: 'Calculadora del costo mensual de un auto',
+    seoTitle: 'Costo mensual de un auto en Panamá: calculadora',
     description: 'Suma lo que cuesta mantener un carro cada mes en Panamá: letra, combustible, seguro, mantenimiento, placa, peajes y estacionamiento. Con desglose y costo por km.',
     intro: 'Descubre cuánto te cuesta tener un auto, más allá de la letra. Escribe tus gastos mensuales y anuales: la calculadora los convierte a un total por mes y por año.',
     fields: [

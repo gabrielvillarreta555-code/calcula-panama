@@ -25,7 +25,7 @@ const schema = { '@context': 'https://schema.org', '@type': 'BreadcrumbList', it
   { '@type': 'ListItem', position: 2, name: tool.title, item: new URL(tool.path.slice(1), Astro.site).href },
 ] };
 ---
-<Layout title={`${tool.title} | Calcula Panamá`} description={tool.description} canonicalPath={tool.path} schema={schema} variant="functional">
+<Layout title={tool.seoTitle ?? `${tool.title} | Calcula Panamá`} description={tool.description} canonicalPath={tool.path} schema={schema} variant="functional">
 <div class="fx-wrap">
   <FxCrumb items={[{ label: tool.title, path: tool.path }]} category={{ label: tool.category, path: `/herramientas/#${categoryId}` }} schema={false} />
   <div class="fx-title"><FxIcon name={icon} size={22} framed class="is-lg" /><h1>{tool.title}</h1></div>
