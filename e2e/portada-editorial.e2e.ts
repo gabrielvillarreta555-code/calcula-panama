@@ -68,10 +68,11 @@ test('la portada es solo oscura, aunque el sistema o la preferencia guardada sea
   await expect(page.locator('.theme-button')).toHaveCount(0);
 });
 
-test('imágenes identificadas: IA, ilustrativa y sin afiliación con Toyota', async ({ page }) => {
+test('pies de imagen: ilustrativos, sin etiquetas de IA y sin afiliación con Toyota', async ({ page }) => {
   await page.goto('/');
-  await expect(page.locator('#hogar figcaption').first()).toContainText('Imagen generada con IA');
-  await expect(page.locator('#movilidad figcaption')).toContainText('Imagen ilustrativa generada con IA');
+  await expect(page.locator('figcaption', { hasText: 'generada con IA' })).toHaveCount(0);
+  await expect(page.locator('#hogar figcaption').first()).toContainText('Imagen ilustrativa');
+  await expect(page.locator('#movilidad figcaption')).toContainText('Imagen ilustrativa');
   await expect(page.locator('#movilidad figcaption')).toContainText('no tiene afiliación con Toyota');
   await expect(page.locator('#movilidad img')).not.toHaveAttribute('alt', /Toyota|Hilux/);
 });

@@ -1,15 +1,8 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import Breadcrumbs from '../components/Breadcrumbs.astro';
+import EditorialPage from '../layouts/EditorialPage.astro';
 import { SITE } from '../data/site';
 ---
-<Layout title="Contacto y reporte de errores | Calcula Panamá" description="Cómo contactar a Calcula Panamá, reportar un error en una calculadora o sugerir una mejora, y dónde consultar tu caso personal." canonicalPath="/contacto/">
-  <header class="page-head container">
-    <Breadcrumbs items={[{ label: 'Contacto', path: '/contacto/' }]} />
-    <span class="eyebrow">Contacto</span>
-    <h1>Contacto y reporte de errores</h1>
-  </header>
-  <article class="container article">
+<EditorialPage title="Contacto y reporte de errores | Calcula Panamá" description="Cómo contactar a Calcula Panamá, reportar un error en una calculadora o sugerir una mejora, y dónde consultar tu caso personal." canonicalPath="/contacto/" kicker="Contacto" heading="Contacto y reporte de errores" crumbs={[{ label: 'Contacto', path: '/contacto/' }]}>
     <div class="notice">
       <p><strong>Canal de contacto:</strong> las incidencias del repositorio público del proyecto en GitHub. Las lee el equipo de Blue Lab Studios. Para escribir necesitas una cuenta gratuita de GitHub, y lo que publiques será visible para cualquiera.</p>
       <p style="margin:0"><a class="button primary" href={SITE.issuesUrl} target="_blank" rel="noopener noreferrer">Reportar un error o sugerencia</a></p>
@@ -32,5 +25,4 @@ import { SITE } from '../data/site';
       <li>Compras y precios: la ACODECO.</li>
       <li>En cualquier caso, un abogado o contador idóneo.</li>
     </ul>
-  </article>
-</Layout>
+</EditorialPage>

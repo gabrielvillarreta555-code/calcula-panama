@@ -1,10 +1,8 @@
 ---
-import Layout from '../../layouts/Layout.astro';
+import EditorialPage from '../../layouts/EditorialPage.astro';
 import AdSlot from '../../components/AdSlot.astro';
-import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import Faq from '../../components/Faq.astro';
 import LegalSources from '../../components/LegalSources.astro';
-import RelatedCalculators from '../../components/RelatedCalculators.astro';
 import { GUIDES } from '../../data/site';
 import { calculateTermination } from '../../lib/calculations';
 import { formatMoney } from '../../lib/format';
@@ -24,14 +22,13 @@ const faq = [
   { q: '¿La indemnización puede pagarse en especie?', a: 'No. El artículo 225 prohíbe pagar en especie la prima de antigüedad, la indemnización y sus recargos.' }
 ];
 ---
-<Layout title="Prima de antigüedad e indemnización en Panamá: cálculo y diferencias" description="Diferencias entre prima de antigüedad (art. 224) e indemnización por despido injustificado (art. 225) en Panamá: quién cobra cada una, semanas por año, salario base y tabla de ejemplos." canonicalPath={guide.path}>
-  <header class="page-head container">
-    <Breadcrumbs items={[{ label: 'Guías', path: '/guias/' }, { label: 'Prima e indemnización', path: guide.path }]} />
-    <span class="eyebrow">Guía</span>
-    <h1>{guide.title}</h1>
-    <p>Se confunden a menudo, pero tienen reglas distintas. La prima la cobra casi todo trabajador con contrato indefinido; la indemnización, solo en ciertos casos.</p>
-  </header>
-  <article class="container article">
+<EditorialPage title="Prima de antigüedad e indemnización en Panamá: cálculo y diferencias" description="Diferencias entre prima de antigüedad (art. 224) e indemnización por despido injustificado (art. 225) en Panamá: quién cobra cada una, semanas por año, salario base y tabla de ejemplos." canonicalPath={guide.path} kicker="Guía · Trabajo" heading={guide.title} lede="Se confunden a menudo, pero tienen reglas distintas. La prima la cobra casi todo trabajador con contrato indefinido; la indemnización, solo en ciertos casos." crumbs={[{ label: 'Guías', path: '/guias/' }, { label: 'Prima e indemnización', path: guide.path }]} related={[
+  { label: 'Salario neto', path: '/calculadoras/salario-neto/', note: 'Seguro Social, Seguro Educativo e ISR.' },
+  { label: 'Décimo tercer mes', path: '/calculadoras/decimo-tercer-mes/', note: 'Partidas del 15 de abril, agosto y diciembre.' },
+  { label: 'Vacaciones', path: '/calculadoras/vacaciones/', note: 'Días acumulados y pago proporcional.' },
+  { label: 'Liquidación laboral', path: '/calculadoras/liquidacion-laboral/', note: 'Prima, indemnización y preaviso.' },
+  { label: 'Mi Quincena', path: '/finanzas/mi-quincena/', note: 'Tu dinero hasta el próximo pago.' }
+]}>
     <h2>Diferencias en una tabla</h2>
     <div class="table-wrap">
       <table>
@@ -74,6 +71,4 @@ const faq = [
     <p><a class="button primary" href={`${base}calculadoras/liquidacion-laboral/`}>Calcular mi liquidación</a></p>
     <Faq items={faq} />
     <LegalSources sources={['laborCode', 'css', 'incomeTaxRegulation', 'mitradel']} />
-  </article>
-  <div class="container"><RelatedCalculators /></div>
-</Layout>
+</EditorialPage>

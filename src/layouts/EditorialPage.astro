@@ -1,0 +1,47 @@
+---
+/**
+ * Páginas editoriales de Midnight Edition (CP-DESIGN-008): guías, categorías e información.
+ * Compone piezas aprobadas en CP-DESIGN-006: cabecera y colofón de la portada, ruta («crumb»), encabezado de artículo
+ * («tool-head»), ensayo con columna lateral («essay»), lista de herramientas («toollist») y filetes. Sin piezas nuevas.
+ * El <head> lo genera Layout con las mismas props que antes; el BreadcrumbList es idéntico al de Breadcrumbs.astro.
+ */
+import Layout from './Layout.astro';
+import EdMasthead from '../components/editorial/EdMasthead.astro';
+import EdColophon from '../components/editorial/EdColophon.astro';
+interface Crumb { label: string; path: string }
+interface Props {
+  title: string; description: string; canonicalPath?: string; schema?: Record<string, unknown> | Record<string, unknown>[]; noindex?: boolean;
+  kicker: string; heading: string; lede?: string; crumbs?: Crumb[]; meta?: string[];
+  related?: { label: string; path: string; note?: string }[]; relatedTitle?: string; wide?: boolean;
+}
+const { title, description, canonicalPath, schema, noindex, kicker, heading, lede, crumbs, meta = [], related = [], relatedTitle = 'Herramientas relacionadas', wide = false } = Astro.props;
+const base = import.meta.env.BASE_URL;
+const href = (p: string) => `${base}${p.replace(/^\//, '')}`;
+const trail = crumbs ? [{ label: 'Inicio', path: '/' }, ...crumbs] : null;
+const crumbSchema = trail && { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: trail.map((c, i) => ({ '@type': 'ListItem', position: i + 1, name: c.label, item: new URL(c.path.replace(/^\//, ''), Astro.site ?? Astro.url.origin).toString() })) };
+---
+<Layout title={title} description={description} canonicalPath={canonicalPath} schema={schema} noindex={noindex} variant="editorial">
+  <EdMasthead slot="masthead" />
+  {trail && (
+    <nav class="wrap ed-crumb" aria-label="Ruta de navegación">
+      {trail.map((c, i) => i < trail.length - 1 ? <><a href={href(c.path)}>{c.label}</a> / </> : <span aria-current="page">{c.label}</span>)}
+      <script type="application/ld+json" set:html={JSON.stringify(crumbSchema)} />
+    </nav>
+  )}
+  <header class="wrap grid ed-head">
+    <span class="label">{kicker}</span>
+    <h1>{heading}</h1>
+    {lede && <p class="lede">{lede}</p>}
+    {meta.length > 0 && <div class="meta">{meta.map(m => <span>{m}</span>)}</div>}
+  </header>
+  <section class:list={['wrap grid ed-essay', { 'is-wide': wide }]}>
+    <div class="body ed-prose"><slot /></div>
+    {related.length > 0 && (
+      <aside aria-labelledby="ed-related-t">
+        <span class="label" id="ed-related-t">{relatedTitle}</span>
+        <ul class="toollist">{related.map((r, i) => <li><a href={href(r.path)}><span class="n">{String(i + 1).padStart(2, '0')}</span><strong>{r.label}</strong><i aria-hidden="true">→</i>{r.note && <small>{r.note}</small>}</a></li>)}</ul>
+      </aside>
+    )}
+  </section>
+  <EdColophon slot="colophon" />
+</Layout>

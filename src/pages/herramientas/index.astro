@@ -1,8 +1,8 @@
 ---
-import Layout from '../../layouts/Layout.astro';
+/** Directorio de herramientas en Midnight Editorial (CP-DESIGN-008): índice numerado y listas de la portada. */
+import EditorialPage from '../../layouts/EditorialPage.astro';
 import { expansionTools, vehicleTools } from '../../data/expansion-tools';
 import { CALCULATORS } from '../../data/site';
-import '../../styles/expansion-tools.css';
 const href = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\//, '')}`;
 const categories = [
   { id: 'compras', name: 'Compras', tools: [{ title: 'Modo Pasillo', description: 'Suma los productos de tu compra y controla tu presupuesto.', path: '/compras/modo-pasillo/' }, ...expansionTools.filter(t => t.category === 'Compras')] },
@@ -12,14 +12,15 @@ const categories = [
   { id: 'educacion', name: 'Educación', tools: expansionTools.filter(t => t.category === 'Educación') },
   { id: 'vida-cotidiana', name: 'Vida cotidiana', tools: expansionTools.filter(t => t.category === 'Vida cotidiana') },
 ];
+const plural = (n: number) => `${n} ${n === 1 ? 'herramienta' : 'herramientas'}`;
 ---
-<Layout title="Herramientas y calculadoras gratuitas | Calcula Panamá" description="Encuentra calculadoras de compras, ahorro, autos, salarios, notas y consumo eléctrico. Herramientas gratuitas con ejemplos y límites explicados." canonicalPath="/herramientas/">
-  <div class="container tools-page">
-    <header class="tool-heading"><p class="eyebrow">Tu día, con las cuentas claras</p><h1>Herramientas y calculadoras</h1><p>Elige lo que necesitas resolver. Cada herramienta explica sus datos, su cálculo y sus límites.</p></header>
-    <nav class="tool-categories" aria-label="Categorías de herramientas">{categories.map(category => <a href={`#${category.id}`}>{category.name}</a>)}</nav>
-    {categories.map(category => <section id={category.id} class="tool-category" aria-labelledby={`title-${category.id}`}>
-      <h2 id={`title-${category.id}`}>{category.name}</h2>
-      <div class="tool-directory">{category.tools.map(tool => <article class="tool-card"><h3><a href={href(tool.path)}>{tool.title}</a></h3><p>{tool.description}</p></article>)}</div>
-    </section>)}
-  </div>
-</Layout>
+<EditorialPage title="Herramientas y calculadoras gratuitas | Calcula Panamá" description="Encuentra calculadoras de compras, ahorro, autos, salarios, notas y consumo eléctrico. Herramientas gratuitas con ejemplos y límites explicados." canonicalPath="/herramientas/" kicker="Tu día, con las cuentas claras" heading="Herramientas y calculadoras" lede="Elige lo que necesitas resolver. Cada herramienta explica sus datos, su cálculo y sus límites." wide>
+  <nav class="index ed-index" aria-label="Categorías de herramientas">
+    <ol>{categories.map((c, i) => <li><a href={`#${c.id}`}><span class="num">{String(i + 1).padStart(2, '0')}</span><span class="name">{c.name}</span><span class="count">{plural(c.tools.length)} →</span></a></li>)}</ol>
+  </nav>
+  {categories.map((category, i) => <section id={category.id} class="ed-category" aria-labelledby={`title-${category.id}`}>
+    <span class="label">{String(i + 1).padStart(2, '0')} — {category.name}</span>
+    <h2 id={`title-${category.id}`}>{category.name}</h2>
+    <ul class="toollist">{category.tools.map((tool, j) => <li><a href={href(tool.path)}><span class="n">{i + 1}.{j + 1}</span><strong>{tool.title}</strong><i aria-hidden="true">→</i><small>{tool.description}</small></a></li>)}</ul>
+  </section>)}
+</EditorialPage>

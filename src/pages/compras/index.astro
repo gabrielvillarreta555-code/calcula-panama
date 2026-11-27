@@ -1,57 +1,34 @@
 ---
-import Layout from '../../layouts/Layout.astro';
-import Breadcrumbs from '../../components/Breadcrumbs.astro';
-import Icon from '../../components/Icon.astro';
-import ShoppingScene from '../../components/ShoppingScene.astro';
-import '../../styles/home-showcase.css';
+/** Categoría Compras en Midnight Editorial (CP-DESIGN-008). Sin Blue: misma información y enlaces. */
+import EditorialPage from '../../layouts/EditorialPage.astro';
+import EdPicture from '../../components/editorial/EdPicture.astro';
 import { expansionTools } from '../../data/expansion-tools';
 const shoppingTools = [{ title: 'Modo Pasillo', description: 'Suma precio por cantidad de cada producto mientras compras y comprueba cuánto te queda del presupuesto.', path: '/compras/modo-pasillo/' }, ...expansionTools.filter(t => t.category === 'Compras')];
 const base = import.meta.env.BASE_URL;
 const href = (path: string) => `${base}${path.replace(/^\//, '')}`;
+const related = [{ label: 'Modo Pasillo', path: '/compras/modo-pasillo/', note: 'Tu lista permanece en la memoria de esta pestaña.' }, { label: 'Mi Quincena', path: '/finanzas/mi-quincena/', note: 'Tu dinero disponible hasta el próximo pago.' }];
 ---
-<Layout title="Compras y gastos | Calcula Panamá" description="Herramientas gratuitas para comprar en Panamá: suma tu compra con Modo Pasillo, compara el precio por kilo, libra o litro y calcula el ahorro real de descuentos y promociones." canonicalPath="/compras/" blueShowcase>
-  <div class="container shopping-breadcrumb"><Breadcrumbs items={[{ label: 'Compras y gastos', path: '/compras/' }]} /></div>
-  <section class="shopping-landing" aria-labelledby="shopping-title">
-    <div class="container shopping-landing-inner">
-      <div class="shopping-landing-copy">
-        <span class="eyebrow">Compras y gastos</span>
-        <h1 id="shopping-title">Haz espacio para una compra más tranquila.</h1>
-        <p>Blue te acompaña mientras sumas lo que llevas y mantienes tu presupuesto a la vista.</p>
-        <a class="button primary shopping-landing-button" href={href('/compras/modo-pasillo/')}>Ir a Modo Pasillo <Icon name="arrow" size={19} /></a>
-        <span class="shopping-landing-privacy"><Icon name="shield" size={17} /> Gratis y sin guardar tu lista</span>
-      </div>
-      <ShoppingScene />
-    </div>
-  </section>
-  <section class="section shopping-how" aria-labelledby="shopping-how-title">
-    <div class="container">
-      <div class="section-title"><span class="eyebrow">Modo Pasillo</span><h2 id="shopping-how-title">Del estante al carrito, sin perder la cuenta.</h2><p>Una herramienta sencilla para acompañarte durante tus compras.</p></div>
-      <div class="shopping-steps">
-        <div><span>01</span><h3>Añade productos</h3><p>Escribe el precio y la cantidad de lo que llevas.</p></div>
-        <div><span>02</span><h3>Ve tu total</h3><p>Consulta cuánto suman tus productos mientras compras.</p></div>
-        <div><span>03</span><h3>Cuida tu presupuesto</h3><p>Comprueba lo que te queda disponible o si te has excedido.</p></div>
-      </div>
-      <div class="shopping-bottom-cta"><div><strong>¿Lista o listo para empezar?</strong><p>Tu lista permanece en la memoria de esta pestaña.</p></div><a class="button primary" href={href('/compras/modo-pasillo/')}>Abrir Modo Pasillo <Icon name="arrow" size={18} /></a></div>
-      <p class="shopping-disclaimer">Modo Pasillo no aplica ITBMS, descuentos ni promociones automáticamente. Introduce el precio que deseas sumar.</p>
-    </div>
-  </section>
-  <section class="section" aria-labelledby="shopping-tools-title">
-    <div class="container">
-      <div class="section-title"><span class="eyebrow">Herramientas de compras</span><h2 id="shopping-tools-title">Tres preguntas antes de pagar.</h2><p>¿Cuánto llevo? ¿Qué presentación sale más barata? ¿Cuánto ahorro de verdad con la oferta?</p></div>
-      <div class="guide-list">{shoppingTools.map(t => <a class="guide-card" href={href(t.path)}><strong>{t.title}</strong><span>{t.description}</span></a>)}</div>
-    </div>
-  </section>
-  <section class="section" aria-labelledby="shopping-guide-title">
-    <div class="container article">
-      <h2 id="shopping-guide-title">Cómo usarlas juntas en el supermercado</h2>
-      <ol>
-        <li><strong>Antes de salir:</strong> define cuánto puedes gastar. Si organizas tu dinero por quincena, <a href={href('/finanzas/mi-quincena/')}>Mi Quincena</a> te muestra cuánto tienes disponible hasta el próximo pago.</li>
-        <li><strong>Frente al estante:</strong> si el mismo producto viene en varios tamaños, o uno marca el precio por libra y otro por kilo, el <a href={href('/compras/precio-por-unidad/')}>comparador de precio por unidad</a> te dice cuál cuesta menos por kilo, litro o unidad. Una libra equivale a 0.45359237 kg.</li>
-        <li><strong>Ante una oferta:</strong> un 2x1 con un número impar de unidades o dos descuentos sucesivos no ahorran lo que parece. La <a href={href('/compras/descuentos-y-promociones/')}>calculadora de descuentos</a> muestra el ahorro efectivo sobre la cantidad que vas a llevar.</li>
-        <li><strong>En el carrito:</strong> <a href={href('/compras/modo-pasillo/')}>Modo Pasillo</a> suma cada producto por su cantidad y te avisa si te pasas del presupuesto.</li>
-      </ol>
-      <h3>Qué no hacen estas herramientas</h3>
-      <p>No consultan precios de supermercados ni aplican impuestos, descuentos o promociones por su cuenta: usan los precios que escribes. La tarifa general del ITBMS en Panamá es 7% (Ley 8 de 2010), y algunos productos tienen otra tarifa o están exentos. Compara siempre precios con el mismo tratamiento del impuesto. Si en caja te cobran un precio distinto del anunciado, pide la revisión en el comercio y, si no se resuelve, puedes acudir a la ACODECO.</p>
-    </div>
-  </section>
-</Layout>
+<EditorialPage title="Compras y gastos | Calcula Panamá" description="Herramientas gratuitas para comprar en Panamá: suma tu compra con Modo Pasillo, compara el precio por kilo, libra o litro y calcula el ahorro real de descuentos y promociones." canonicalPath="/compras/" kicker="Compras y gastos" heading="Haz espacio para una compra más tranquila." lede="Suma lo que llevas y mantén tu presupuesto a la vista. Gratis y sin guardar tu lista." crumbs={[{ label: 'Compras y gastos', path: '/compras/' }]} related={related} relatedTitle="Empieza aquí">
+  <figure class="photo"><EdPicture name="compras" ratio="3/2" alt="Carrito con frutas, verduras y productos en el pasillo de un supermercado." /><figcaption><span>Supermercado · Imagen ilustrativa</span><span>Recurso de Calcula Panamá</span></figcaption></figure>
+  <p><a class="arrow-link" href={href('/compras/modo-pasillo/')}>Ir a Modo Pasillo <span>→</span></a></p>
+  <h2 id="shopping-how-title">Del estante al carrito, sin perder la cuenta.</h2>
+  <p>Una herramienta sencilla para acompañarte durante tus compras.</p>
+  <div class="ed-steps">
+    <div class="ed-step"><span class="n">01</span><h3>Añade productos</h3><p>Escribe el precio y la cantidad de lo que llevas.</p></div>
+    <div class="ed-step"><span class="n">02</span><h3>Ve tu total</h3><p>Consulta cuánto suman tus productos mientras compras.</p></div>
+    <div class="ed-step"><span class="n">03</span><h3>Cuida tu presupuesto</h3><p>Comprueba lo que te queda disponible o si te has excedido.</p></div>
+  </div>
+  <p class="notes">Modo Pasillo no aplica ITBMS, descuentos ni promociones automáticamente. Introduce el precio que deseas sumar. Tu lista permanece en la memoria de esta pestaña.</p>
+  <h2 id="shopping-tools-title">Tres preguntas antes de pagar.</h2>
+  <p>¿Cuánto llevo? ¿Qué presentación sale más barata? ¿Cuánto ahorro de verdad con la oferta?</p>
+  <ul class="toollist">{shoppingTools.map((t, i) => <li><a href={href(t.path)}><span class="n">{String(i + 1).padStart(2, '0')}</span><strong>{t.title}</strong><i aria-hidden="true">→</i><small>{t.description}</small></a></li>)}</ul>
+  <h2 id="shopping-guide-title">Cómo usarlas juntas en el supermercado</h2>
+  <ol>
+    <li><strong>Antes de salir:</strong> define cuánto puedes gastar. Si organizas tu dinero por quincena, <a href={href('/finanzas/mi-quincena/')}>Mi Quincena</a> te muestra cuánto tienes disponible hasta el próximo pago.</li>
+    <li><strong>Frente al estante:</strong> si el mismo producto viene en varios tamaños, o uno marca el precio por libra y otro por kilo, el <a href={href('/compras/precio-por-unidad/')}>comparador de precio por unidad</a> te dice cuál cuesta menos por kilo, litro o unidad. Una libra equivale a 0.45359237 kg.</li>
+    <li><strong>Ante una oferta:</strong> un 2x1 con un número impar de unidades o dos descuentos sucesivos no ahorran lo que parece. La <a href={href('/compras/descuentos-y-promociones/')}>calculadora de descuentos</a> muestra el ahorro efectivo sobre la cantidad que vas a llevar.</li>
+    <li><strong>En el carrito:</strong> <a href={href('/compras/modo-pasillo/')}>Modo Pasillo</a> suma cada producto por su cantidad y te avisa si te pasas del presupuesto.</li>
+  </ol>
+  <h3>Qué no hacen estas herramientas</h3>
+  <p>No consultan precios de supermercados ni aplican impuestos, descuentos o promociones por su cuenta: usan los precios que escribes. La tarifa general del ITBMS en Panamá es 7% (Ley 8 de 2010), y algunos productos tienen otra tarifa o están exentos. Compara siempre precios con el mismo tratamiento del impuesto. Si en caja te cobran un precio distinto del anunciado, pide la revisión en el comercio y, si no se resuelve, puedes acudir a la ACODECO.</p>
+</EditorialPage>
