@@ -299,6 +299,44 @@ body.fx { margin: 0; padding: 0; background: var(--fx-bg); color: var(--fx-text)
 .fx .fx-inline-money input { min-height: 44px; }
 .fx .fx-search-field input { border: 0 !important; background: transparent !important; min-height: 0 !important; padding: 12px 0 !important; }
 
+/* ==========================================================================
+   CP-TOOL-008 · Calculadora de horas extras (mismos tokens de Midnight Functional)
+   ========================================================================== */
+.fx .fx-mode { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.fx-choices { display: grid; gap: 8px; }
+.fx-choice { position: relative; display: flex; align-items: flex-start; gap: 12px; min-height: 56px; padding: 12px 14px; border: 1px solid var(--fx-border); border-radius: var(--fx-radius-sm); background: var(--fx-field); cursor: pointer; }
+.fx-choice input { position: absolute; inset: 0; opacity: 0; cursor: pointer; margin: 0; }
+.fx-choice .fx-icon { flex: none; margin-top: 2px; color: var(--fx-icon); }
+.fx-choice strong { display: block; font-weight: 600; }
+.fx-choice small { display: block; color: var(--fx-muted); font-size: 13px; line-height: 1.4; }
+.fx-choice:has(input:checked) { border-color: var(--fx-accent); background: #121a2b; }
+.fx-choice:has(input:focus-visible) { outline: 2px solid var(--fx-accent); outline-offset: 2px; }
+.fx-alerts { display: grid; gap: 8px; margin: 14px 0 0; padding: 0; list-style: none; }
+.fx-alerts:empty { display: none; }
+.fx-alerts li { display: flex; align-items: flex-start; gap: 8px; padding: 10px 12px; border: 1px solid var(--fx-border); border-radius: var(--fx-radius-sm); font-size: 14px; line-height: 1.45; }
+.fx-alerts li .fx-icon { flex: none; margin-top: 1px; }
+.fx-alerts li.is-info { border-color: var(--fx-accent); color: var(--fx-text); }
+.fx-alerts li.is-info .fx-icon { color: var(--fx-icon); }
+/* Avisos y errores con el ámbar aprobado en CP-DESIGN-007 */
+.fx-alerts li.is-warn, .fx-alerts li.is-error { border-color: var(--fx-warn); background: var(--fx-warn-bg); color: var(--fx-warn); font-weight: 600; }
+.fx .fx-actions-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (max-width: 380px) { .fx .fx-actions-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.fx-actions-inline { display: grid; gap: 10px; }
+.fx-shift-list > li { flex-wrap: wrap; align-items: flex-start; }
+.fx-shift-list > li > .fx-row-label strong { display: block; font-weight: 600; text-transform: capitalize; }
+.fx-shift-list > li > strong { margin-top: 8px; }
+.fx-shift-list > li.is-excluded { opacity: .7; }
+.fx-shift-list > li.is-excluded > strong { color: var(--fx-warn); }
+.fx .fx-shift-list .fx-row-actions { display: flex; gap: 8px; width: 100%; padding-left: 54px; justify-content: flex-end; }
+.fx-shift-detail { margin-top: 6px; color: var(--fx-muted); font-size: 13px; }
+.fx-shift-detail summary { display: inline-flex; align-items: center; min-height: 44px; color: var(--fx-icon); cursor: pointer; }
+.fx-shift-detail ul { margin: 0; padding-left: 18px; }
+.fx-meta-line { color: var(--fx-muted); font-size: 14px; border-left: 2px solid var(--fx-accent); padding-left: 12px; }
+.fx .fx-overtime input[type=date], .fx .fx-overtime input[type=time] { width: 100%; min-height: 52px; padding: 12px 14px; border: 1px solid var(--fx-border); border-radius: var(--fx-radius-sm); background: var(--fx-field); color: var(--fx-text); font: inherit; font-size: 16px; color-scheme: dark; }
+.fx .fx-overtime #ot-holiday-hint:empty { display: none; }
+.fx .fx-prose li > .fx-icon { color: var(--fx-icon); vertical-align: -3px; }
+@media (min-width: 960px) { .fx-overtime ~ .fx-dock { display: none; } }
+
 /* Legibilidad del contenido editorial en páginas .fx: anula fondos claros heredados de global.css
    (tablas, fórmulas y avisos). Afectaba a Salario neto desde CP-DESIGN-007. */
 .fx .fx-prose .table-wrap { background: var(--fx-panel); }
@@ -307,6 +345,14 @@ body.fx { margin: 0; padding: 0; background: var(--fx-bg); color: var(--fx-text)
 .fx .fx-prose .formula { color: var(--fx-text) !important; border-left-width: 1px; } /* global.css usa !important */
 .fx .callout { background: var(--fx-panel); border: 1px solid var(--fx-border); border-radius: var(--fx-radius-sm); color: var(--fx-text); }
 .fx .callout.warning { border-color: var(--fx-warn); background: var(--fx-warn-bg); }
+/* CP-TOOL-008: estimaciones condicionadas (interpretación no confirmada en fuentes oficiales) */
+.fx-conditional { display: inline-flex; align-items: center; gap: 6px; margin: 6px 0 0; padding: 4px 10px; border: 1px dashed var(--fx-warn); border-radius: var(--fx-radius-sm); color: var(--fx-warn); font-size: 13px; font-weight: 600; }
+.fx-conditional[hidden] { display: none; }
+.fx-alerts li.is-conditional { border-style: dashed; border-color: var(--fx-warn); color: var(--fx-text); }
+.fx-alerts li.is-conditional .fx-icon { color: var(--fx-warn); }
+.fx .fx-figure { margin: 0 0 20px; }
+.fx .fx-figure img { display: block; width: 100%; height: auto; border: 1px solid var(--fx-border); border-radius: var(--fx-radius); }
+.fx .fx-figure figcaption { display: flex; justify-content: space-between; gap: 12px; margin-top: 8px; color: var(--fx-muted); font-size: 13px; }
 
 /* ==========================================================================
    CP-DESIGN-008 · Herramientas de ToolLayout en Midnight Functional.

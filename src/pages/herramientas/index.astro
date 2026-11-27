@@ -3,12 +3,13 @@
 import EditorialPage from '../../layouts/EditorialPage.astro';
 import { expansionTools, vehicleTools } from '../../data/expansion-tools';
 import { CALCULATORS } from '../../data/site';
+import { OVERTIME_TOOL } from '../../data/launch';
 const href = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\//, '')}`;
 const categories = [
   { id: 'compras', name: 'Compras', tools: [{ title: 'Modo Pasillo', description: 'Suma los productos de tu compra y controla tu presupuesto.', path: '/compras/modo-pasillo/' }, ...expansionTools.filter(t => t.category === 'Compras')] },
   { id: 'finanzas', name: 'Finanzas', tools: [{ title: 'Mi Quincena', description: 'Organiza tu dinero disponible hasta el próximo pago.', path: '/finanzas/mi-quincena/' }, { title: 'Calculadora de préstamos', description: 'Estima una cuota según el monto, la tasa y el plazo.', path: '/finanzas/calculadora-prestamos/' }, ...expansionTools.filter(t => t.category === 'Finanzas')] },
   { id: 'vehiculos', name: 'Vehículos', tools: vehicleTools },
-  { id: 'trabajo', name: 'Trabajo y salarios', tools: CALCULATORS.map(t => ({ ...t, title: t.label })) },
+  { id: 'trabajo', name: 'Trabajo y salarios', tools: [...CALCULATORS.map(t => ({ ...t, title: t.label })), ...(OVERTIME_TOOL.published ? [{ title: 'Calculadora de horas extras', description: OVERTIME_TOOL.description, path: OVERTIME_TOOL.path }] : [])] },
   { id: 'educacion', name: 'Educación', tools: expansionTools.filter(t => t.category === 'Educación') },
   { id: 'vida-cotidiana', name: 'Vida cotidiana', tools: expansionTools.filter(t => t.category === 'Vida cotidiana') },
 ];

@@ -1,5 +1,7 @@
-/** Páginas que no deben aparecer en el sitemap (no son contenido indexable). */
-export const SITEMAP_EXCLUDED = new Set(['/404/', '/ensayo/traslado-quincena/']);
+import { OVERTIME_TOOL } from '../data/launch';
+
+/** Páginas que no deben aparecer en el sitemap (no son contenido indexable o aún no están publicadas). */
+export const SITEMAP_EXCLUDED = new Set(['/404/', '/ensayo/traslado-quincena/', ...(OVERTIME_TOOL.published ? [] : [OVERTIME_TOOL.path])]);
 
 /**
  * Convierte rutas de archivos de `src/pages` (p. ej. `./guias/index.astro`) en rutas públicas

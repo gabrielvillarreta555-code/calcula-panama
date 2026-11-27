@@ -1,5 +1,5 @@
 /** El mensaje se construye exclusivamente en memoria a partir de opciones autorizadas. */
-export type ShareTool = 'salary' | 'thirteenth' | 'vacation' | 'termination' | 'budget' | 'loan' | 'aisle';
+export type ShareTool = 'salary' | 'thirteenth' | 'vacation' | 'termination' | 'budget' | 'loan' | 'aisle' | 'overtime';
 export interface ShareData { tool: ShareTool; primary?: string; details?: readonly string[]; products?: readonly string[] }
 export interface ShareOptions { includePrimary: boolean; includeDetails: boolean; selectedProducts: readonly number[] }
 
@@ -10,7 +10,8 @@ export const SHARE_TOOLS: Record<ShareTool, { title: string; path: string; expla
   termination: { title: 'Liquidación laboral', path: '/calculadoras/liquidacion-laboral/', explanation: 'Estimación orientativa; los conceptos dependen del caso.' },
   budget: { title: 'Mi Quincena', path: '/finanzas/mi-quincena/', explanation: 'Herramienta de planificación personal.' },
   loan: { title: 'Calculadora de Préstamos', path: '/finanzas/calculadora-prestamos/', explanation: 'Resultado orientativo; las condiciones reales dependen de la entidad financiera.' },
-  aisle: { title: 'Modo Pasillo', path: '/compras/modo-pasillo/', explanation: 'Resumen orientativo de compras, sin impuestos automáticos.' }
+  aisle: { title: 'Modo Pasillo', path: '/compras/modo-pasillo/', explanation: 'Resumen orientativo de compras, sin impuestos automáticos.' },
+  overtime: { title: 'Horas extras', path: '/calculadoras/horas-extras/', explanation: 'Estimación orientativa del pago bruto por horas extras y recargos; confirma con tu contrato y tu comprobante de pago.' }
 };
 export const EMPTY_SHARE_OPTIONS: ShareOptions = { includePrimary: false, includeDetails: false, selectedProducts: [] };
 

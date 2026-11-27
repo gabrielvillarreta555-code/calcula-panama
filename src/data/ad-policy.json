@@ -55,6 +55,10 @@
       "tier": "stage2",
       "reason": "Salario: dato personal. Requiere calculadora aislada en otro origen."
     },
+    "/calculadoras/horas-extras/": {
+      "tier": "stage2",
+      "reason": "Salario, horarios y días trabajados: datos personales. Requiere calculadora aislada en otro origen."
+    },
     "/calculadoras/vacaciones/": {
       "tier": "stage2",
       "reason": "Salario y antigüedad: datos personales. Requiere calculadora aislada."

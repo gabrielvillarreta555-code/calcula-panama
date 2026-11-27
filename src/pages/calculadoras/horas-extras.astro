@@ -1,0 +1,314 @@
+---
+/**
+ * CP-TOOL-008 — Calculadora de horas extras (Midnight Functional).
+ * Motor: src/lib/overtime.ts · Parámetros y artículos: src/data/overtime-rules.ts · Interfaz: src/lib/overtime-ui.ts.
+ * Mientras OVERTIME_TOOL.published sea false, la página lleva noindex y no aparece en el sitemap, el buscador ni el catálogo.
+ */
+import Layout from '../../layouts/Layout.astro';
+import FxCrumb from '../../components/fx/FxCrumb.astro';
+import FxIcon from '../../components/fx/FxIcon.astro';
+import EdPicture from '../../components/editorial/EdPicture.astro';
+import Faq from '../../components/Faq.astro';
+import LegalSources from '../../components/LegalSources.astro';
+import { OVERTIME_TOOL } from '../../data/launch';
+import { OVERTIME_RULES } from '../../data/overtime-rules';
+import { calculateLog, calculateQuick, hourlyRate } from '../../lib/overtime';
+import { formatDate, formatMoney } from '../../lib/format';
+
+const path = OVERTIME_TOOL.path;
+const base = import.meta.env.BASE_URL;
+const href = (p: string) => `${base}${p.replace(/^\//, '')}`;
+const related = [
+  { label: 'Salario neto', path: '/calculadoras/salario-neto/', icon: 'wallet' },
+  { label: 'Mi Quincena', path: '/finanzas/mi-quincena/', icon: 'calendar' },
+  { label: 'Décimo tercer mes', path: '/calculadoras/decimo-tercer-mes/', icon: 'calendar' },
+  { label: 'Vacaciones', path: '/calculadoras/vacaciones/', icon: 'sun' }
+] as const;
+
+// Ejemplos verificables, calculados con el mismo motor que la herramienta.
+const h1000 = hourlyRate(1000, 'monthly', 48);
+const q = (minutes: number, overtime: 'd25' | 'n50' | 'n75' | 'none', day: 'normal' | 'descanso' | 'feriado' = 'normal', overLimit = false) =>
+  calculateQuick({ salary: 1000, basis: 'monthly', weeklyHours: 48, minutes, overtime, day, overLimit });
+const ex = { d25: q(120, 'd25'), n50: q(60, 'n50'), n75: q(60, 'n75'), sunday: q(480, 'none', 'descanso'), holiday: q(480, 'none', 'feriado'), chain: q(60, 'd25', 'descanso') };
+const shiftExample = calculateLog([{ id: 'e', date: '2026-11-02', start: '15:00', end: '23:00', breakMinutes: 0, dayKind: 'normal' }], { salary: 1000, basis: 'monthly', weeklyHours: 48, period: 'monthly' });
+const reviewed = formatDate(OVERTIME_RULES.reviewedOn);
+
+const faq = [
+  { q: '¿Cuánto vale una hora extra en Panamá?', a: `Depende de cuándo la trabajas. Sobre el valor de tu hora ordinaria se suma un 25% si es de día, un 50% si es de noche o prolonga una jornada mixta que empezó de día y un 75% si prolonga una jornada nocturna o una mixta que empezó de noche (Código de Trabajo, art. 33). Con B/.1,000 al mes y 48 horas semanales, la hora ordinaria vale ${formatMoney(h1000)} y la extra diurna ${formatMoney(ex.d25.hourValue)}.` },
+  { q: '¿Todas las horas nocturnas son horas extras?', a: 'No. Trabajar de noche no convierte una hora en extraordinaria. La jornada nocturna ordinaria puede durar hasta 7 horas; solo el tiempo que pasa de ese límite —o del límite de tu contrato, si es menor— es extraordinario (arts. 31 y 33).' },
+  { q: '¿Cuánto pagan por trabajar un domingo?', a: 'Si el domingo es tu día de descanso semanal, ese trabajo lleva un recargo del 50% y además tienes derecho a otro día de descanso (art. 48). Si tu descanso es otro día, el recargo se aplica a ese día y no al domingo.' },
+  { q: '¿Cómo se pagan los días feriados?', a: 'El trabajo en un día de fiesta o duelo nacional lleva un recargo del 150% sobre el salario de la jornada ordinaria, que incluye la remuneración del día de descanso, y puedes recibir otro día libre en compensación (art. 49). Con salario fijo, el feriado ya está pagado en tu salario (art. 45): lo adicional es el 150%.' },
+  { q: '¿Qué pasa si trabajo más de 3 horas extras en un día?', a: 'La ley no permite más de 3 horas extraordinarias diarias ni 9 por semana, pero si se trabajan se pagan: el excedente lleva un 75% de recargo adicional, sin perjuicio de las sanciones al empleador (art. 36). La calculadora las cuenta y te avisa.' },
+  { q: '¿Cómo se combinan varios recargos?', a: 'En cadena: primero se aplica el recargo del domingo o del feriado y, sobre el resultado, el de las horas extraordinarias (art. 50). Por ejemplo, una hora extra diurna en tu día de descanso vale 1.5 × 1.25 = 1.875 veces la hora ordinaria.' },
+  { q: '¿Se guardan mis horarios o mi salario?', a: 'No. Todo se calcula en tu dispositivo y se borra al cerrar la página. No pedimos tu nombre, cédula, empresa ni número de empleado. Si quieres conservar el registro, expórtalo en CSV.' }
+];
+const schema = {
+  '@context': 'https://schema.org', '@type': 'WebApplication', name: 'Calculadora de horas extras Panamá',
+  url: new URL(path, Astro.site ?? Astro.url.origin).toString(), applicationCategory: 'FinanceApplication', operatingSystem: 'Web',
+  inLanguage: 'es-PA', isAccessibleForFree: true, offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' }
+};
+---
+<Layout title="Calculadora de horas extras en Panamá 2026" description="Calcula el valor de tus horas extras en Panamá: recargos del 25%, 50% y 75%, jornadas nocturnas y mixtas, domingos y feriados, con registro de turnos y fuentes del Código de Trabajo." canonicalPath={path} schema={schema} variant="functional" noindex={!OVERTIME_TOOL.published}>
+<div class="fx-wrap">
+  <FxCrumb items={[{ label: 'Horas extras', path }]} category={{ label: 'Trabajo', path: '/herramientas/#trabajo' }} />
+  <div class="fx-title"><FxIcon name="clock" size={22} framed class="is-lg" /><h1><span class="visually-hidden">Calculadora de </span><span class="fx-cap">horas extras</span></h1></div>
+  <p class="fx-lede">Calcula cuánto te corresponde por horas extraordinarias, trabajo nocturno, domingos y feriados según el Código de Trabajo de Panamá.</p>
+
+  <div class="fx-tool fx-overtime" id="ot-app" data-mode="quick">
+    <!-- Resultado principal -->
+    <section class="fx-panel fx-o1" id="ot-hero" aria-labelledby="ot-hero-label" aria-live="polite">
+      <span class="fx-overline" id="ot-hero-label" data-ot-hero-label>Pago por horas extras (bruto estimado)</span>
+      <strong class="fx-amount" data-ot="total">B/. —</strong>
+      <p class="fx-conditional" id="ot-conditional" hidden><FxIcon name="info" size={16} />Estimación condicionada: lee los avisos de abajo.</p>
+      <p class="fx-sub" data-ot="caption">Escribe tu salario y tus horas para ver el cálculo.</p>
+      <div class="fx-stats">
+        <div class="fx-stat"><span><FxIcon name="clock" size={16} />Horas extras</span><strong data-ot="extraHours">—</strong></div>
+        <div class="fx-stat"><span><FxIcon name="banknote" size={16} />Hora ordinaria</span><strong data-ot="hourly">—</strong></div>
+      </div>
+      <div class="fx-split" id="ot-split" role="img" aria-label="Distribución por recargo"></div>
+      <ul class="fx-legend" id="ot-legend"></ul>
+      <ul class="fx-alerts" id="ot-alerts" aria-label="Avisos del cálculo"></ul>
+    </section>
+
+    <!-- Configuración -->
+    <div class="fx-o2 fx-col-side" style="display:grid;gap:16px">
+      <section class="fx-panel" aria-labelledby="ot-salary-title">
+        <h2 class="fx-panel-title" id="ot-salary-title"><span style="display:flex;align-items:center;gap:10px"><FxIcon name="wallet" />Tu salario</span></h2>
+        <form class="fx-form" id="ot-settings" novalidate>
+          <div>
+            <label class="fx-label" for="ot-salary">Salario bruto</label>
+            <div class="fx-money"><span class="fx-prefix" aria-hidden="true">B/.</span><input id="ot-salary" name="salary" type="text" inputmode="decimal" autocomplete="off" placeholder="1,000.00" aria-describedby="ot-hourly-help" /><FxIcon name="pencil" size={18} /></div>
+          </div>
+          <div>
+            <span class="fx-label" id="ot-basis-label">Se paga</span>
+            <fieldset class="fx-segmented" aria-labelledby="ot-basis-label">
+              <label><input type="radio" name="basis" value="monthly" checked />Mensual</label>
+              <label><input type="radio" name="basis" value="fortnightly" />Quincenal</label>
+              <label><input type="radio" name="basis" value="weekly" />Semanal</label>
+              <label><input type="radio" name="basis" value="hourly" />Por hora</label>
+            </fieldset>
+          </div>
+          <div class="fx-grid-2">
+            <div><label class="fx-label" for="ot-shift">Tu jornada habitual</label><div class="fx-select"><select id="ot-shift" name="shift"><option value="diurna">Diurna (48 h/semana)</option><option value="mixta">Mixta (45 h/semana)</option><option value="nocturna">Nocturna (42 h/semana)</option></select><FxIcon name="chevronDown" size={18} /></div></div>
+            <div><label class="fx-label" for="ot-weekly">Horas ordinarias por semana</label><input id="ot-weekly" name="weekly" type="text" inputmode="decimal" autocomplete="off" value="48" /></div>
+          </div>
+          <p class="fx-hint" id="ot-hourly-help">Usa las horas de tu contrato si son menos que el máximo legal. Con salario fijo, la hora ordinaria = salario mensual ÷ (horas semanales × 4⅓).</p>
+          <p class="fx-error" id="ot-settings-error" role="alert"></p>
+        </form>
+      </section>
+
+      <div>
+        <span class="fx-label" id="ot-mode-label">Modo de cálculo</span>
+        <fieldset class="fx-segmented fx-mode" aria-labelledby="ot-mode-label">
+          <label><input type="radio" name="ot-mode" value="quick" checked />Rápido</label>
+          <label><input type="radio" name="ot-mode" value="log" />Registro de jornadas</label>
+        </fieldset>
+      </div>
+
+      <!-- Modo rápido -->
+      <section class="fx-panel" id="ot-quick" aria-labelledby="ot-quick-title">
+        <h2 class="fx-panel-title" id="ot-quick-title"><span style="display:flex;align-items:center;gap:10px"><FxIcon name="calculator" />Horas a calcular</span></h2>
+        <form class="fx-form" id="ot-quick-form" novalidate>
+          <div class="fx-grid-2">
+            <div><label class="fx-label" for="ot-hours">Horas</label><input id="ot-hours" name="hours" type="text" inputmode="numeric" autocomplete="off" placeholder="0" /></div>
+            <div><label class="fx-label" for="ot-minutes">Minutos</label><input id="ot-minutes" name="minutes" type="text" inputmode="numeric" autocomplete="off" placeholder="0" /></div>
+          </div>
+          <div>
+            <span class="fx-label" id="ot-rate-label">Recargo de las horas extraordinarias</span>
+            <div class="fx-choices" role="radiogroup" aria-labelledby="ot-rate-label">
+              <label class="fx-choice"><input type="radio" name="overtime" value="d25" checked /><FxIcon name="sun" size={20} /><span><strong>25% · de día</strong><small>Prolongan una jornada diurna dentro de 6 a.m.–6 p.m.</small></span></label>
+              <label class="fx-choice"><input type="radio" name="overtime" value="n50" /><FxIcon name="moon" size={20} /><span><strong>50% · de noche</strong><small>De 6 p.m. a 6 a.m., o prolongan una jornada mixta que empezó de día</small></span></label>
+              <label class="fx-choice"><input type="radio" name="overtime" value="n75" /><FxIcon name="moon" size={20} /><span><strong>75% · prolongación nocturna</strong><small>Prolongan una jornada nocturna o una mixta que empezó de noche</small></span></label>
+              <label class="fx-choice"><input type="radio" name="overtime" value="none" /><FxIcon name="calendar" size={20} /><span><strong>No son horas extra</strong><small>Horas ordinarias en domingo, descanso o feriado</small></span></label>
+            </div>
+          </div>
+          <div><label class="fx-label" for="ot-day">Día trabajado</label><div class="fx-select"><select id="ot-day" name="day"><option value="normal">Día laborable</option><option value="descanso">Domingo o descanso semanal (+50%)</option><option value="feriado">Fiesta o duelo nacional (+150%)</option></select><FxIcon name="chevronDown" size={18} /></div></div>
+          <label class="fx-check"><input type="checkbox" name="overLimit" id="ot-overlimit" /><span>Estas horas superan las 3 extraordinarias del día o las 9 de la semana (+75% adicional, art. 36)</span></label>
+          <p class="fx-error" id="ot-quick-error" role="alert"></p>
+        </form>
+        <ul class="fx-rows fx-receipt" id="ot-quick-rows" aria-label="Desglose" hidden>
+          <li><span class="fx-row-label">Valor de la hora ordinaria</span><strong data-ot="qHourly"></strong></li>
+          <li><span class="fx-row-label">Valor de la hora con recargo<small data-ot="qParts"></small></span><strong data-ot="qHourValue"></strong></li>
+          <li><span class="fx-row-label">Importe del recargo<small>Lo que se suma a la paga normal de esas horas</small></span><strong data-ot="qSurcharge"></strong></li>
+          <li class="is-total"><span class="fx-row-label">Total bruto</span><strong data-ot="qTotal"></strong></li>
+        </ul>
+      </section>
+
+      <!-- Registro de jornadas -->
+      <section class="fx-panel" id="ot-log" aria-labelledby="ot-log-title" hidden>
+        <h2 class="fx-panel-title" id="ot-log-title"><span style="display:flex;align-items:center;gap:10px"><FxIcon name="calendar" />Registrar jornada</span></h2>
+        <form class="fx-form" id="ot-entry-form" novalidate>
+          <div><label class="fx-label" for="ot-date">Fecha de inicio</label><input id="ot-date" name="date" type="date" required /></div>
+          <p class="fx-hint" id="ot-holiday-hint" role="status"></p>
+          <div class="fx-grid-2">
+            <div><label class="fx-label" for="ot-start">Entrada</label><input id="ot-start" name="start" type="time" required /></div>
+            <div><label class="fx-label" for="ot-end">Salida</label><input id="ot-end" name="end" type="time" required /></div>
+            <div><label class="fx-label" for="ot-break">Descanso (minutos)</label><input id="ot-break" name="break" type="text" inputmode="numeric" autocomplete="off" value="0" /></div>
+            <div><label class="fx-label" for="ot-daykind">Tipo de día</label><div class="fx-select"><select id="ot-daykind" name="dayKind"><option value="normal">Día laborable</option><option value="descanso">Domingo o descanso semanal (+50%)</option><option value="feriado">Fiesta o duelo nacional (+150%)</option><option value="libre">Día libre de semana corta (+50% / +75%)</option><option value="compensatorio">Día compensatorio (+50%)</option></select><FxIcon name="chevronDown" size={18} /></div></div>
+          </div>
+          <div id="ot-next-wrap" hidden><label class="fx-label" for="ot-nextkind">La jornada termina al día siguiente. Tipo de ese día</label><div class="fx-select"><select id="ot-nextkind" name="nextDayKind"><option value="normal">Día laborable</option><option value="descanso">Domingo o descanso semanal (+50%)</option><option value="feriado">Fiesta o duelo nacional (+150%)</option><option value="libre">Día libre de semana corta</option><option value="compensatorio">Día compensatorio (+50%)</option></select><FxIcon name="chevronDown" size={18} /></div></div>
+          <details class="fx-details">
+            <summary><FxIcon name="sliders" size={18} />Descanso y contrato<span class="fx-chev"><FxIcon name="chevronDown" size={18} /></span></summary>
+            <div class="fx-details-body">
+              <div><label class="fx-label" for="ot-breakstart">Hora en que empieza el descanso (opcional)</label><input id="ot-breakstart" name="breakStart" type="time" /></div>
+              <label class="fx-check"><input type="checkbox" name="breakPaid" id="ot-breakpaid" /><span>Durante el descanso no puedo salir del lugar de trabajo: cuenta como tiempo trabajado (art. 34).</span></label>
+              <div class="fx-grid-2">
+                <div><label class="fx-label" for="ot-contract-start">Mi horario contratado: entrada</label><input id="ot-contract-start" name="contractStart" type="time" /></div>
+                <div><label class="fx-label" for="ot-contract-end">Mi horario contratado: salida</label><input id="ot-contract-end" name="contractEnd" type="time" /></div>
+              </div>
+              <p class="fx-hint">Opcional. Con tu horario contratado, la jornada se clasifica con ese horario (art. 30) y el tiempo trabajado fuera de él cuenta como extra (art. 33), también si entras antes.</p>
+              <div><label class="fx-label" for="ot-contract">Horas ordinarias diarias de mi contrato (si son menos que el máximo legal)</label><input id="ot-contract" name="contract" type="text" inputmode="decimal" autocomplete="off" placeholder="Máximo legal" /></div>
+            </div>
+          </details>
+          <p class="fx-error" id="ot-entry-error" role="alert"></p>
+          <div class="fx-actions-inline">
+            <button class="fx-btn is-block" type="submit" id="ot-entry-submit"><FxIcon name="plus" size={20} />Añadir jornada</button>
+            <button class="fx-btn is-ghost" type="button" id="ot-entry-cancel" hidden>Cancelar edición</button>
+          </div>
+        </form>
+      </section>
+    </div>
+
+    <!-- Lista y resumen del registro -->
+    <section class="fx-panel fx-o3" id="ot-list-panel" aria-labelledby="ot-list-title" hidden>
+      <h2 class="fx-panel-title" id="ot-list-title">Jornadas registradas <span class="fx-meta"><span id="ot-count">0</span> registros</span></h2>
+      <div><label class="fx-label" for="ot-period">Período del resumen</label><div class="fx-select"><select id="ot-period" name="period"><option value="weekly">Semanal</option><option value="fortnightly" selected>Quincenal</option><option value="monthly">Mensual</option></select><FxIcon name="chevronDown" size={18} /></div></div>
+      <p class="fx-sub" id="ot-empty">Añade tu primera jornada para ver el desglose de cada día.</p>
+      <ul class="fx-rows fx-shift-list" id="ot-list" aria-label="Jornadas"></ul>
+      <div class="fx-stats fx-stats-compact" id="ot-summary" hidden>
+        <div class="fx-stat"><span>Días registrados</span><strong data-ot="days">0</strong></div>
+        <div class="fx-stat"><span>Horas ordinarias</span><strong data-ot="ordinaryHours">0 h</strong></div>
+        <div class="fx-stat"><span>Horas extraordinarias</span><strong data-ot="logExtra">0 h</strong></div>
+        <div class="fx-stat"><span>Sobre el límite legal</span><strong data-ot="overLimit">0 h</strong></div>
+        <div class="fx-stat"><span data-ot="periodLabel">Salario del período</span><strong data-ot="periodSalary">—</strong></div>
+        <div class="fx-stat"><span>Salario más adicionales</span><strong data-ot="grandTotal">—</strong></div>
+      </div>
+      <p class="fx-hint" style="margin-top:12px">Cada importe se redondea a centavos para mostrarlo; los totales se calculan sin redondeos intermedios.</p>
+    </section>
+
+    <section class="fx-panel fx-o4" id="ot-dist-panel" aria-labelledby="ot-dist-title" hidden>
+      <h2 class="fx-panel-title" id="ot-dist-title">Distribución por recargo</h2>
+      <ul class="fx-dist" id="ot-dist" aria-label="Importe por tipo de recargo"></ul>
+    </section>
+
+    <div class="fx-o5">
+      <div class="fx-actions fx-actions-4" role="group" aria-label="Acciones del cálculo">
+        <button class="fx-action" type="button" id="ot-copy"><FxIcon name="copy" size={20} />Copiar</button>
+        <button class="fx-action" type="button" id="ot-share"><FxIcon name="share" size={20} />Compartir</button>
+        <button class="fx-action" type="button" id="ot-csv"><FxIcon name="download" size={20} />CSV</button>
+        <button class="fx-action" type="button" id="ot-reset"><FxIcon name="reset" size={20} />Reiniciar</button>
+      </div>
+      <p class="fx-status" id="ot-status" role="status"></p>
+      <p class="fx-hint" style="display:flex;gap:8px;align-items:center"><FxIcon name="lock" size={16} />Se calcula en tu dispositivo. No se guarda ni se envía, y no pedimos nombre, cédula ni empresa.</p>
+    </div>
+
+    <div class="fx-o6">
+      <a class="fx-linkrow" href="#como-se-calcula"><FxIcon name="book" size={20} /><span>Metodología y fuentes oficiales</span><FxIcon name="chevronRight" size={18} /></a>
+      <h2 class="fx-section-label">Herramientas relacionadas</h2>
+      <ul class="fx-related">{related.map(r => <li><a class="fx-linkrow" href={href(r.path)}><FxIcon name={r.icon} size={20} /><span>{r.label}</span><FxIcon name="arrowUpRight" size={18} /></a></li>)}</ul>
+    </div>
+  </div>
+
+  <div class="fx-dock" id="ot-dock" hidden>
+    <div class="fx-dock-inner">
+      <div><span class="fx-overline">Adicional acumulado</span><strong data-ot="dockTotal">B/. 0.00</strong></div>
+      <button class="fx-btn" type="button" id="ot-dock-add"><FxIcon name="plus" size={20} />Jornada</button>
+    </div>
+  </div>
+
+  <article class="fx-prose">
+    <figure class="fx-figure">
+      <EdPicture name="horas-extras" ratio="16/9" sizes="(min-width: 960px) 760px, 100vw" alt="Escritorio con un reloj despertador, una calculadora, una libreta con bolígrafo y una computadora portátil." />
+      <figcaption><span>Imagen ilustrativa</span><span>Recurso de Calcula Panamá</span></figcaption>
+    </figure>
+    <p class="fx-meta-line">Actualizado el {reviewed} con el texto del Código de Trabajo. Estimación orientativa: no sustituye tu comprobante de pago ni una consulta a MITRADEL.</p>
+
+    <h2 id="como-se-calcula">Cómo calcular las horas extras en Panamá</h2>
+    <p>Una hora extra es el tiempo que trabajas por encima del límite de tu jornada: el de la ley o el de tu contrato, si es menor (art. 33). Para calcular su pago se siguen tres pasos.</p>
+    <ol>
+      <li><strong>Saca el valor de tu hora ordinaria.</strong> Si cobras por hora, ya lo tienes. Si cobras un salario fijo, divídelo entre las horas que cubre.</li>
+      <li><strong>Averigua el recargo.</strong> Depende de tu jornada y del momento en que haces la hora extra: 25%, 50% o 75% (art. 33).</li>
+      <li><strong>Multiplica</strong> el valor de la hora por (1 + recargo) y por las horas trabajadas. Si además es domingo, feriado o superas el límite legal, los recargos se encadenan (art. 50).</li>
+    </ol>
+    <p class="formula">Hora ordinaria (salario mensual) = salario ÷ (horas semanales × 4⅓)</p>
+    <p class="formula">Pago de la hora extra = hora ordinaria × (1 + recargo) × horas</p>
+
+    <h3>Cómo calcular horas extras con salario mensual</h3>
+    <p>El Código de Trabajo no fija un divisor para pasar un salario mensual a valor por hora. Esta calculadora usa la equivalencia de 4⅓ semanas por mes, la misma con la que el artículo 54 paga las vacaciones a quien cobra por semana. Con B/.1,000 al mes y una jornada diurna de 48 horas semanales: 1,000 ÷ (48 × 4⅓) = 1,000 ÷ 208 = <strong>{formatMoney(h1000)}</strong> por hora. Si cobras por quincena, se toma el doble como salario mensual. Algunas empresas usan otro divisor.</p>
+    <p class="fx-meta-line"><strong>Estimación condicionada.</strong> Ni el Código de Trabajo (el art. 142 permite fijar el salario por mes, quincena, semana, día u hora) ni el Decreto Ejecutivo 13 de 2025, que fija el salario mínimo por hora, establecen cómo convertir un salario mensual en valor por hora. Si tu comprobante de pago indica el valor de tu hora, elige «Por hora» y escríbelo: así el resultado no depende de este criterio.</p>
+
+    <h2>Cuánto vale una hora extra</h2>
+    <div class="table-wrap">
+      <table>
+        <caption>Con salario de B/.1,000 al mes y 48 horas semanales (hora ordinaria {formatMoney(h1000)}).</caption>
+        <thead><tr><th scope="col">Caso</th><th scope="col">Recargo</th><th scope="col">Valor de la hora</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Extra diurna</th><td>25%</td><td>{formatMoney(ex.d25.hourValue)}</td></tr>
+          <tr><th scope="row">Extra nocturna o de jornada mixta iniciada de día</th><td>50%</td><td>{formatMoney(ex.n50.hourValue)}</td></tr>
+          <tr><th scope="row">Prolongación de jornada nocturna o mixta iniciada de noche</th><td>75%</td><td>{formatMoney(ex.n75.hourValue)}</td></tr>
+          <tr><th scope="row">Hora en domingo o descanso semanal</th><td>50%</td><td>{formatMoney(ex.sunday.hourValue)}</td></tr>
+          <tr><th scope="row">Hora en fiesta o duelo nacional</th><td>150%</td><td>{formatMoney(ex.holiday.hourValue)}</td></tr>
+          <tr><th scope="row">Extra diurna en el día de descanso</th><td>50% y luego 25%</td><td>{formatMoney(ex.chain.hourValue)}</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Ejemplo: 2 horas extras diurnas con ese salario = {formatMoney(h1000)} × 1.25 × 2 = <strong>{formatMoney(ex.d25.total)}</strong>.</p>
+
+    <h2>Diferencia entre jornada diurna, nocturna y mixta</h2>
+    <p>El día se divide en dos períodos: diurno, de 6 a.m. a 6 p.m., y nocturno, de 6 p.m. a 6 a.m. (art. 30). El tipo de jornada se decide por cuántas horas caen en el período nocturno, no por el nombre del turno:</p>
+    <ul>
+      <li><FxIcon name="sun" size={16} /> <strong>Diurna:</strong> toda dentro del período diurno. Máximo 8 horas diarias y 48 semanales.</li>
+      <li><FxIcon name="moon" size={16} /> <strong>Nocturna:</strong> más de tres horas dentro del período nocturno. Máximo 7 horas diarias y 42 semanales.</li>
+      <li><strong>Mixta:</strong> combina ambos períodos con tres horas nocturnas o menos. Máximo 7 horas y media diarias y 45 semanales (art. 31).</li>
+    </ul>
+    <p>Por eso un turno de 3 p.m. a 11 p.m. tiene cinco horas nocturnas y es una jornada <strong>nocturna</strong>: su máximo ordinario es de 7 horas y la octava hora es extra con 75% de recargo. Con B/.1,000 al mes, esa hora suma <strong>{formatMoney(shiftExample.additional)}</strong>.</p>
+
+    <h2>Cómo calcular horas extras nocturnas</h2>
+    <p>Trabajar de noche no es, por sí solo, trabajar horas extras. Lo que cambia es el recargo de las horas que sí pasan del límite:</p>
+    <ul>
+      <li>Si tu jornada es diurna y te quedas después de las 6 p.m., esas horas extras llevan un 50%.</li>
+      <li>Si tu jornada es mixta y empezó de día, toda su prolongación lleva un 50%.</li>
+      <li>Si tu jornada es nocturna, o mixta iniciada de noche, su prolongación lleva un 75%, aunque ya sea de día.</li>
+    </ul>
+    <p>Los turnos que cruzan la medianoche se calculan como una sola jornada. En el registro, si la salida es anterior a la entrada, se entiende que terminas al día siguiente.</p>
+
+    <h2>Cuánto pagan por trabajar un domingo</h2>
+    <p>El trabajo en domingo, o en el día de descanso semanal que tengas pactado en su lugar, se paga con un recargo del 50% sobre la jornada ordinaria y te da derecho a otro día de descanso (arts. 41 y 48). Si también trabajas ese día compensatorio, lleva otro 50%. Si tu semana es de menos de seis días, el trabajo en tus días libres lleva un 50% en jornada diurna y un 75% en mixta o nocturna (art. 49).</p>
+    <p class="fx-meta-line"><strong>Estimación condicionada con salario fijo.</strong> El artículo 48 no precisa si un salario mensual ya paga las horas del día de descanso. La calculadora supone que no: suma esas horas completas más el 50%. Si tu empleador considera que el salario ya cubre ese día, lo adicional sería solo el 50%. La calculadora te muestra las dos cifras.</p>
+
+    <h2>Cómo se pagan los días feriados</h2>
+    <p>Los días de fiesta o duelo nacional del artículo 46 se descansan con salario (art. 45). Si trabajas, el recargo es del 150% sobre el salario de la jornada ordinaria, que incluye la remuneración de ese descanso (art. 49). Así lo explica MITRADEL: con un salario diario de B/.20.00, el recargo es de B/.30.00 y el día trabajado se paga en total B/.50.00, es decir, 2.5 veces la jornada. Con salario fijo, el día ya está pagado en tu salario y lo adicional es el 150%: con B/.1,000 al mes, 8 horas en un feriado suman {formatMoney(ex.holiday.surcharge)} a tu salario.</p>
+    <p>El 20 de diciembre es día de duelo nacional y de descanso obligatorio desde la Ley 291 de 2022, que lo añadió al artículo 46 (Gaceta Oficial 29507-B, 31 de marzo de 2022).</p>
+    <p>Si un feriado cae en domingo, el lunes siguiente es descanso obligatorio (art. 47). La calculadora sugiere los días del artículo 46, pero eres tú quien marca el tipo de día: los días puente que decrete el Órgano Ejecutivo no se pueden saber de antemano.</p>
+
+    <h2>Límites legales de las horas extras</h2>
+    <p>No se pueden trabajar más de 3 horas extraordinarias en un día ni más de 9 en una semana, y no se permiten en trabajos peligrosos o insalubres ni a menores de 16 años (art. 36). Si se superan, las horas igualmente se pagan, con un <strong>75% de recargo adicional</strong> sobre el excedente. La calculadora no descarta esas horas: las paga con ese recargo y te avisa.</p>
+
+    <h2>Qué hace el registro de jornadas</h2>
+    <ul>
+      <li>Clasifica cada jornada con las horas que realmente caen de noche, no con el nombre del turno. Si indicas tu horario contratado, la clasifica con ese horario (art. 30), y lo que trabajes fuera de él, antes o después, cuenta como extra (art. 33).</li>
+      <li>Separa las horas ordinarias de las extraordinarias con el límite diario y el semanal (de lunes a domingo).</li>
+      <li>Aplica el recargo de cada minuto según el momento y el día en que lo trabajas, incluso si la jornada empieza en un feriado y termina en un día normal.</li>
+      <li>Descuenta el descanso no pagado, porque la jornada es el tiempo que no puedes usar libremente (art. 33). Si no indicas su hora, lo ubica a mitad de tu horario contratado o de la jornada ordinaria. Si no puedes salir del lugar de trabajo para comer, puedes contarlo como tiempo trabajado (art. 34).</li>
+      <li>No cuenta dos veces una jornada duplicada o solapada: te la señala y la excluye.</li>
+    </ul>
+
+    <h2>Lo que esta calculadora no incluye</h2>
+    <ul>
+      <li>Descuentos de Seguro Social, Seguro Educativo o ISR sobre las horas extras: el resultado es bruto. Para el neto, usa la <a href={href('/calculadoras/salario-neto/')}>calculadora de salario neto</a> con tus horas extras como ingreso variable.</li>
+      <li>Salarios con comisiones o primas, donde el recargo se calcula sobre el promedio del período de pago (art. 148).</li>
+      <li>Regímenes especiales o convenciones colectivas con recargos mayores, ni sectores con normas propias.</li>
+      <li>Días puente decretados por el Órgano Ejecutivo y otras fechas que debes marcar tú.</li>
+    </ul>
+
+    <Faq items={faq} />
+    <LegalSources sources={['laborCodeOvertime', 'law291', 'minimumWage2025', 'mitradelHolidays', 'mitradel']} reviewedOn={OVERTIME_RULES.reviewedOn} />
+  </article>
+</div>
+</Layout>
+
+<script>
+  import { mountOvertime } from '../../lib/overtime-ui';
+  const app = document.querySelector<HTMLElement>('#ot-app');
+  if (app) mountOvertime(app);
+</script>

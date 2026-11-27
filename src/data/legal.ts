@@ -75,6 +75,30 @@ export const OFFICIAL_SOURCES = {
     detail: 'Arts. 54 (vacaciones), 74, 75 y 77 (contratos definidos), 78 (período probatorio), 149 (salario base), 212 (preaviso), 213 C, 215, 223, 224, 225, 226 y 227 (prima e indemnizaciones).',
     url: 'https://www.organojudicial.gob.pa/uploads/wp_repo/uploads/2016/11/c%C3%B3digo-detrabajo.pdf'
   },
+  laborCodeOvertime: {
+    institution: 'Órgano Judicial / MITRADEL (recopilación MITRADEL–OIT)',
+    title: 'Código de Trabajo: jornada, horas extraordinarias y descansos',
+    detail: 'Arts. 30 (períodos y tipos de jornada), 31 (límites diarios y semanales), 32 (turnos rotativos), 33 (recargos de 25%, 50% y 75%), 34 (tiempo computable), 36 (máximo de 3 horas extra diarias y 9 semanales y 75% adicional), 39 (descansos), 45 a 49 (descanso semanal, días libres, fiestas y duelo nacional) y 50 (acumulación de recargos).',
+    url: 'https://www.organojudicial.gob.pa/uploads/wp_repo/uploads/2016/11/c%C3%B3digo-detrabajo.pdf'
+  },
+  law291: {
+    institution: 'Gaceta Oficial 29507-B (copia de la Procuraduría de la Administración)',
+    title: 'Ley 291 de 2022, que adopta medidas de concientización nacional sobre el 20 de diciembre de 1989',
+    detail: 'Art. 7: añade el 20 de diciembre al numeral 2 del artículo 46 del Código de Trabajo (duelo nacional, descanso obligatorio).',
+    url: 'https://gacetas.procuraduria-admon.gob.pa/29507-B_57996.pdf'
+  },
+  minimumWage2025: {
+    institution: 'Gaceta Oficial 30438 (copia de LEGISPAN, Asamblea Nacional)',
+    title: 'Decreto Ejecutivo 13 de 31 de diciembre de 2025, que fija las tasas de salario mínimo',
+    detail: 'Arts. 1 y 2: el salario mínimo se fija por hora; no establece una conversión de salario mensual a valor por hora.',
+    url: 'https://s3-legispan.asamblea.gob.pa/legispan/GACETAS/2020/2026/30438_2026.pdf'
+  },
+  mitradelHolidays: {
+    institution: 'Ministerio de Trabajo y Desarrollo Laboral',
+    title: 'Disposiciones salariales para quienes laboren durante las fiestas patrias (1 de noviembre de 2025)',
+    detail: 'Art. 49: recargo del 150% sobre el salario de la jornada ordinaria; ejemplo oficial de B/.20 + B/.30 = B/.50 por el día trabajado.',
+    url: 'https://www.mitradel.gob.pa/mitradel-informa-disposiciones-salariales-para-los-trabajadores-del-sector-privado-que-laboren-durante-las-fiestas-patrias/'
+  },
   css: {
     institution: 'Caja de Seguro Social (Gaceta Oficial 30284-B de 2025)',
     title: 'Texto único de la Ley 51 de 2005, con las reformas de la Ley 462 de 2025',

@@ -4,12 +4,15 @@
  */
 import { CALCULATORS, GUIDES } from '../data/site';
 import { expansionTools, vehicleTools } from '../data/expansion-tools';
+import { OVERTIME_TOOL } from '../data/launch';
 
 export interface SearchEntry { t: string; p: string; c: string }
 
 export function searchIndex(href: (path: string) => string): SearchEntry[] {
   return [
     ...CALCULATORS.map(c => ({ t: c.label, p: c.path, c: 'Trabajo' })),
+    // CP-TOOL-008: entra en el buscador solo cuando se autorice su publicación.
+    ...(OVERTIME_TOOL.published ? [{ t: 'Calculadora de horas extras', p: OVERTIME_TOOL.path, c: 'Trabajo' }] : []),
     { t: 'Mi Quincena', p: '/finanzas/mi-quincena/', c: 'Finanzas' },
     { t: 'Calculadora de préstamos', p: '/finanzas/calculadora-prestamos/', c: 'Finanzas' },
     { t: 'Modo Pasillo', p: '/compras/modo-pasillo/', c: 'Compras' },
