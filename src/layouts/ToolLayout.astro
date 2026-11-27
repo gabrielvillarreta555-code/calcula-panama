@@ -1,61 +1,83 @@
 ---
+/**
+ * Plantilla de las herramientas generadas desde src/data/expansion-tools.ts, en Midnight Functional (CP-DESIGN-008).
+ * Reutiliza los componentes aprobados de CP-DESIGN-007 (FxCrumb, FxIcon, fx-panel, fx-form, fx-btn…). Conserva los
+ * ganchos data-* y .tool-row que usa src/scripts/expansion-tools.ts, los ids de los campos y el <head> (título,
+ * descripción, canónica y BreadcrumbList) de la versión anterior.
+ */
 import Layout from './Layout.astro';
 import ToolField from '../components/tools/ToolField.astro';
 import Faq from '../components/Faq.astro';
+import FxCrumb from '../components/fx/FxCrumb.astro';
+import FxIcon from '../components/fx/FxIcon.astro';
 import type { Tool } from '../data/expansion-tools';
-import '../styles/expansion-tools.css';
+import type { FxIconName } from '../lib/fx-icons';
 interface Props { tool: Tool }
 const { tool } = Astro.props;
 const href = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\//, '')}`;
 const categoryId = ({ Compras: 'compras', Finanzas: 'finanzas', Educación: 'educacion', 'Vida cotidiana': 'vida-cotidiana', Vehículos: 'vehiculos' } as Record<string,string>)[tool.category];
+const icon = ({ Compras: 'tag', Finanzas: 'piggy', Educación: 'graduation', 'Vida cotidiana': 'bolt', Vehículos: 'bus' } as Record<string, FxIconName>)[tool.category] ?? 'calculator';
 const checkedOn = tool.checkedOn ?? '2026-11-16';
 const checkedLabel = new Intl.DateTimeFormat('es-PA', { dateStyle: 'long', timeZone: 'UTC' }).format(new Date(`${checkedOn}T00:00:00Z`));
+// Datos estructurados idénticos a la versión anterior.
 const schema = { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
   { '@type': 'ListItem', position: 1, name: 'Herramientas', item: new URL('herramientas/', Astro.site).href },
   { '@type': 'ListItem', position: 2, name: tool.title, item: new URL(tool.path.slice(1), Astro.site).href },
 ] };
 ---
-<Layout title={`${tool.title} | Calcula Panamá`} description={tool.description} canonicalPath={tool.path} schema={schema}>
-  <div class="container tools-page">
-    <nav class="tool-breadcrumb" aria-label="Ruta de navegación"><a href={href('/herramientas/')}>Herramientas</a> / <a href={href(`/herramientas/#${categoryId}`)}>{tool.category}</a></nav>
-    <header class="tool-heading"><p class="eyebrow">{tool.category} · Calcula Panamá</p><h1>{tool.title}</h1><p>{tool.intro}</p></header>
-    <div class="tool-grid" data-tool={tool.id}>
-      <form class="tool-panel" novalidate>
-        <h2>Introduce tus datos</h2>
-        <p class="muted">Puedes usar coma o punto decimal, sin separadores de miles. Los campos opcionales se indican.</p>
-        <div class="tool-fields">{tool.fields.map(field => <ToolField field={field} prefix={tool.id} />)}</div>
-        {tool.rowFields && <>
-          <div data-rows data-min={tool.minRows} data-label={tool.rowLabel}>
-            {Array.from({length: tool.rowCount ?? 2}, (_, i) => <fieldset class="tool-row">
-              <legend>{tool.rowLabel} {i + 1}</legend>
-              <div class="tool-fields">{tool.rowFields!.map(field => <ToolField field={field} prefix={`${tool.id}-${i}`} />)}</div>
-              <button type="button" data-remove class="button secondary">Eliminar {tool.rowLabel?.toLowerCase()} {i + 1}</button>
-            </fieldset>)}
-          </div>
-          <button type="button" data-add class="button secondary">Añadir {tool.rowLabel?.toLowerCase()}</button>
-        </>}
-        <p class="tool-error" role="alert" tabindex="-1" data-error hidden></p>
-        <div class="tool-actions"><button class="button primary" type="submit" disabled>Calcular</button><button class="button secondary" type="reset">Limpiar</button></div>
-        <p data-nojs>Activa JavaScript para calcular. Puedes leer la fórmula y el ejemplo a continuación.</p>
-        <p class="muted">Tus datos se procesan en esta pestaña y no se guardan ni se envían. Al recargar se pierden.</p>
-      </form>
-      <section class="tool-panel tool-result" aria-labelledby="result-title">
-        <h2 id="result-title">Tu resultado</h2>
-        <p data-placeholder>Completa los datos y pulsa Calcular.</p>
-        <div data-result role="status" aria-live="polite" aria-atomic="true"></div>
-        <div data-details></div>
-      </section>
+<Layout title={`${tool.title} | Calcula Panamá`} description={tool.description} canonicalPath={tool.path} schema={schema} variant="functional">
+<div class="fx-wrap">
+  <FxCrumb items={[{ label: tool.title, path: tool.path }]} category={{ label: tool.category, path: `/herramientas/#${categoryId}` }} schema={false} />
+  <div class="fx-title"><FxIcon name={icon} size={22} framed class="is-lg" /><h1>{tool.title}</h1></div>
+  <p class="fx-lede">{tool.intro}</p>
+
+  <div class="fx-tool fx-generated" data-tool={tool.id}>
+    <section class="fx-panel fx-o1 tool-result" aria-labelledby="result-title" aria-live="polite">
+      <h2 class="fx-overline" id="result-title">Tu resultado</h2>
+      <p class="fx-sub" data-placeholder>Completa los datos y pulsa Calcular.</p>
+      <div class="fx-result" data-result role="status" aria-live="polite" aria-atomic="true"></div>
+      <div class="fx-result-details" data-details></div>
+    </section>
+
+    <form class="fx-panel fx-form fx-col-side fx-o2" novalidate>
+      <h2 class="fx-panel-title"><span style="display:flex;align-items:center;gap:10px"><FxIcon name="sliders" />Introduce tus datos</span></h2>
+      <p class="fx-hint">Puedes usar coma o punto decimal, sin separadores de miles. Los campos opcionales se indican.</p>
+      <div class="tool-fields">{tool.fields.map(field => <ToolField field={field} prefix={tool.id} />)}</div>
+      {tool.rowFields && <>
+        <div data-rows data-min={tool.minRows} data-label={tool.rowLabel}>
+          {Array.from({length: tool.rowCount ?? 2}, (_, i) => <fieldset class="tool-row">
+            <legend>{tool.rowLabel} {i + 1}</legend>
+            <div class="tool-fields">{tool.rowFields!.map(field => <ToolField field={field} prefix={`${tool.id}-${i}`} />)}</div>
+            <button type="button" data-remove class="fx-btn is-ghost">Eliminar {tool.rowLabel?.toLowerCase()} {i + 1}</button>
+          </fieldset>)}
+        </div>
+        <button type="button" data-add class="fx-btn is-ghost"><FxIcon name="plus" size={18} />Añadir {tool.rowLabel?.toLowerCase()}</button>
+      </>}
+      <p class="fx-error" role="alert" tabindex="-1" data-error hidden></p>
+      <div class="fx-actions-inline">
+        <button class="fx-btn is-block" type="submit" disabled><FxIcon name="calculator" size={20} />Calcular</button>
+        <button class="fx-btn is-ghost" type="reset">Limpiar</button>
+      </div>
+      <p class="fx-hint" data-nojs>Activa JavaScript para calcular. Puedes leer la fórmula y el ejemplo a continuación.</p>
+      <p class="fx-hint" style="display:flex;gap:8px;align-items:center;margin:0"><FxIcon name="lock" size={16} />Tus datos se procesan en esta pestaña y no se guardan ni se envían. Al recargar se pierden.</p>
+    </form>
+
+    <div class="fx-o6">
+      <a class="fx-linkrow" href="#como-se-calcula"><FxIcon name="book" size={20} /><span>Metodología y fuentes</span><FxIcon name="chevronRight" size={18} /></a>
+      <h2 class="fx-section-label">Herramientas relacionadas</h2>
+      <ul class="fx-related">{tool.related.map(item => <li><a class="fx-linkrow" href={href(item.path)}><FxIcon name="calculator" size={20} /><span>{item.title}</span><FxIcon name="arrowUpRight" size={18} /></a></li>)}</ul>
     </div>
-    <article class="tool-reading">
-      <section><h2>Cómo usar esta calculadora</h2><ol>{tool.steps.map(step => <li>{step}</li>)}</ol></section>
-      <section><h2>Cómo se calcula</h2><p>{tool.formula}</p></section>
-      <section><h2>Ejemplo verificable</h2><p>{tool.example}</p></section>
-      {tool.context && <section><h2>En la práctica, en Panamá</h2>{tool.context.map(item => <p>{item}</p>)}</section>}
-      <section><h2>Alcance y limitaciones</h2><ul>{tool.limits.map(limit => <li>{limit}</li>)}</ul><p>Resultados orientativos. No son importes oficiales ni certificaciones.</p></section>
-      <section><h2>Fuentes y metodología</h2>{tool.sources.length > 0 && <ul>{tool.sources.map(source => <li><a href={source.url}>{source.title}</a></li>)}</ul>}{tool.sourceNote && <p>{tool.sourceNote}</p>}<p>Metodología de Blue Lab Studios.{tool.sources.length > 0 && <> Fuentes consultadas el <time datetime={checkedOn}>{checkedLabel}</time>.</>}</p></section>
-      {tool.faq && <Faq items={tool.faq} />}
-      <section><h2>Herramientas relacionadas</h2><ul>{tool.related.map(item => <li><a href={href(item.path)}>{item.title}</a></li>)}</ul></section>
-    </article>
   </div>
+
+  <article class="fx-prose tool-reading">
+    <section><h2>Cómo usar esta calculadora</h2><ol>{tool.steps.map(step => <li>{step}</li>)}</ol></section>
+    <section><h2 id="como-se-calcula">Cómo se calcula</h2><p>{tool.formula}</p></section>
+    <section><h2>Ejemplo verificable</h2><p>{tool.example}</p></section>
+    {tool.context && <section><h2>En la práctica, en Panamá</h2>{tool.context.map(item => <p>{item}</p>)}</section>}
+    <section><h2>Alcance y limitaciones</h2><ul>{tool.limits.map(limit => <li>{limit}</li>)}</ul><p>Resultados orientativos. No son importes oficiales ni certificaciones.</p></section>
+    <section><h2>Fuentes y metodología</h2>{tool.sources.length > 0 && <ul>{tool.sources.map(source => <li><a href={source.url}>{source.title}</a></li>)}</ul>}{tool.sourceNote && <p>{tool.sourceNote}</p>}<p>Metodología de Blue Lab Studios.{tool.sources.length > 0 && <> Fuentes consultadas el <time datetime={checkedOn}>{checkedLabel}</time>.</>}</p></section>
+    {tool.faq && <Faq items={tool.faq} />}
+  </article>
+</div>
 </Layout>
 <script>import '../scripts/expansion-tools';</script>

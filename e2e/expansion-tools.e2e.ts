@@ -7,7 +7,7 @@ for (const tool of expansionTools) {
     const response = await request.get(tool.path); expect(response.status()).toBe(200);
     const html = await response.text(); expect(html).toContain(tool.example); expect(html).toContain('Cómo se calcula');
     await page.setViewportSize({ width: 360, height: 800 });
-    await page.goto('/herramientas/'); await page.getByRole('link', { name: tool.title, exact: true }).click();
+    await page.goto('/herramientas/'); await page.locator(`main a[href="${tool.path}"]`).first().click();
     await expect(page).toHaveURL(new RegExp(tool.path));
     await expect(page.locator('h1')).toHaveText(tool.title);
     await expect(page.locator('link[rel=canonical]')).toHaveAttribute('href', `https://calculapanama.com${tool.path}`);

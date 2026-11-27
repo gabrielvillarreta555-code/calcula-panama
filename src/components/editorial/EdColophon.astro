@@ -1,0 +1,78 @@
+---
+/** Colofón, índice a pantalla completa y búsqueda local de Midnight Edition (CP-DESIGN-006), compartidos (CP-DESIGN-008). */
+import { SITE } from '../../data/site';
+import { searchIndex } from '../../lib/search-index';
+interface Props { home?: boolean }
+const { home = false } = Astro.props;
+const base = import.meta.env.BASE_URL;
+const href = (p: string) => `${base}${p.replace(/^\//, '')}`;
+const prefix = home ? '' : href('/');
+const index = searchIndex(href);
+const sections = [
+  { id: 'movilidad', num: '01', name: 'Movilidad' }, { id: 'finanzas', num: '02', name: 'Finanzas' }, { id: 'trabajo', num: '03', name: 'Trabajo' },
+  { id: 'hogar', num: '04', name: 'Hogar y compras' }, { id: 'educacion', num: '05', name: 'Educación' }
+];
+---
+<footer class="wrap colophon">
+  <p class="big" aria-hidden="true">CALCULA<span>.</span></p>
+  <div class="grid cols">
+    <div><span class="label">Movilidad</span><a href={href('/vehiculos/financiamiento-de-auto/')}>Financiamiento</a><a href={href('/vehiculos/combustible-por-viaje/')}>Combustible</a><a href={href('/vehiculos/costo-mensual-de-un-auto/')}>Costo mensual</a></div>
+    <div><span class="label">Finanzas</span><a href={href('/finanzas/calculadora-prestamos/')}>Préstamos</a><a href={href('/finanzas/meta-de-ahorro/')}>Ahorro</a><a href={href('/finanzas/mi-quincena/')}>Mi Quincena</a></div>
+    <div><span class="label">Trabajo</span><a href={href('/calculadoras/salario-neto/')}>Salario neto</a><a href={href('/calculadoras/decimo-tercer-mes/')}>Décimo</a><a href={href('/calculadoras/vacaciones/')}>Vacaciones</a><a href={href('/calculadoras/liquidacion-laboral/')}>Liquidación</a></div>
+    <div><span class="label">Hogar y compras</span><a href={href('/compras/modo-pasillo/')}>Modo Pasillo</a><a href={href('/compras/descuentos-y-promociones/')}>Descuentos</a><a href={href('/compras/precio-por-unidad/')}>Precio por unidad</a><a href={href('/vida-cotidiana/consumo-electrico/')}>Electricidad</a></div>
+    <div><span class="label">Revista</span><a href={href('/guias/')}>Guías</a><a href={href('/educacion/promedio-de-notas/')}>Educación</a><a href={href('/herramientas/')}>Todas las herramientas</a></div>
+    <div><span class="label">Calcula Panamá</span><a href={href('/sobre-nosotros/')}>Sobre nosotros</a><a href={href('/contacto/')}>Contacto</a><a href={href('/privacidad/')}>Privacidad</a><a href={href('/terminos/')}>Términos</a></div>
+  </div>
+  <div class="fine"><span>Una plataforma de Blue Lab Studios</span><span>© {new Date().getFullYear()} {SITE.name}. Resultados orientativos. No somos una entidad del Gobierno de Panamá.</span></div>
+</footer>
+
+<div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-label="Índice y búsqueda">
+  <div class="wrap">
+    <div class="overlay-top"><a class="wordmark" href={href('/')}><b>CALCULA.</b><small>PANAMÁ</small></a><button type="button" data-close>Cerrar</button></div>
+    <label class="search"><span aria-hidden="true">⌕</span><input type="search" placeholder="¿Qué necesitas calcular?" aria-label="Buscar una herramienta" autocomplete="off" data-search="overlay" /></label>
+    <ul class="toollist ed-results" data-results="overlay" hidden></ul>
+    <ol>
+      {sections.map(s => <li><a href={`${prefix}#${s.id}`}><span class="num">{s.num}</span><span class="name">{s.name}</span></a></li>)}
+      <li><a href={`${prefix}#revista`}><span class="num">—</span><span class="name">Revista</span></a></li>
+    </ol>
+    <div class="secondary"><a href={href('/herramientas/')}>Todas las herramientas</a><a href={href('/sobre-nosotros/')}>Sobre nosotros</a><a href={href('/contacto/')}>Contacto</a><a href={href('/privacidad/')}>Privacidad</a></div>
+  </div>
+</div>
+<script type="application/json" id="ed-search-index" set:html={JSON.stringify(index)} />
+
+<script>
+  import { searchEntries, type SearchEntry } from '../../lib/search-index';
+  const overlay = document.getElementById('overlay')!;
+  const openers = document.querySelectorAll<HTMLButtonElement>('[data-open]');
+  let lastOpener: HTMLButtonElement | null = null;
+  const setOpen = (open: boolean) => {
+    overlay.classList.toggle('open', open);
+    openers.forEach(b => b.setAttribute('aria-expanded', String(open)));
+    document.documentElement.style.overflow = open ? 'hidden' : '';
+    if (open) overlay.querySelector<HTMLInputElement>('input')?.focus(); else lastOpener?.focus();
+  };
+  openers.forEach(b => b.addEventListener('click', () => { lastOpener = b; setOpen(true); }));
+  overlay.querySelector('[data-close]')!.addEventListener('click', () => setOpen(false));
+  overlay.querySelectorAll('ol a, .secondary a').forEach(a => a.addEventListener('click', () => { lastOpener = null; setOpen(false); }));
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && overlay.classList.contains('open')) setOpen(false); });
+
+  // Búsqueda local (mismo índice que la cabecera de las herramientas): sin peticiones.
+  const entries = JSON.parse(document.getElementById('ed-search-index')?.textContent ?? '[]') as SearchEntry[];
+  document.querySelectorAll<HTMLInputElement>('[data-search]').forEach(input => {
+    const list = document.querySelector<HTMLUListElement>(`[data-results="${input.dataset.search}"]`)!;
+    input.addEventListener('input', () => {
+      list.replaceChildren();
+      if (!input.value.trim()) { list.hidden = true; return; }
+      const hits = searchEntries(entries, input.value);
+      for (const hit of hits) {
+        const li = document.createElement('li'), a = document.createElement('a'), strong = document.createElement('strong'), i = document.createElement('i'), small = document.createElement('small');
+        a.href = hit.p; strong.textContent = hit.t; i.textContent = '→'; i.setAttribute('aria-hidden', 'true'); small.textContent = hit.c;
+        const n = document.createElement('span'); n.className = 'n';
+        a.append(n, strong, i, small); li.append(a); list.append(li);
+      }
+      if (!hits.length) { const li = document.createElement('li'); li.className = 'ed-empty'; li.textContent = 'Sin resultados. Prueba con otra palabra.'; list.append(li); }
+      list.hidden = false;
+    });
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') { const first = list.querySelector('a'); if (first) { e.preventDefault(); location.href = first.href; } } });
+  });
+</script>

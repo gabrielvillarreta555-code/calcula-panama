@@ -7,11 +7,12 @@
  */
 import Layout from '../layouts/Layout.astro';
 import EdPicture from '../components/editorial/EdPicture.astro';
+import EdMasthead from '../components/editorial/EdMasthead.astro';
+import EdColophon from '../components/editorial/EdColophon.astro';
 import { CALCULATORS, GUIDES, SITE } from '../data/site';
 import { expansionTools, vehicleTools } from '../data/expansion-tools';
 import { calculateNetSalary } from '../lib/calculations';
 import { formatMoney } from '../lib/format';
-import { searchIndex } from '../lib/search-index';
 
 const base = import.meta.env.BASE_URL;
 const href = (p: string) => `${base}${p.replace(/^\//, '')}`;
@@ -63,20 +64,10 @@ const byId = Object.fromEntries(sections.map(s => [s.id, s]));
 const toolCount = new Set(sections.flatMap(s => s.tools.map(t => t.path))).size;
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
 const guides = GUIDES;
-const index = searchIndex(href);
 ---
 <Layout title="Calcula Panamá: calculadoras de salario, finanzas, compras y autos" description="Calculadoras gratuitas para Panamá: salario neto, décimo, liquidación, préstamos, financiamiento de autos, combustible, compras y presupuesto, con fórmulas y fuentes explicadas." canonicalPath="/" schema={schema} variant="editorial">
   <Fragment slot="masthead">
-    <div class="wrap">
-      <div class="rail"><span class="label">Calcula Panamá — Edición Midnight</span><span class="label">Panamá · {new Date().getFullYear()}</span></div>
-      <header class="masthead">
-        <a class="wordmark" href={href('/')} aria-label={`${SITE.name}, inicio`}><b>CALCULA.</b><small>PANAMÁ</small></a>
-        <nav aria-label="Secciones" class="sections">
-          <a href="#movilidad">Movilidad</a><a href="#finanzas">Finanzas</a><a href="#trabajo">Trabajo</a><a href="#hogar">Hogar</a><a href="#educacion">Educación</a><a href="#revista">Revista</a>
-        </nav>
-        <div class="tools"><button type="button" data-open aria-controls="overlay" aria-expanded="false">Buscar</button><button type="button" data-open aria-controls="overlay" aria-expanded="false">Índice</button></div>
-      </header>
-    </div>
+    <EdMasthead home />
     <figure class="photo ed-hero-photo">
       <EdPicture name="hero" dir="fotos" height={567} eager sizes="100vw" alt="Rascacielos de la ciudad de Panamá iluminados al anochecer, reflejados en la bahía." />
     </figure>
@@ -113,7 +104,7 @@ const index = searchIndex(href);
   </section>
 
   <section class="wrap grid ed-feature hair" id="movilidad" aria-labelledby="mov-t">
-    <figure class="photo bleed-left"><EdPicture name="movilidad" ratio="4/3" alt="Camioneta pickup negra estacionada de noche junto a un edificio de concreto (imagen ilustrativa)." /><figcaption><span>Camioneta pickup · Imagen ilustrativa generada con IA. Calcula Panamá no tiene afiliación con Toyota ni con sus marcas</span><span>Recurso de Calcula Panamá</span></figcaption></figure>
+    <figure class="photo bleed-left"><EdPicture name="movilidad" ratio="4/3" alt="Camioneta pickup negra estacionada de noche junto a un edificio de concreto (imagen ilustrativa)." /><figcaption><span>Camioneta pickup · Imagen ilustrativa. Calcula Panamá no tiene afiliación con Toyota ni con sus marcas</span><span>Recurso de Calcula Panamá</span></figcaption></figure>
     <div class="text">
       <span class="label">01 — Movilidad</span>
       <h2 id="mov-t">Más allá del precio.</h2>
@@ -123,7 +114,7 @@ const index = searchIndex(href);
   </section>
 
   <section class="wrap grid ed-feature reverse hair" id="finanzas" aria-labelledby="fin-t">
-    <figure class="photo bleed-right"><EdPicture name="finanzas" ratio="4/5" alt="Escritorio de oficina frente a un ventanal con vista nocturna de la ciudad de Panamá." /><figcaption><span>Oficina panorámica · Imagen generada con IA</span><span>Recurso de Calcula Panamá</span></figcaption></figure>
+    <figure class="photo bleed-right"><EdPicture name="finanzas" ratio="4/5" alt="Escritorio de oficina frente a un ventanal con vista nocturna de la ciudad de Panamá." /><figcaption><span>Oficina panorámica · Imagen ilustrativa</span><span>Recurso de Calcula Panamá</span></figcaption></figure>
     <div class="text">
       <span class="label">02 — Finanzas</span>
       <h2 id="fin-t">Tu futuro comienza hoy.</h2>
@@ -148,13 +139,13 @@ const index = searchIndex(href);
 
   <section class="wrap grid columns hair" id="hogar" aria-label="Hogar y compras">
     <section>
-      <figure class="photo"><EdPicture name="hogar" ratio="3/2" alt="Sala de un apartamento con vista al atardecer sobre los edificios de la ciudad." /><figcaption><span>Apartamento moderno · Imagen generada con IA</span><span>Recurso de Calcula Panamá</span></figcaption></figure>
+      <figure class="photo"><EdPicture name="hogar" ratio="3/2" alt="Sala de un apartamento con vista al atardecer sobre los edificios de la ciudad." /><figcaption><span>Apartamento moderno · Imagen ilustrativa</span><span>Recurso de Calcula Panamá</span></figcaption></figure>
       <span class="label" style="display:block;margin-top:22px">04 — Hogar</span>
       <h2>El costo de vivir.</h2>
       <ul class="toollist">{byId.hogar!.tools.slice(0, 1).map(t => <li><a href={href(t.path)}><span class="n">{t.n}</span><strong>{t.name}</strong><i aria-hidden="true">→</i><small>{t.desc}</small></a></li>)}</ul>
     </section>
     <section>
-      <figure class="photo"><EdPicture name="compras" ratio="3/2" alt="Carrito con frutas, verduras y productos en el pasillo de un supermercado." /><figcaption><span>Supermercado · Imagen generada con IA</span><span>Recurso de Calcula Panamá</span></figcaption></figure>
+      <figure class="photo"><EdPicture name="compras" ratio="3/2" alt="Carrito con frutas, verduras y productos en el pasillo de un supermercado." /><figcaption><span>Supermercado · Imagen ilustrativa</span><span>Recurso de Calcula Panamá</span></figcaption></figure>
       <span class="label" style="display:block;margin-top:22px">04 — Compras</span>
       <h2>Del estante al carrito.</h2>
       <ul class="toollist">{byId.hogar!.tools.slice(1).map(t => <li><a href={href(t.path)}><span class="n">{t.n}</span><strong>{t.name}</strong><i aria-hidden="true">→</i><small>{t.desc}</small></a></li>)}</ul>
@@ -162,7 +153,7 @@ const index = searchIndex(href);
   </section>
 
   <section class="wrap grid ed-feature reverse hair" id="educacion" aria-labelledby="edu-t">
-    <figure class="photo bleed-right"><EdPicture name="educacion" ratio="16/10" alt="Mesa de estudio con libros y cuadernos en una biblioteca con vista a la ciudad." /><figcaption><span>Biblioteca moderna · Imagen generada con IA</span><span>Recurso de Calcula Panamá</span></figcaption></figure>
+    <figure class="photo bleed-right"><EdPicture name="educacion" ratio="16/10" alt="Mesa de estudio con libros y cuadernos en una biblioteca con vista a la ciudad." /><figcaption><span>Biblioteca moderna · Imagen ilustrativa</span><span>Recurso de Calcula Panamá</span></figcaption></figure>
     <div class="text">
       <span class="label">05 — Educación</span>
       <h2 id="edu-t">Cuentas claras para estudiar.</h2>
@@ -175,7 +166,7 @@ const index = searchIndex(href);
     <h2 id="rev-t">Conocimiento que vale.</h2>
     <div class="grid articles">
       <article class="lead">
-        <figure class="photo"><EdPicture name="revista" ratio="16/10" alt="Escritorio con cuaderno, calculadora, informes y café, iluminado por una lámpara." /><figcaption><span>Escritorio editorial · Imagen generada con IA</span><span>Recurso de Calcula Panamá</span></figcaption></figure>
+        <figure class="photo"><EdPicture name="revista" ratio="16/10" alt="Escritorio con cuaderno, calculadora, informes y café, iluminado por una lámpara." /><figcaption><span>Escritorio editorial · Imagen ilustrativa</span><span>Recurso de Calcula Panamá</span></figcaption></figure>
         <div style="display:flex;flex-direction:column;gap:14px;justify-content:end">
           <span class="label">Guía · Trabajo</span>
           <h3><a href={href(guides[0]!.path)}>{guides[0]!.title}</a></h3>
@@ -189,68 +180,6 @@ const index = searchIndex(href);
   </section>
 
   <Fragment slot="colophon">
-    <footer class="wrap colophon">
-      <p class="big" aria-hidden="true">CALCULA<span>.</span></p>
-      <div class="grid cols">
-        <div><span class="label">Movilidad</span><a href={href('/vehiculos/financiamiento-de-auto/')}>Financiamiento</a><a href={href('/vehiculos/combustible-por-viaje/')}>Combustible</a><a href={href('/vehiculos/costo-mensual-de-un-auto/')}>Costo mensual</a></div>
-        <div><span class="label">Finanzas</span><a href={href('/finanzas/calculadora-prestamos/')}>Préstamos</a><a href={href('/finanzas/meta-de-ahorro/')}>Ahorro</a><a href={href('/finanzas/mi-quincena/')}>Mi Quincena</a></div>
-        <div><span class="label">Trabajo</span><a href={href('/calculadoras/salario-neto/')}>Salario neto</a><a href={href('/calculadoras/decimo-tercer-mes/')}>Décimo</a><a href={href('/calculadoras/vacaciones/')}>Vacaciones</a><a href={href('/calculadoras/liquidacion-laboral/')}>Liquidación</a></div>
-        <div><span class="label">Hogar y compras</span><a href={href('/compras/modo-pasillo/')}>Modo Pasillo</a><a href={href('/compras/descuentos-y-promociones/')}>Descuentos</a><a href={href('/compras/precio-por-unidad/')}>Precio por unidad</a><a href={href('/vida-cotidiana/consumo-electrico/')}>Electricidad</a></div>
-        <div><span class="label">Revista</span><a href={href('/guias/')}>Guías</a><a href={href('/educacion/promedio-de-notas/')}>Educación</a><a href={href('/herramientas/')}>Todas las herramientas</a></div>
-        <div><span class="label">Calcula Panamá</span><a href={href('/sobre-nosotros/')}>Sobre nosotros</a><a href={href('/contacto/')}>Contacto</a><a href={href('/privacidad/')}>Privacidad</a><a href={href('/terminos/')}>Términos</a></div>
-      </div>
-      <div class="fine"><span>Una plataforma de Blue Lab Studios</span><span>© {new Date().getFullYear()} {SITE.name}. Resultados orientativos. No somos una entidad del Gobierno de Panamá.</span></div>
-    </footer>
-
-    <div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-label="Índice y búsqueda">
-      <div class="wrap">
-        <div class="overlay-top"><a class="wordmark" href={href('/')}><b>CALCULA.</b><small>PANAMÁ</small></a><button type="button" data-close>Cerrar</button></div>
-        <label class="search"><span aria-hidden="true">⌕</span><input type="search" placeholder="¿Qué necesitas calcular?" aria-label="Buscar una herramienta" autocomplete="off" data-search="overlay" /></label>
-        <ul class="toollist ed-results" data-results="overlay" hidden></ul>
-        <ol>
-          {sections.map(s => <li><a href={`#${s.id}`}><span class="num">{s.num}</span><span class="name">{s.name}</span></a></li>)}
-          <li><a href="#revista"><span class="num">—</span><span class="name">Revista</span></a></li>
-        </ol>
-        <div class="secondary"><a href={href('/herramientas/')}>Todas las herramientas</a><a href={href('/sobre-nosotros/')}>Sobre nosotros</a><a href={href('/contacto/')}>Contacto</a><a href={href('/privacidad/')}>Privacidad</a></div>
-      </div>
-    </div>
-    <script type="application/json" id="ed-search-index" set:html={JSON.stringify(index)} />
+    <EdColophon home />
   </Fragment>
 </Layout>
-
-<script>
-  import { searchEntries, type SearchEntry } from '../lib/search-index';
-  const overlay = document.getElementById('overlay')!;
-  const openers = document.querySelectorAll<HTMLButtonElement>('[data-open]');
-  let lastOpener: HTMLButtonElement | null = null;
-  const setOpen = (open: boolean) => {
-    overlay.classList.toggle('open', open);
-    openers.forEach(b => b.setAttribute('aria-expanded', String(open)));
-    document.documentElement.style.overflow = open ? 'hidden' : '';
-    if (open) overlay.querySelector<HTMLInputElement>('input')?.focus(); else lastOpener?.focus();
-  };
-  openers.forEach(b => b.addEventListener('click', () => { lastOpener = b; setOpen(true); }));
-  overlay.querySelector('[data-close]')!.addEventListener('click', () => setOpen(false));
-  overlay.querySelectorAll('ol a, .secondary a').forEach(a => a.addEventListener('click', () => { lastOpener = null; setOpen(false); }));
-  document.addEventListener('keydown', e => { if (e.key === 'Escape' && overlay.classList.contains('open')) setOpen(false); });
-
-  // Búsqueda local (mismo índice que la cabecera de las herramientas): sin peticiones.
-  const entries = JSON.parse(document.getElementById('ed-search-index')?.textContent ?? '[]') as SearchEntry[];
-  document.querySelectorAll<HTMLInputElement>('[data-search]').forEach(input => {
-    const list = document.querySelector<HTMLUListElement>(`[data-results="${input.dataset.search}"]`)!;
-    input.addEventListener('input', () => {
-      list.replaceChildren();
-      if (!input.value.trim()) { list.hidden = true; return; }
-      const hits = searchEntries(entries, input.value);
-      for (const hit of hits) {
-        const li = document.createElement('li'), a = document.createElement('a'), strong = document.createElement('strong'), i = document.createElement('i'), small = document.createElement('small');
-        a.href = hit.p; strong.textContent = hit.t; i.textContent = '→'; i.setAttribute('aria-hidden', 'true'); small.textContent = hit.c;
-        const n = document.createElement('span'); n.className = 'n';
-        a.append(n, strong, i, small); li.append(a); list.append(li);
-      }
-      if (!hits.length) { const li = document.createElement('li'); li.className = 'ed-empty'; li.textContent = 'Sin resultados. Prueba con otra palabra.'; list.append(li); }
-      list.hidden = false;
-    });
-    input.addEventListener('keydown', e => { if (e.key === 'Enter') { const first = list.querySelector('a'); if (first) { e.preventDefault(); location.href = first.href; } } });
-  });
-</script>
