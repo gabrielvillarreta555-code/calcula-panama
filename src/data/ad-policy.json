@@ -170,6 +170,10 @@
     "/guias/gastos-de-comprar-vivienda/": {
       "tier": "stage1",
       "reason": "Artículo original sin campos de usuario."
+    },
+    "/vivienda/": {
+      "tier": "stage1",
+      "reason": "Página de sección con guía práctica, sin campos de usuario."
     }
   }
 }

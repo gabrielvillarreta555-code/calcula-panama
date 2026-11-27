@@ -33,7 +33,7 @@ describe('política de publicidad por página (CP-ADS-002)', () => {
     expect(pagesByTier('stage1').sort()).toEqual([
       '/', '/calculadoras/salario-minimo/', '/compras/', '/compras/descuentos-y-promociones/', '/compras/dividir-la-cuenta/', '/compras/precio-por-unidad/', '/guias/', '/guias/calendario-de-quincenas-2027/', '/guias/como-administrar-el-decimo/',
       '/guias/descuentos-del-salario-en-panama/', '/guias/fechas-de-pago-del-decimo-tercer-mes/', '/guias/gastos-de-comprar-vivienda/', '/guias/horas-extras-en-panama/', '/guias/itbms-en-panama/', '/guias/prima-de-antiguedad-e-indemnizacion/',
-      '/herramientas/', '/impuestos/itbms/', '/vehiculos/combustible-por-viaje/', '/vida-cotidiana/consumo-electrico/', '/vida-cotidiana/dias-habiles-y-feriados/'
+      '/herramientas/', '/impuestos/itbms/', '/vehiculos/combustible-por-viaje/', '/vida-cotidiana/consumo-electrico/', '/vida-cotidiana/dias-habiles-y-feriados/', '/vivienda/'
     ]);
   });
   it('una ruta desconocida no admite publicidad y las rutas se normalizan', () => {

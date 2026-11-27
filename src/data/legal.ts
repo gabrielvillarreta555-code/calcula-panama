@@ -156,7 +156,7 @@ export const OFFICIAL_SOURCES = {
   law481: {
     institution: 'Gaceta Oficial 30361-C (copia de LEGISPAN, Asamblea Nacional)',
     title: 'Ley 481 de 9 de septiembre de 2025, que modifica la Ley 468 de 2025 (interés preferencial)',
-    detail: 'Art. 6: subsidio igual al menor entre la tasa del tramo y el 85% de la tasa del banco. Art. 7, literal c: tramo 3 (viviendas nuevas de B/.80,000.01 a B/.120,000), 4% durante 7 años en las dos regiones. Vigente desde el 1 de enero de 2026.',
+    detail: 'Modifica el régimen de interés preferencial para ciertos préstamos hipotecarios de vivienda nueva. Vigente desde el 1 de enero de 2026.',
     url: 'https://s3-legispan.asamblea.gob.pa/legispan/NORMAS/2020/2025/LEY/JOSEPH%20VALENCIA_30361-C_2025_9_9_ASAMBLEA%20NACIONAL_481.pdf'
   },
   decree23of2026: {
