@@ -99,3 +99,32 @@ Paleta exacta del CEO:
 6. **Tipografía del sistema:** el aspecto varía ligeramente entre Android, iOS y Windows.
 7. **Navegadores:** solo se probó en Chromium. El workflow «Validación de producción» cubre Firefox y WebKit, pero solo se puede usar una vez publicado.
 8. **«Dinero inicial»** se mantiene en Mi Quincena por decisión del CEO. No se creó una función nueva de ingresos.
+
+## 7. Publicación en producción (27-11-2026)
+
+- **Aprobación:** el CEO aprobó la publicación, con el color de alerta ámbar `#F5A524` y «Dinero inicial» en Mi Quincena.
+- **Fusión:** PR #41 en `main`, commit `011adf7`.
+- **Despliegue:** workflow «Publicar en GitHub Pages», n.º 37.
+
+**URL publicadas:**
+- https://calculapanama.com/calculadoras/salario-neto/
+- https://calculapanama.com/finanzas/mi-quincena/
+- https://calculapanama.com/compras/modo-pasillo/
+
+**Antes de fusionar (CI del PR #41):** los cinco jobs en verde.
+- `test`: vitest, `astro check`, build, `verify:seo` y app.
+- «Interfaz móvil»: e2e en Chromium y aislamiento.
+- «Navegadores (Firefox y Safari)»: **72/72** sin reintentos (24 pruebas en Firefox, WebKit y WebKit iPhone).
+- `dependency-audit` y `blue-guard`.
+
+**Después de publicar:**
+
+| Comprobación | Resultado |
+|---|---|
+| Las tres herramientas en producción (cálculo, cantidades, guardado local, aviso ámbar, sin desbordamiento, sin errores de consola ni peticiones externas), en Chromium, Firefox, WebKit y WebKit iPhone, a 390 y 1280 px | **28/28** (ejecución 45936066227) |
+| Validación de producción (HTTPS, redirecciones, ads.txt, robots, sitemap, canónica, CSP estricta y sin AdSense en cada URL) | Correcta (ejecuciones 45936005713 y 45936066227) |
+| Portada | Sin cambios: sin la variante funcional y sin publicidad |
+| Resto de calculadoras | Mantienen su diseño anterior (no se extendió el diseño) |
+| Publicidad | `active: false`; ningún script de AdSense en las páginas comprobadas |
+
+**Pendiente, sin relación con este cambio:** las comprobaciones de app.calculapanama.com se omitieron (`check_app=0`) porque el subdominio todavía no está configurado en Cloudflare Pages (CP-ADS-004).
