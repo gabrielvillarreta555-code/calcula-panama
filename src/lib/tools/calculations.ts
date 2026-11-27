@@ -1,6 +1,7 @@
 /** Pure mathematical engines. No DOM, storage, network or official tariff assumptions. */
 import { calculateLoan, type Installment } from '../finance/loans';
 import { holidayName } from '../overtime';
+import { MINIMUM_WAGES } from '../../data/minimum-wage';
 export const LIMIT = 10_000_000;
 export function bounded(n: number, name: string, min = 0, max = LIMIT): number {
   if (!Number.isFinite(n) || n < min || n > max) throw new Error(`${name}: usa un número entre ${min} y ${max}.`);
@@ -353,4 +354,24 @@ export function creditCard(input: CardInput) {
     months, interest: interestTotal / 100, paid: paid / 100, firstPayment: firstPayment / 100, schedule,
     payoff: [12, 24, 36].map(n => ({ months: n, payment: Math.ceil(paymentFor(n) * 100) / 100 })),
   };
+}
+
+/**
+ * Salario mínimo (Decreto Ejecutivo 13 de 2025). El decreto fija tasas por hora; la conversión a semana, quincena y mes
+ * es un criterio de cálculo, no una norma: 52 semanas ÷ 12 meses = 4⅓ semanas por mes, la misma equivalencia que usa
+ * la calculadora de horas extras (art. 54 del Código de Trabajo para las vacaciones de quien cobra por semana).
+ */
+export type WageRegion = 'r1' | 'r2';
+export function minimumWage(id: string, region: WageRegion, weeklyHours: number) {
+  const rate = MINIMUM_WAGES.find(r => r.id === id);
+  if (!rate) throw new Error('Selecciona una actividad económica.');
+  if (region !== 'r1' && region !== 'r2') throw new Error('Selecciona la región.');
+  const value = region === 'r1' ? rate.r1 : rate.r2;
+  if (value === null) throw new Error('El decreto no fija una tasa para esta actividad en la Región 2.');
+  if (rate.monthly) return { rate, hourly: null, weekly: null, fortnightly: value / 2, monthly: value, weeklyHours: null };
+  bounded(weeklyHours, 'Horas semanales', 1, 48);
+  if (!Number.isInteger(weeklyHours)) throw new Error('Horas semanales: usa un número entero.');
+  const weekly = value * weeklyHours;
+  const monthly = weekly * 52 / 12;
+  return { rate, hourly: value, weekly, fortnightly: monthly / 2, monthly, weeklyHours };
 }

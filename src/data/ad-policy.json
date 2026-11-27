@@ -142,6 +142,14 @@
     "/finanzas/tarjeta-de-credito/": {
       "tier": "stage2",
       "reason": "Deuda personal. Requiere calculadora aislada."
+    },
+    "/calculadoras/salario-minimo/": {
+      "tier": "stage1",
+      "reason": "Solo actividad económica, región y horas: no son datos personales."
+    },
+    "/guias/calendario-de-quincenas-2027/": {
+      "tier": "stage1",
+      "reason": "Artículo original sin campos de usuario."
     }
   }
 }

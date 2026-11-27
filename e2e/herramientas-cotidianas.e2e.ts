@@ -80,3 +80,37 @@ test('tarjeta de crédito: pago fijo, pago mínimo y pago insuficiente', async (
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   expect(requests).toEqual([]);
 });
+
+test('salario mínimo: actividad, región, trabajo doméstico y tabla del decreto', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/calculadoras/salario-minimo/', { waitUntil: 'networkidle' });
+  const requests: string[] = []; page.on('request', r => requests.push(r.url()));
+  await page.getByLabel('Actividad económica').selectOption('menor-gran'); await calculate(page);
+  await expect(page.locator('[data-result]')).toContainText('Salario mínimo por hora: B/.3.02');
+  await expect(page.locator('[data-result]')).toContainText('B/.628.16 al mes');
+  await page.getByLabel('Región', { exact: true }).selectOption('r2'); await calculate(page);
+  await expect(page.locator('[data-result]')).toContainText('B/.2.48');
+  await page.getByLabel('Actividad económica').selectOption('domestico');
+  await expect(page.getByLabel('Horas ordinarias por semana')).toBeHidden();
+  await calculate(page);
+  await expect(page.locator('[data-result]')).toContainText('Salario mínimo mensual: B/.320.00');
+  await page.getByLabel('Actividad económica').selectOption('zona-libre'); await calculate(page);
+  await expect(page.locator('[data-error]')).toContainText('Región 2');
+  await expect(page.locator('.tool-reading table')).toContainText('Tripulantes de cabina de vuelos internacionales');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  expect(requests).toEqual([]);
+});
+
+test('calendario de quincenas 2027 y feriados de diciembre de 2026', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/guias/calendario-de-quincenas-2027/');
+  await expect(page.locator('h1')).toHaveText('Calendario de quincenas 2027 en Panamá');
+  await expect(page.locator('main table tbody tr')).toHaveCount(24);
+  await expect(page.locator('main table')).toContainText('viernes 15 de enero');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.goto('/vida-cotidiana/dias-habiles-y-feriados/');
+  await expect(page.locator('.tool-reading')).toContainText('lunes 21 de diciembre: lunes de descanso por una fiesta en domingo');
+  await page.goto('/calculadoras/decimo-tercer-mes/');
+  await expect(page.locator('#tercera-partida-2026')).toBeVisible();
+  await expect(page.locator('main')).toContainText('martes 15 de diciembre de 2026');
+});

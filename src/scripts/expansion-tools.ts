@@ -1,5 +1,7 @@
-import { businessDays, creditCard, type CardMode, type WorkWeek } from '../lib/tools/calculations';
+import { businessDays, creditCard, minimumWage, type CardMode, type WageRegion, type WorkWeek } from '../lib/tools/calculations';
 import { carFinancing, carMonthlyCost, compareUnits, decimal, electricity, fuelTrip, grades, itbms, promotion, savings, splitBill, type EfficiencyUnit, type Frequency, type ItbmsMode, type Promotion, type SplitRounding, type Unit } from '../lib/tools/calculations';
+/** Actividad fijada como monto mensual (trabajo doméstico): no usa horas. */
+const isMonthlyRate = (id: string) => id === 'domestico';
 const number = (n: number, digits = 2) => n.toLocaleString('es-PA', { minimumFractionDigits: digits, maximumFractionDigits: digits });
 const money = (n: number, digits = 2) => `B/.${number(n, digits)}`;
 for (const root of document.querySelectorAll<HTMLElement>('[data-tool]')) {
@@ -35,6 +37,11 @@ for (const root of document.querySelectorAll<HTMLElement>('[data-tool]')) {
     root.querySelector<HTMLButtonElement>('[data-add]')!.disabled = list.length >= 20;
   }
   function syncPromotion() {
+    if (root.dataset.tool === 'minwage') {
+      const monthly = isMonthlyRate(value('activity'));
+      const input = field('hours'); input.disabled = monthly; input.closest<HTMLElement>('[data-field]')!.hidden = monthly;
+      return;
+    }
     if (root.dataset.tool === 'card') {
       const minimum = value('mode') === 'minimum';
       for (const [key, visible] of [['payment', !minimum], ['minPercent', minimum], ['minFloor', minimum]] as const) {
@@ -144,6 +151,18 @@ for (const root of document.querySelectorAll<HTMLElement>('[data-tool]')) {
           line(`Al año: ${money(r.annual)}.${num('depreciationYear') > 0 ? ` Sin la pérdida de valor: ${money(r.withoutDepreciation)} al mes.` : ''}`);
           if (r.perKm !== null) line(`Costo por kilómetro: ${money(r.perKm, 3)}.`);
           details.append(scroll(table(['Concepto', 'Al mes', 'Parte del total'], r.items.map(item => [item.label, money(item.monthly), `${number(item.share, 1)}%`]), 'Desglose mensual (los anuales se dividen entre 12)'))); break;
+        }
+        case 'minwage': {
+          const r = minimumWage(value('activity'), value('region') as WageRegion, isMonthlyRate(value('activity')) ? 48 : num('hours'));
+          if (r.hourly === null) {
+            line(`Salario mínimo mensual: ${money(r.monthly)}`);
+            line(`Por quincena: ${money(r.fortnightly)}. El decreto fija el trabajo doméstico como monto mensual.`);
+          } else {
+            line(`Salario mínimo por hora: ${money(r.hourly)}`);
+            line(`Con ${r.weeklyHours} horas semanales: ${money(r.weekly!)} por semana, unos ${money(r.monthly)} al mes y ${money(r.fortnightly)} por quincena.`);
+            line('El equivalente mensual es una estimación con 4⅓ semanas por mes; el decreto solo fija la tasa por hora.');
+          }
+          break;
         }
         case 'card': {
           const mode = value('mode') as CardMode;

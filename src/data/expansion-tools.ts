@@ -1,4 +1,4 @@
-export type ToolId = 'unit' | 'discount' | 'savings' | 'grades' | 'energy' | 'car-loan' | 'fuel-trip' | 'car-cost' | 'itbms' | 'split' | 'holidays' | 'card';
+export type ToolId = 'unit' | 'discount' | 'savings' | 'grades' | 'energy' | 'car-loan' | 'fuel-trip' | 'car-cost' | 'itbms' | 'split' | 'holidays' | 'card' | 'minwage';
 export interface Field {
   key: string; label: string; value?: string; type?: 'date' | 'select';
   options?: { value: string; label: string }[]; optional?: boolean; digits?: number;
@@ -14,12 +14,17 @@ export interface Tool {
   context?: string[];
   /** Nota metodológica cuando la fórmula no depende de una norma ni de una fuente externa. */
   sourceNote?: string;
+  /** Tablas de referencia tras «En la práctica» (CP-SEO-003), con el estilo .table-wrap existente. */
+  tables?: { title: string; caption: string; headers: string[]; rows: string[][] }[];
   /** Título SEO (<title>) cuando conviene distinto del H1, sin sufijo de marca (CP-SEO-003). */
   seoTitle?: string;
   /** Fecha ISO en que se consultaron las fuentes; por defecto, la de la expansión 3. */
   checkedOn?: string;
 }
 import { holidayLabel } from '../lib/tools/calculations';
+import { MINIMUM_WAGES, MINIMUM_WAGE_SOURCE, REGION_1_DISTRICTS } from './minimum-wage';
+const wageMoney = (n: number) => `B/.${n.toFixed(2)}`;
+const wageMonthly = (hourly: number) => wageMoney(hourly * 48 * 52 / 12);
 const WEEKDAYS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
 const MONTHS = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 /** Fiestas y duelos nacionales de un año, con su día de la semana, calculados con las reglas verificadas. */
@@ -36,7 +41,7 @@ export function holidaysOf(year: number) {
   }
   return list;
 }
-const laborCodeSource = { title: 'Código de Trabajo, arts. 46 y 47: fiestas, duelos nacionales y descanso del lunes (copia del Órgano Judicial)', url: 'https://www.organojudicial.gob.pa/uploads/wp_repo/uploads/2016/11/c%C3%B3digo-detrabajo.pdf' };
+const laborCodeSource = { title: 'Código de Trabajo, arts. 46 (con los días puente de la Ley 65 de 2001) y 47: fiestas, duelos nacionales y descanso del lunes (copia del Órgano Judicial)', url: 'https://www.organojudicial.gob.pa/uploads/wp_repo/uploads/2016/11/c%C3%B3digo-detrabajo.pdf' };
 const law291Source = { title: 'Ley 291 de 2022, art. 7: el 20 de diciembre, día de duelo nacional (Gaceta Oficial 29507-B)', url: 'https://gacetas.procuraduria-admon.gob.pa/29507-B_57996.pdf' };
 const nist = { title: 'NIST — unidades de medida, Handbook 44 (2026)', url: 'https://www.nist.gov/system/files/documents/2025/12/30/appc-26-HB44-20251222.pdf' };
 /** Ley 8 de 2010 (DGI): fija la tarifa general del ITBMS en 7%. El mismo documento lo cita src/data/legal.ts. */
@@ -248,10 +253,13 @@ export const expansionTools: Tool[] = [
     example: 'En 2027, de lunes a viernes, hay 261 días laborables. Nueve fiestas nacionales caen en un día laborable, así que quedan 252 días hábiles.',
     limits: ['Incluye las fiestas y duelos nacionales del art. 46 del Código de Trabajo y el lunes de descanso del art. 47. No incluye los días puente que el Órgano Ejecutivo puede decretar (art. 46), los días compensatorios individuales del art. 47, feriados locales ni días de cierre de una institución.', 'No sirve para plazos judiciales ni administrativos, que tienen sus propias reglas de cómputo.', 'Intervalo de hasta 10 años, con fechas entre 2000 y 2100.'],
     context: [
+      'Fiestas y duelos nacionales que quedan en 2026:',
+      ...holidaysOf(2026).filter(h => h.day.includes('diciembre')).map(h => h.text),
       'Fiestas y duelos nacionales de 2027, según el Código de Trabajo:',
       ...holidaysOf(2027).map(h => h.text),
       'Cuando una fiesta nacional cae en domingo, el lunes siguiente es día de descanso obligatorio (art. 47). En 2027 ocurre con el 28 de noviembre: el descanso es el lunes 29.',
       'El día de la toma de posesión presidencial (1 de julio) es fiesta solo en los años en que hay cambio de gobierno: el próximo es 2029.',
+      'Días puente: el Órgano Ejecutivo puede decretar como puente una fiesta o duelo nacional (art. 46, párrafos añadidos por la Ley 65 de 2001). Si el feriado cae martes o miércoles, el descanso pasa al lunes anterior; si cae jueves o viernes, al lunes siguiente. Solo se aplica cuando hay un decreto para ese año: esta calculadora no lo supone.',
     ],
     checkedOn: '2026-11-27',
     sources: [laborCodeSource, law291Source],
@@ -259,6 +267,8 @@ export const expansionTools: Tool[] = [
     faq: [
       { q: '¿Cuáles son los feriados de Panamá en 2027?', a: `Según el Código de Trabajo: ${holidaysOf(2027).map(h => h.day).join('; ')}.` },
       { q: '¿Qué pasa si un feriado cae en domingo?', a: 'El lunes siguiente es día de descanso obligatorio (Código de Trabajo, art. 47). Si coincide con otro día de descanso semanal obligatorio de la persona, el mismo artículo le da derecho a otro día libre de esa semana como compensación. Esta calculadora solo resta el lunes del domingo; no conoce tu día de descanso.' },
+      { q: '¿Cuáles son los feriados de diciembre de 2026?', a: `${holidaysOf(2026).filter(h => h.day.includes('diciembre')).map(h => h.text).join('; ')}.` },
+      { q: '¿Qué es un día puente?', a: 'Es el traslado de una fiesta o duelo nacional a un lunes, cuando el Órgano Ejecutivo lo decreta (Código de Trabajo, art. 46, según la Ley 65 de 2001): si cae martes o miércoles, al lunes anterior; si cae jueves o viernes, al lunes siguiente. No es automático.' },
       { q: '¿El 4 de noviembre es feriado?', a: 'No figura entre las fiestas nacionales del artículo 46 del Código de Trabajo. Algunos años el Órgano Ejecutivo decreta días libres adicionales; esta herramienta no los incluye.' },
     ],
   },
@@ -292,6 +302,42 @@ export const expansionTools: Tool[] = [
       { q: '¿Cuánto tardo en pagar mi tarjeta pagando solo el mínimo?', a: 'Depende del saldo, la tasa y cómo calcula el mínimo tu banco. Con B/.2,000.00 al 36% anual y un mínimo del 5% (al menos B/.25.00), serían 95 meses y B/.2,366.65 de intereses. Con un pago fijo de B/.100.00, 31 meses.' },
       { q: '¿Cómo se calcula el interés de la tarjeta de crédito?', a: 'En esta simulación, el saldo de cada mes se multiplica por la tasa anual dividida entre 12. Muchos bancos calculan el interés sobre el saldo promedio diario, así que el importe real puede variar algo.' },
       { q: '¿Qué pasa si mi pago no cubre los intereses?', a: 'La deuda no baja nunca. La calculadora te avisa y te pide un pago mayor.' },
+    ],
+  },
+  {
+    id: 'minwage', path: '/calculadoras/salario-minimo/', category: 'Trabajo', title: 'Calculadora del salario mínimo en Panamá 2026',
+    seoTitle: 'Salario mínimo en Panamá 2026: tabla y cálculo mensual',
+    description: 'Consulta el salario mínimo por hora de tu actividad y región según el Decreto Ejecutivo 13 de 2025, y calcula cuánto equivale por semana, quincena y mes.',
+    intro: 'Elige tu actividad económica y tu región. Obtén la tasa mínima por hora vigente desde el 16 de enero de 2026 y su equivalente semanal, quincenal y mensual.',
+    fields: [
+      { key: 'activity', label: 'Actividad económica', type: 'select', options: [{ value: '', label: 'Elige tu actividad' }, ...MINIMUM_WAGES.map(r => ({ value: r.id, label: r.label }))] },
+      { key: 'region', label: 'Región', type: 'select', options: [{ value: 'r1', label: 'Región 1 (Panamá, Colón, San Miguelito, David, Santiago, La Chorrera, Arraiján y otros)' }, { value: 'r2', label: 'Región 2 (resto de los distritos)' }] },
+      { key: 'hours', label: 'Horas ordinarias por semana', value: '48', digits: 0 },
+    ],
+    steps: ['Busca la actividad de tu empresa en la lista. Si tiene tamaño de empresa, elige el que corresponda.', 'Elige la región según el distrito donde trabajas: la lista completa de la Región 1 está más abajo.', 'Indica tus horas ordinarias por semana (48 en jornada diurna completa).'],
+    formula: 'Salario semanal = tasa por hora × horas semanales. Mensual = semanal × 52 ÷ 12 (4⅓ semanas por mes). Quincenal = mensual ÷ 2. El trabajo doméstico se fija como monto mensual.',
+    example: `Ejemplo: en el comercio al por menor de una gran empresa en la Región 1, la tasa es B/.3.02 por hora. Con 48 horas semanales: B/.144.96 por semana, unos ${wageMonthly(3.02)} al mes y B/.314.08 por quincena.`,
+    limits: ['El decreto fija tasas por hora y no establece cómo convertirlas a un salario mensual. El equivalente mensual usa 4⅓ semanas por mes; tu empleador puede usar otro criterio.', 'Es el mínimo legal por hora ordinaria: no incluye horas extras, recargos, comisiones ni descuentos de la CSS o el ISR.', 'Si tu actividad no aparece o dudas de la clasificación de tu empresa, consulta al MITRADEL.', 'Admite de 1 a 48 horas ordinarias por semana. Las horas por encima de la jornada son extraordinarias.'],
+    context: [
+      `El ${MINIMUM_WAGE_SOURCE.decree} (${MINIMUM_WAGE_SOURCE.gazette}) fija las tasas mínimas por hora según actividad, ocupación, tamaño de empresa y región. Rige desde el 16 de enero de 2026 y derogó el Decreto Ejecutivo 1 de 2024.`,
+      `Región 1: distritos de ${REGION_1_DISTRICTS.join(', ')}. Región 2: el resto de los distritos del país.`,
+      'Las actividades marcadas como nacionales tienen la misma tasa en las dos regiones. Para el trabajo doméstico, el decreto mantiene un monto mensual: B/.350.00 en la Región 1 y B/.320.00 en la Región 2.',
+      'El Código de Trabajo establece que el salario mínimo se revisa por lo menos cada dos años, con la recomendación de la Comisión Nacional de Salario Mínimo (art. 174).',
+    ],
+    tables: [{
+      title: 'Tabla del salario mínimo por hora (2026)',
+      caption: `Tasas por hora del ${MINIMUM_WAGE_SOURCE.decree}, con su equivalente mensual estimado para 48 horas semanales. «—»: sin tasa para esa región.`,
+      headers: ['Actividad', 'Región 1 por hora', 'Región 2 por hora', 'Mensual estimado (Región 1)'],
+      rows: MINIMUM_WAGES.filter(r => !r.monthly).map(r => [r.label, wageMoney(r.r1), r.r2 === null ? '—' : wageMoney(r.r2), wageMonthly(r.r1)]),
+    }],
+    checkedOn: MINIMUM_WAGE_SOURCE.reviewedOn,
+    sources: [{ title: `${MINIMUM_WAGE_SOURCE.decree}, ${MINIMUM_WAGE_SOURCE.gazette} (copia de LEGISPAN, Asamblea Nacional)`, url: MINIMUM_WAGE_SOURCE.url }, { title: 'Código de Trabajo, arts. 172 a 180 (salario mínimo), copia del Órgano Judicial', url: 'https://www.organojudicial.gob.pa/uploads/wp_repo/uploads/2016/11/c%C3%B3digo-detrabajo.pdf' }],
+    related: [{ title: 'Calcular el salario neto', path: '/calculadoras/salario-neto/' }, { title: 'Calcular horas extras', path: '/calculadoras/horas-extras/' }, { title: 'Calcular el décimo tercer mes', path: '/calculadoras/decimo-tercer-mes/' }],
+    faq: [
+      { q: '¿Cuál es el salario mínimo en Panamá en 2026?', a: 'No hay una sola cifra: el Decreto Ejecutivo 13 de 2025 fija una tasa por hora según la actividad, el tamaño de la empresa y la región. Va de B/.1.64 (agricultura, pequeña empresa) a B/.5.01 por hora (tripulantes de cabina de vuelos internacionales). El trabajo doméstico tiene un mínimo mensual de B/.350.00 en la Región 1 y B/.320.00 en la Región 2.' },
+      { q: '¿Cómo paso el salario mínimo por hora a mensual?', a: 'Multiplica la tasa por las horas semanales y luego por 52 ÷ 12. Con B/.3.02 por hora y 48 horas: 3.02 × 48 = B/.144.96 por semana; × 52 ÷ 12 = B/.628.16 al mes. El decreto no fija esta conversión: es una estimación.' },
+      { q: '¿Desde cuándo rige el salario mínimo de 2026?', a: 'Desde el 16 de enero de 2026, según el artículo 5 del Decreto Ejecutivo 13 de 31 de diciembre de 2025.' },
+      { q: '¿Cómo sé si estoy en la Región 1 o en la Región 2?', a: 'Depende del distrito donde trabajas. El artículo 3 del decreto enumera los distritos de la Región 1; todos los demás son Región 2.' },
     ],
   },
 ];

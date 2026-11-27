@@ -15,8 +15,8 @@ import type { FxIconName } from '../lib/fx-icons';
 interface Props { tool: Tool }
 const { tool } = Astro.props;
 const href = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\//, '')}`;
-const categoryId = ({ Compras: 'compras', Finanzas: 'finanzas', Educación: 'educacion', 'Vida cotidiana': 'vida-cotidiana', Vehículos: 'vehiculos', Impuestos: 'impuestos' } as Record<string,string>)[tool.category];
-const icon = ({ Compras: 'tag', Finanzas: 'piggy', Educación: 'graduation', 'Vida cotidiana': 'bolt', Vehículos: 'bus', Impuestos: 'receipt' } as Record<string, FxIconName>)[tool.category] ?? 'calculator';
+const categoryId = ({ Compras: 'compras', Finanzas: 'finanzas', Educación: 'educacion', 'Vida cotidiana': 'vida-cotidiana', Vehículos: 'vehiculos', Impuestos: 'impuestos', Trabajo: 'trabajo' } as Record<string,string>)[tool.category];
+const icon = ({ Compras: 'tag', Finanzas: 'piggy', Educación: 'graduation', 'Vida cotidiana': 'bolt', Vehículos: 'bus', Impuestos: 'receipt', Trabajo: 'wallet' } as Record<string, FxIconName>)[tool.category] ?? 'calculator';
 const checkedOn = tool.checkedOn ?? '2026-11-16';
 const checkedLabel = new Intl.DateTimeFormat('es-PA', { dateStyle: 'long', timeZone: 'UTC' }).format(new Date(`${checkedOn}T00:00:00Z`));
 // Datos estructurados idénticos a la versión anterior.
@@ -74,6 +74,7 @@ const schema = { '@context': 'https://schema.org', '@type': 'BreadcrumbList', it
     <section><h2 id="como-se-calcula">Cómo se calcula</h2><p>{tool.formula}</p></section>
     <section><h2>Ejemplo verificable</h2><p>{tool.example}</p></section>
     {tool.context && <section><h2>En la práctica, en Panamá</h2>{tool.context.map(item => <p>{item}</p>)}</section>}
+    {tool.tables?.map(t => <section><h2>{t.title}</h2><div class="table-wrap" tabindex="0" role="region" aria-label={t.caption}><table><caption>{t.caption}</caption><thead><tr>{t.headers.map(h => <th scope="col">{h}</th>)}</tr></thead><tbody>{t.rows.map(r => <tr>{r.map((c, i) => i === 0 ? <th scope="row">{c}</th> : <td>{c}</td>)}</tr>)}</tbody></table></div></section>)}
     <section><h2>Alcance y limitaciones</h2><ul>{tool.limits.map(limit => <li>{limit}</li>)}</ul><p>Resultados orientativos. No son importes oficiales ni certificaciones.</p></section>
     <section><h2>Fuentes y metodología</h2>{tool.sources.length > 0 && <ul>{tool.sources.map(source => <li><a href={source.url}>{source.title}</a></li>)}</ul>}{tool.sourceNote && <p>{tool.sourceNote}</p>}<p>Metodología de Blue Lab Studios.{tool.sources.length > 0 && <> Fuentes consultadas el <time datetime={checkedOn}>{checkedLabel}</time>.</>}</p></section>
     {tool.faq && <Faq items={tool.faq} />}
