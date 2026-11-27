@@ -1,0 +1,103 @@
+---
+/**
+ * Guía «Cómo administrar el décimo tercer mes» (CP-SEO-003). Todas las cifras se calculan al compilar con los motores
+ * del sitio (décimo, tarjeta de crédito y metas de ahorro): no hay estadísticas externas ni recomendaciones genéricas.
+ */
+import EditorialPage from '../../layouts/EditorialPage.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import Faq from '../../components/Faq.astro';
+import LegalSources from '../../components/LegalSources.astro';
+import { GUIDES } from '../../data/site';
+import { calculateThirteenthMonth, thirteenthPeriod } from '../../lib/calculations';
+import { creditCard, savings } from '../../lib/tools/calculations';
+import { formatMoney } from '../../lib/format';
+
+const guide = GUIDES.find(g => g.path === '/guias/como-administrar-el-decimo/')!;
+const base = import.meta.env.BASE_URL;
+const href = (p: string) => `${base}${p.replace(/^\//, '')}`;
+
+// 1. El décimo de ejemplo: salario fijo de B/.1,000 de agosto a diciembre de 2026.
+const salary = 1000;
+const dec = calculateThirteenthMonth({ ordinaryEarnings: salary * 4, regularMonthlySalary: salary });
+const net = dec.net;
+
+// 2. Una tarjeta de ejemplo: B/.1,500 al 36% anual, pagando B/.75 al mes (sin compras nuevas).
+const card = { balance: 1500, rate: 36, payment: 75 };
+const cardRun = (extra: number) => creditCard({ balance: card.balance - extra, annualRate: card.rate, mode: 'fixed', payment: card.payment, minPercent: 0 });
+const minimumOnly = creditCard({ balance: card.balance, annualRate: card.rate, mode: 'minimum', payment: 25, minPercent: 5 });
+const noExtra = cardRun(0);
+const toDebtAll = Math.floor(net);               // escenario A: casi todo a la deuda
+const toDebtHalf = Math.round(net / 2);          // escenario B: la mitad a la deuda
+const allIn = cardRun(toDebtAll), halfIn = cardRun(toDebtHalf);
+
+// 3. Una meta familiar: B/.450 para el inicio del año escolar, con aportes el 15 y fin de mes hasta el 28-02-2027.
+const goal = 450;
+const schoolHalf = savings(goal, net - toDebtHalf, '2026-12-31', '2027-02-28', 'twice-month');
+const schoolNone = savings(goal, 0, '2026-12-31', '2027-02-28', 'twice-month');
+
+const next = [thirteenthPeriod('abril', 2027), thirteenthPeriod('agosto', 2027), thirteenthPeriod('diciembre', 2027)];
+const months = (n: number) => `${n} ${n === 1 ? 'mes' : 'meses'}`;
+const faq = [
+  { q: '¿Cuánto recibo de décimo en diciembre de 2026?', a: `Con salario fijo, la partida bruta es un tercio del salario mensual. Con B/.1,000 al mes: ${formatMoney(dec.gross)} brutos, menos ${formatMoney(dec.socialSecurity)} de CSS (7.25%) y unos ${formatMoney(dec.incomeTax ?? 0)} de ISR estimado: ${formatMoney(net)} netos. Calcula tu caso en la calculadora del décimo.` },
+  { q: '¿Conviene usar el décimo para pagar la tarjeta de crédito?', a: `Depende de la tasa de tu deuda y de si tienes otros gastos impostergables. En el ejemplo de esta guía (B/.1,500 al 36%, pagando B/.75 al mes), abonar ${formatMoney(toDebtAll)} ahorra ${formatMoney(noExtra.interest - allIn.interest)} de intereses y ${months(noExtra.months - allIn.months)} de pagos. Haz la cuenta con tu saldo y tu tasa.` },
+  { q: '¿El décimo tiene descuentos?', a: 'Sí: 7.25% de cuota de la CSS y, si tu ingreso anual supera el mínimo exento, la parte proporcional del ISR. No se descuenta Seguro Educativo.' },
+];
+---
+<EditorialPage title="Cómo administrar el décimo tercer mes en Panamá: ejemplos con cifras" description="Cómo repartir el décimo tercer mes entre deudas, ahorro, gastos de diciembre y planes familiares, con ejemplos calculados y enlaces a las calculadoras." canonicalPath={guide.path} kicker="Guía · Finanzas" heading={guide.title} lede="Antes de decidir qué hacer con el décimo, conviene poner números a cada opción. Estos ejemplos están calculados con las mismas calculadoras del sitio." crumbs={[{ label: 'Guías', path: '/guias/' }, { label: 'Administrar el décimo', path: guide.path }]} related={[
+  { label: 'Décimo tercer mes', path: '/calculadoras/decimo-tercer-mes/', note: 'Cuánto recibes neto en tu caso.' },
+  { label: 'Tarjeta de crédito', path: '/finanzas/tarjeta-de-credito/', note: 'Intereses y meses con cada abono.' },
+  { label: 'Metas de ahorro', path: '/finanzas/meta-de-ahorro/', note: 'Aportes por quincena hasta tu fecha.' },
+  { label: 'Mi Quincena', path: '/finanzas/mi-quincena/', note: 'Reparte el dinero hasta el próximo pago.' },
+  { label: 'Calendario de quincenas 2027', path: '/guias/calendario-de-quincenas-2027/', note: 'Fechas de pago del próximo año.' }
+]}>
+    <h2>1. Parte del importe neto, no del bruto</h2>
+    <p>La tercera partida de 2026 se paga el 15 de diciembre. Con un salario fijo de {formatMoney(salary)} al mes de agosto a diciembre, la partida bruta es de {formatMoney(dec.gross)}. Se descuentan {formatMoney(dec.socialSecurity)} de CSS (7.25%) y unos {formatMoney(dec.incomeTax ?? 0)} de ISR estimado: llegan a tu cuenta unos <strong>{formatMoney(net)}</strong>. Planifica con esa cifra. Calcula la tuya en la <a href={href('/calculadoras/decimo-tercer-mes/')}>calculadora del décimo</a>.</p>
+
+    <h2>2. Si tienes deudas caras, mide cuánto te ahorra cada abono</h2>
+    <p>Ejemplo: una tarjeta con {formatMoney(card.balance)} de saldo al {card.rate}% anual. Sin compras nuevas, estas son tres formas de pagarla:</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th scope="col">Plan</th><th scope="col">Meses hasta saldarla</th><th scope="col">Intereses totales</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Solo el pago mínimo (5%, al menos B/.25)</th><td>{minimumOnly.months}</td><td>{formatMoney(minimumOnly.interest)}</td></tr>
+          <tr><th scope="row">{formatMoney(card.payment)} al mes, sin usar el décimo</th><td>{noExtra.months}</td><td>{formatMoney(noExtra.interest)}</td></tr>
+          <tr><th scope="row">{formatMoney(card.payment)} al mes y un abono de {formatMoney(toDebtHalf)} del décimo</th><td>{halfIn.months}</td><td>{formatMoney(halfIn.interest)}</td></tr>
+          <tr><th scope="row">{formatMoney(card.payment)} al mes y un abono de {formatMoney(toDebtAll)} del décimo</th><td>{allIn.months}</td><td>{formatMoney(allIn.interest)}</td></tr>
+        </tbody>
+        <caption>Calculado con la calculadora de tarjeta de crédito: interés mensual sobre el saldo, sin cargos ni compras nuevas. Tu banco puede calcular el interés sobre el saldo diario.</caption>
+      </table>
+    </div>
+    <p>Con el abono de {formatMoney(toDebtAll)}, la deuda se salda {months(noExtra.months - allIn.months)} antes y se pagan <strong>{formatMoney(noExtra.interest - allIn.interest)} menos de intereses</strong>. Con la mitad, {formatMoney(noExtra.interest - halfIn.interest)} menos. Si tienes varias deudas, el mismo abono rinde más en la de tasa más alta. Haz la cuenta con tu saldo en la <a href={href('/finanzas/tarjeta-de-credito/')}>calculadora de tarjeta de crédito</a>.</p>
+    <AdSlot name="inArticle" />
+
+    <h2>3. Reserva antes los gastos que ya sabes que vienen</h2>
+    <p>Ejemplo de planificación familiar: necesitas {formatMoney(goal)} para el inicio del año escolar y quieres tenerlos el 28 de febrero de 2027.</p>
+    <ul>
+      <li>Sin usar el décimo, hacen falta {schoolNone.plan.length} aportes de hasta {formatMoney(schoolNone.maximum)} el 15 y fin de mes, desde el 31 de diciembre.</li>
+      <li>Si separas {formatMoney(net - toDebtHalf)} del décimo (la parte que no va a la deuda en el plan de la mitad), faltan {formatMoney(schoolHalf.remaining)}: {schoolHalf.plan.length} aportes de hasta {formatMoney(schoolHalf.maximum)}.</li>
+    </ul>
+    <p>Crea tu propio calendario con la <a href={href('/finanzas/meta-de-ahorro/')}>calculadora de metas de ahorro</a> y consulta las fechas de pago en el <a href={href('/guias/calendario-de-quincenas-2027/')}>calendario de quincenas 2027</a>.</p>
+
+    <h2>4. Pon un tope a los gastos de diciembre</h2>
+    <p>Los gastos de fin de año (regalos, cena, viajes) son los que más fácilmente se llevan el décimo. Decide el monto antes de cobrar y anótalo en <a href={href('/finanzas/mi-quincena/')}>Mi Quincena</a> como un gasto más del período: verás cuánto te queda por día hasta el próximo pago. En las compras, compara el <a href={href('/compras/precio-por-unidad/')}>precio por unidad</a> y el <a href={href('/compras/descuentos-y-promociones/')}>descuento real</a> de las promociones; si compartes una cena, <a href={href('/compras/dividir-la-cuenta/')}>divide la cuenta</a> con la propina incluida.</p>
+
+    <h2>5. Un ejemplo de reparto completo</h2>
+    <p>Con los {formatMoney(net)} netos del ejemplo, un reparto posible es:</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th scope="col">Destino</th><th scope="col">Monto</th><th scope="col">Efecto</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Abono a la tarjeta</th><td>{formatMoney(toDebtHalf)}</td><td>{formatMoney(noExtra.interest - halfIn.interest)} menos de intereses</td></tr>
+          <tr><th scope="row">Meta del año escolar</th><td>{formatMoney(net - toDebtHalf)}</td><td>Aportes de hasta {formatMoney(schoolHalf.maximum)} en lugar de {formatMoney(schoolNone.maximum)}</td></tr>
+        </tbody>
+        <caption>Ejemplo hipotético con salario de B/.1,000. Los gastos de diciembre salen de tu quincena, con el tope que fijaste en Mi Quincena.</caption>
+      </table>
+    </div>
+    <p>No es la única opción: si no tienes deudas, el abono puede ir al ahorro; si tu deuda tiene una tasa baja, quizá convenga reservar más. Lo importante es comparar las alternativas con tus propias cifras antes de cobrar.</p>
+
+    <h2>6. Planifica los próximos décimos</h2>
+    <p>Las partidas de 2027 se pagan el 15 de abril, el 15 de agosto y el 15 de diciembre (Decreto de Gabinete 221 de 1971). Cada una cubre cuatro meses: {next.map(p => `${p.label.toLowerCase()}, del ${p.start.split('-').reverse().join('/')} al ${p.end.split('-').reverse().join('/')}`).join('; ')}. Si ya sabes para qué usarás cada una, puedes sumarla como ahorro inicial en tus metas. Consulta los detalles en la <a href={href('/guias/fechas-de-pago-del-decimo-tercer-mes/')}>guía de fechas del décimo</a>.</p>
+
+    <Faq items={faq} />
+    <LegalSources sources={['thirteenth', 'thirteenthRegulation', 'css']} reviewedOn="2026-11-27" />
+</EditorialPage>

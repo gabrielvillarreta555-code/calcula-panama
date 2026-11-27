@@ -114,3 +114,12 @@ test('calendario de quincenas 2027 y feriados de diciembre de 2026', async ({ pa
   await expect(page.locator('#tercera-partida-2026')).toBeVisible();
   await expect(page.locator('main')).toContainText('martes 15 de diciembre de 2026');
 });
+
+test('guía para administrar el décimo: cifras calculadas y enlaces a las calculadoras', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/guias/como-administrar-el-decimo/');
+  await expect(page.locator('h1')).toHaveText('Cómo administrar el décimo tercer mes en Panamá');
+  await expect(page.locator('main')).toContainText('B/. 301.47');
+  for (const href of ['/calculadoras/decimo-tercer-mes/', '/finanzas/tarjeta-de-credito/', '/finanzas/meta-de-ahorro/', '/finanzas/mi-quincena/']) await expect(page.locator(`main a[href="${href}"]`).first()).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});

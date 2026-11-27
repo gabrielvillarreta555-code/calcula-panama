@@ -104,5 +104,11 @@ export const GUIDES = [
     topic: 'Trabajo',
     title: 'Calendario de quincenas 2027 en Panamá',
     description: 'Las 24 fechas habituales de pago del 15 y fin de mes, cuáles caen en fin de semana o feriado y qué dice el Código de Trabajo.'
+  },
+  {
+    path: '/guias/como-administrar-el-decimo/',
+    topic: 'Finanzas',
+    title: 'Cómo administrar el décimo tercer mes en Panamá',
+    description: 'Ejemplos calculados para repartir el décimo entre deudas, ahorro, gastos de diciembre y planes familiares.'
   }
 ] as const;
