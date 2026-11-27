@@ -16,7 +16,8 @@ const related = [
   { label: 'Décimo tercer mes', path: '/calculadoras/decimo-tercer-mes/', icon: 'calendar' },
   { label: 'Vacaciones', path: '/calculadoras/vacaciones/', icon: 'calendar' },
   { label: 'Liquidación laboral', path: '/calculadoras/liquidacion-laboral/', icon: 'receipt' },
-  { label: 'Horas extras', path: '/calculadoras/horas-extras/', icon: 'clock' }
+  { label: 'Horas extras', path: '/calculadoras/horas-extras/', icon: 'clock' },
+  { label: 'Salario mínimo', path: '/calculadoras/salario-minimo/', icon: 'wallet' }
 ] as const;
 const examples = [650, 800, 1000, 1200, 1500, 2000, 3000, 5000].map(grossPerPay => calculateNetSalary({ grossPerPay, frequency: 'monthly' }));
 const faq = [

@@ -1,0 +1,67 @@
+---
+/**
+ * Calendario de quincenas 2027 (CP-SEO-003, entrega 2). Las fechas 15 y fin de mes son la práctica habitual, no una norma:
+ * el Código de Trabajo solo fija que el salario no puede pagarse en plazos mayores de una quincena (art. 148).
+ * Fines de semana y feriados: reglas verificadas de src/data/overtime-rules.ts (arts. 46 y 47, Ley 291 de 2022).
+ */
+import EditorialPage from '../../layouts/EditorialPage.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import Faq from '../../components/Faq.astro';
+import LegalSources from '../../components/LegalSources.astro';
+import { GUIDES } from '../../data/site';
+import { holidayLabel } from '../../lib/tools/calculations';
+
+const guide = GUIDES.find(g => g.path === '/guias/calendario-de-quincenas-2027/')!;
+const base = import.meta.env.BASE_URL;
+const year = 2027;
+const MONTHS = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+const WEEKDAYS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+const iso = (d: Date) => d.toISOString().slice(0, 10);
+const isWorkday = (d: Date) => d.getUTCDay() !== 0 && d.getUTCDay() !== 6 && !holidayLabel(iso(d));
+/** Día hábil anterior (lunes a viernes, sin feriados nacionales), solo como referencia. */
+const previousWorkday = (d: Date) => { const p = new Date(d); do p.setUTCDate(p.getUTCDate() - 1); while (!isWorkday(p)); return p; };
+const label = (d: Date) => `${WEEKDAYS[d.getUTCDay()]} ${d.getUTCDate()} de ${MONTHS[d.getUTCMonth()]}`;
+const paydays = MONTHS.flatMap((month, m) => [15, new Date(Date.UTC(year, m + 1, 0)).getUTCDate()].map((day, i) => {
+  const date = new Date(Date.UTC(year, m, day));
+  const holiday = holidayLabel(iso(date));
+  const weekend = date.getUTCDay() === 0 || date.getUTCDay() === 6;
+  return { month, n: m * 2 + i + 1, date, holiday, weekend, prev: weekend || holiday ? previousWorkday(date) : null };
+}));
+const shifted = paydays.filter(p => p.prev);
+const faq = [
+  { q: '¿Qué días se paga la quincena en Panamá?', a: 'Lo habitual es el 15 y el último día de cada mes, pero el Código de Trabajo no fija esas fechas: solo exige que el salario no se pague en plazos mayores de una quincena (art. 148). Tu contrato o el reglamento de tu empresa indican el día exacto.' },
+  { q: '¿Qué pasa si el día de pago cae en fin de semana o feriado?', a: 'El Código de Trabajo no lo regula. Muchas empresas adelantan el pago al día hábil anterior, pero no es una regla general: confirma con tu empleador. En la tabla te indicamos el día hábil anterior solo como referencia.' },
+  { q: '¿Cuántas quincenas tiene 2027?', a: `Veinticuatro: dos por mes. En 2027, ${shifted.length} de las fechas habituales caen en sábado, domingo o feriado.` },
+  { q: '¿Se pagan en la quincena las horas extras?', a: 'Sí. El pago del salario debe incluir las horas extraordinarias trabajadas hasta cinco días laborables antes del día de pago del período (Código de Trabajo, art. 37).' },
+];
+---
+<EditorialPage title="Calendario de quincenas 2027 en Panamá: fechas de pago" description="Las 24 fechas habituales de pago de quincena en Panamá en 2027 (15 y fin de mes), cuáles caen en fin de semana o feriado y qué dice el Código de Trabajo." canonicalPath={guide.path} kicker="Guía · Trabajo" heading={guide.title} lede="Las fechas habituales de pago del 15 y fin de mes, con las que caen en sábado, domingo o feriado nacional." crumbs={[{ label: 'Guías', path: '/guias/' }, { label: 'Quincenas 2027', path: guide.path }]} related={[
+  { label: 'Mi Quincena', path: '/finanzas/mi-quincena/', note: 'Tu dinero hasta el próximo pago.' },
+  { label: 'Salario neto', path: '/calculadoras/salario-neto/', note: 'Cuánto recibes por quincena.' },
+  { label: 'Días hábiles y feriados', path: '/vida-cotidiana/dias-habiles-y-feriados/', note: 'Feriados de 2027 y días laborables.' },
+  { label: 'Metas de ahorro', path: '/finanzas/meta-de-ahorro/', note: 'Aportes el 15 y fin de mes.' }
+]}>
+    <h2>Qué dice la ley</h2>
+    <p>El Código de Trabajo <strong>no fija días de pago</strong>. Establece que, cualquiera que sea la forma de pago, el salario no puede pagarse en plazos que excedan de una quincena (art. 148), que se paga en el lugar donde se presta el servicio y durante las horas de trabajo (art. 153), y que debe incluir las horas extras trabajadas hasta cinco días laborables antes del día de pago (art. 37). Pagar el 15 y el último día del mes es la práctica habitual de muchas empresas, no una obligación legal: tu contrato o el reglamento interno indican tu fecha.</p>
+
+    <h2>Las 24 quincenas de {year}</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th scope="col">Quincena</th><th scope="col">Fecha habitual</th><th scope="col">Observación</th></tr></thead>
+        <tbody>{paydays.map(p => <tr><th scope="row">{p.n}</th><td>{label(p.date)}</td><td>{p.holiday ? `Feriado: ${p.holiday}. Día hábil anterior: ${label(p.prev!)}` : p.weekend ? `Fin de semana. Día hábil anterior: ${label(p.prev!)}` : 'Día hábil'}</td></tr>)}</tbody>
+        <caption>Fechas del 15 y último día de cada mes. El «día hábil anterior» es solo una referencia: el Código no indica qué hacer cuando la fecha cae en fin de semana o feriado.</caption>
+      </table>
+    </div>
+    <AdSlot name="inArticle" />
+    <h2>Fechas que caen en fin de semana o feriado</h2>
+    <p>En {year}, {shifted.length} de las 24 fechas habituales no son días hábiles: {shifted.map(p => label(p.date)).join('; ')}. Si tu empresa paga por transferencia, el dinero puede reflejarse en tu cuenta en otra fecha según el banco.</p>
+
+    <h2>El décimo tercer mes en {year}</h2>
+    <p>Las tres partidas se pagan el 15 de abril, el 15 de agosto y el 15 de diciembre (Decreto de Gabinete 221 de 1971, art. 3). En {year}, el 15 de agosto cae en domingo. Consulta los períodos y ejemplos en la <a href={`${base}guias/fechas-de-pago-del-decimo-tercer-mes/`}>guía de fechas del décimo</a>.</p>
+
+    <h2>Organiza tu quincena</h2>
+    <p>Usa <a href={`${base}finanzas/mi-quincena/`}>Mi Quincena</a> para repartir tu dinero hasta el próximo pago y la <a href={`${base}finanzas/meta-de-ahorro/`}>calculadora de metas de ahorro</a> para programar aportes el 15 y fin de mes.</p>
+
+    <Faq items={faq} />
+    <LegalSources sources={['laborCodePay', 'laborCodeOvertime', 'law291', 'thirteenth', 'mitradel']} reviewedOn="2026-11-27" />
+</EditorialPage>

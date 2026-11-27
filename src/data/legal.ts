@@ -81,6 +81,12 @@ export const OFFICIAL_SOURCES = {
     detail: 'Arts. 30 (períodos y tipos de jornada), 31 (límites diarios y semanales), 32 (turnos rotativos), 33 (recargos de 25%, 50% y 75%), 34 (tiempo computable), 36 (máximo de 3 horas extra diarias y 9 semanales y 75% adicional), 39 (descansos), 45 a 49 (descanso semanal, días libres, fiestas y duelo nacional) y 50 (acumulación de recargos).',
     url: 'https://www.organojudicial.gob.pa/uploads/wp_repo/uploads/2016/11/c%C3%B3digo-detrabajo.pdf'
   },
+  laborCodePay: {
+    institution: 'Órgano Judicial / MITRADEL (recopilación MITRADEL–OIT)',
+    title: 'Código de Trabajo: período y forma de pago del salario',
+    detail: 'Art. 148 (el salario no puede pagarse en plazos que excedan de una quincena), art. 153 (pago en el lugar de trabajo y durante las horas de trabajo) y art. 37 (horas extras trabajadas hasta cinco días laborables antes del día de pago).',
+    url: 'https://www.organojudicial.gob.pa/uploads/wp_repo/uploads/2016/11/c%C3%B3digo-detrabajo.pdf'
+  },
   law291: {
     institution: 'Gaceta Oficial 29507-B (copia de la Procuraduría de la Administración)',
     title: 'Ley 291 de 2022, que adopta medidas de concientización nacional sobre el 20 de diciembre de 1989',

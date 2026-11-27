@@ -6,10 +6,17 @@ import FxRelated from '../../components/fx/FxRelated.astro';
 import FxGuide from '../../components/fx/FxGuide.astro';
 import Faq from '../../components/Faq.astro';
 import LegalSources from '../../components/LegalSources.astro';
+import { calculateThirteenthMonth, thirteenthPeriod } from '../../lib/calculations';
+import { formatDate, formatMoney } from '../../lib/format';
 
 const path = '/calculadoras/decimo-tercer-mes/';
 const base = import.meta.env.BASE_URL;
+// CP-SEO-003: tercera partida de 2026, con ejemplos del mismo motor de la calculadora (salario fijo los cuatro meses).
+const dec2026 = thirteenthPeriod('diciembre', 2026);
+const dec2026Weekday = new Intl.DateTimeFormat('es-PA', { weekday: 'long', timeZone: 'UTC' }).format(new Date(`${dec2026.payDate}T00:00:00Z`));
+const dec2026Examples = [650, 1000, 1500, 2000].map(salary => ({ salary, r: calculateThirteenthMonth({ ordinaryEarnings: salary * 4, regularMonthlySalary: salary }) }));
 const faq = [
+  { q: '¿Cuándo se paga la tercera partida del décimo de 2026?', a: `El ${dec2026Weekday} 15 de diciembre de 2026. Cubre lo devengado del 16 de agosto al 15 de diciembre de 2026 (Decreto de Gabinete 221 de 1971, art. 3, con el corte habitual del día 15).` },
   { q: '¿Cuánto es el décimo tercer mes en Panamá?', a: 'En la práctica de planillas, cada partida equivale a la doceava parte de lo devengado en los cuatro meses que cubre. Con un salario fijo todo el período, la partida bruta es un tercio del salario mensual: con B/.900 al mes, B/.300. El decreto que lo creó lo expresa como un día de salario por cada once días de trabajo efectivo.' },
   { q: '¿Cuándo se paga el décimo tercer mes?', a: 'El 15 de abril, el 15 de agosto y el 15 de diciembre (Decreto de Gabinete 221 de 1971, art. 3). La norma fija las fechas de pago, no los cortes de cada período; lo habitual es cortar el día 15 (16 dic–15 abr, 16 abr–15 ago, 16 ago–15 dic), aunque algunos empleadores usan cortes de fin de mes.' },
   { q: '¿Qué descuentos tiene el décimo?', a: 'El trabajador aporta una contribución especial de 7.25% a la Caja de Seguro Social sobre cada partida (Ley 51 de 2005, texto único de 2025, art. 96). No se descuenta Seguro Educativo. El décimo es renta gravable, por lo que puede llevar retención de impuesto sobre la renta si tu ingreso anual supera B/.11,000.' },
@@ -116,6 +123,17 @@ const schema = {
 
 
   <article class="fx-prose article">
+    <h2 id="tercera-partida-2026">Tercera partida de 2026: pago el 15 de diciembre</h2>
+    <p>La tercera partida se paga el <strong>{dec2026Weekday} 15 de diciembre de 2026</strong> y corresponde a lo devengado del {formatDate(dec2026.start)} al {formatDate(dec2026.end)}. Si tu salario fue fijo esos cuatro meses, la partida bruta es un tercio de tu salario mensual. Sobre ella se descuenta el 7.25% de la CSS y, si corresponde, la parte proporcional del ISR; no se descuenta Seguro Educativo.</p>
+    <div class="table-wrap">
+      <table>
+        <caption>Tercera partida de 2026 con salario fijo de agosto a diciembre. ISR estimado de forma proporcional; tu planilla puede variar por redondeo, comisiones u horas extras.</caption>
+        <thead><tr><th scope="col">Salario mensual</th><th scope="col">Partida bruta</th><th scope="col">CSS 7.25%</th><th scope="col">ISR estimado</th><th scope="col">Neto estimado</th></tr></thead>
+        <tbody>{dec2026Examples.map(({ salary, r }) => <tr><th scope="row">{formatMoney(salary)}</th><td>{formatMoney(r.gross)}</td><td>{formatMoney(r.socialSecurity)}</td><td>{formatMoney(r.incomeTax ?? 0)}</td><td><strong>{formatMoney(r.net)}</strong></td></tr>)}</tbody>
+      </table>
+    </div>
+    <p>Si entraste a trabajar después del 16 de agosto, indica tu fecha de ingreso en el modo «Salario fijo». Si tu salario cambió o cobraste horas extras o comisiones, usa el modo «Con lo devengado». Antes de gastarlo, compara qué te conviene más: <a href={`${base}finanzas/tarjeta-de-credito/`}>adelantar el pago de una tarjeta de crédito</a> o <a href={`${base}finanzas/meta-de-ahorro/`}>reservarlo para una meta de ahorro</a>.</p>
+
     <h2>¿Cómo se calcula el décimo tercer mes?</h2>
     <p>El décimo tercer mes lo creó el Decreto de Gabinete 221 de 1971 y se paga en tres partidas, el 15 de abril, el 15 de agosto y el 15 de diciembre. Cada una corresponde a lo devengado en los cuatro meses anteriores. La norma fija las fechas de pago; los cortes del día 15 de la tabla son los habituales en planilla:</p>
     <div class="table-wrap">

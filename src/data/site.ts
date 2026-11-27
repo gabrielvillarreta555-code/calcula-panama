@@ -98,5 +98,11 @@ export const GUIDES = [
     topic: 'Impuestos',
     title: 'ITBMS en Panamá: tarifas del 7%, 10% y 15% y cómo calcularlo',
     description: 'Qué tarifa corresponde, cómo agregar o quitar el impuesto de un precio y los errores más comunes.'
+  },
+  {
+    path: '/guias/calendario-de-quincenas-2027/',
+    topic: 'Trabajo',
+    title: 'Calendario de quincenas 2027 en Panamá',
+    description: 'Las 24 fechas habituales de pago del 15 y fin de mes, cuáles caen en fin de semana o feriado y qué dice el Código de Trabajo.'
   }
 ] as const;
