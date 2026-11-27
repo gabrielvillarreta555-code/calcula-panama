@@ -25,7 +25,7 @@ describe('política de publicidad por página (CP-ADS-002)', () => {
   it('las herramientas con datos personales quedan en la segunda etapa', () => {
     expect(pagesByTier('stage2').sort()).toEqual([
       '/calculadoras/decimo-tercer-mes/', '/calculadoras/horas-extras/', '/calculadoras/liquidacion-laboral/', '/calculadoras/salario-neto/', '/calculadoras/vacaciones/',
-      '/compras/modo-pasillo/', '/educacion/promedio-de-notas/', '/finanzas/calculadora-prestamos/', '/finanzas/meta-de-ahorro/',
+      '/compras/modo-pasillo/', '/educacion/promedio-de-notas/', '/finanzas/calculadora-prestamos/', '/finanzas/meta-de-ahorro/', '/finanzas/tarjeta-de-credito/',
       '/vehiculos/costo-mensual-de-un-auto/', '/vehiculos/financiamiento-de-auto/'
     ]);
   });

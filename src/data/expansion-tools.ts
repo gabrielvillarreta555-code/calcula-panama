@@ -1,4 +1,4 @@
-export type ToolId = 'unit' | 'discount' | 'savings' | 'grades' | 'energy' | 'car-loan' | 'fuel-trip' | 'car-cost' | 'itbms' | 'split' | 'holidays';
+export type ToolId = 'unit' | 'discount' | 'savings' | 'grades' | 'energy' | 'car-loan' | 'fuel-trip' | 'car-cost' | 'itbms' | 'split' | 'holidays' | 'card';
 export interface Field {
   key: string; label: string; value?: string; type?: 'date' | 'select';
   options?: { value: string; label: string }[]; optional?: boolean; digits?: number;
@@ -250,6 +250,37 @@ export const expansionTools: Tool[] = [
       { q: '¿Cuáles son los feriados de Panamá en 2027?', a: `Según el Código de Trabajo: ${holidaysOf(2027).map(h => h.day).join('; ')}.` },
       { q: '¿Qué pasa si un feriado cae en domingo?', a: 'El lunes siguiente es día de descanso obligatorio (Código de Trabajo, art. 47). Si cae en sábado, la norma no traslada el descanso.' },
       { q: '¿El 4 de noviembre es feriado?', a: 'No figura entre las fiestas nacionales del artículo 46 del Código de Trabajo. Algunos años el Órgano Ejecutivo decreta días libres adicionales; esta herramienta no los incluye.' },
+    ],
+  },
+  {
+    id: 'card', path: '/finanzas/tarjeta-de-credito/', category: 'Finanzas', title: 'Calculadora de tarjeta de crédito: intereses y pago mínimo',
+    description: 'Calcula cuántos meses tardas en pagar tu tarjeta de crédito y cuántos intereses pagas con un pago fijo o pagando solo el mínimo.',
+    intro: 'Escribe el saldo de tu tarjeta, la tasa de interés anual de tu estado de cuenta y cuánto pagarás cada mes. Compara pagar una cuota fija con pagar solo el mínimo.',
+    fields: [
+      { key: 'balance', label: 'Saldo de la tarjeta (B/.)', digits: 2 },
+      { key: 'rate', label: 'Tasa de interés anual (%)' },
+      { key: 'mode', label: 'Cómo vas a pagar', type: 'select', options: [{ value: 'fixed', label: 'Un pago fijo cada mes' }, { value: 'minimum', label: 'Solo el pago mínimo' }] },
+      { key: 'payment', label: 'Pago fijo mensual (B/.)', digits: 2 },
+      { key: 'minPercent', label: 'Pago mínimo: porcentaje del saldo (%)', value: '5' },
+      { key: 'minFloor', label: 'Pago mínimo: monto mínimo (B/.)', value: '25', digits: 2 },
+    ],
+    steps: ['Copia el saldo y la tasa de interés anual de tu estado de cuenta.', 'Elige si pagarás una cantidad fija o solo el mínimo. Para el mínimo, usa el porcentaje y el monto mínimo que indica tu banco.', 'Revisa los meses, los intereses y cuánto tendrías que pagar para saldar la deuda en 12, 24 o 36 meses.'],
+    formula: 'Cada mes: interés = saldo × tasa anual ÷ 12; nuevo saldo = saldo + interés − pago. El pago mínimo es el mayor entre el porcentaje indicado del saldo con intereses y el monto mínimo. El pago fijo para saldar en n meses = saldo × i ÷ (1 − (1 + i)^−n), con i = tasa ÷ 12.',
+    example: 'Ejemplo hipotético: un saldo de B/.2,000.00 al 36% anual se paga en 31 meses con B/.100.00 al mes, con B/.1,099.92 de intereses. Pagando solo el mínimo (5% del saldo, al menos B/.25.00), tardaría 95 meses y pagaría B/.2,366.65 de intereses.',
+    limits: ['Supone que no haces compras nuevas ni retiros, y que la tasa no cambia.', 'Calcula el interés sobre el saldo de cada mes. Tu banco puede usar el saldo promedio diario y cobrar cargos, seguros, comisiones o intereses por mora que aquí no se incluyen.', 'El pago mínimo real lo fija tu banco y puede calcularse de otra forma: revísalo en tu estado de cuenta.', 'Saldo hasta B/.10,000,000, tasa de 0% a 100% y plazo de hasta 50 años.'],
+    context: [
+      'Pagar solo el mínimo mantiene la tarjeta al día, pero alarga la deuda: como el mínimo baja a medida que baja el saldo, la mayor parte de los primeros pagos se va en intereses.',
+      'Si tienes varias deudas, pagar primero la de tasa más alta reduce el total de intereses. Usa la calculadora con cada tarjeta para comparar.',
+      'Antes de consolidar la deuda con un préstamo personal, compara la cuota y el costo total con la calculadora de préstamos, incluidas las comisiones y los seguros.',
+    ],
+    checkedOn: '2026-11-27',
+    sources: [],
+    sourceNote: 'La simulación aplica la fórmula del interés compuesto mensual y no depende de una norma. La tasa, el pago mínimo y el método de cálculo del interés los fija el contrato de tu tarjeta: consúltalos en tu estado de cuenta o con tu banco.',
+    related: [{ title: 'Estimar una cuota de préstamo', path: '/finanzas/calculadora-prestamos/' }, budget, { title: 'Planear una meta de ahorro', path: '/finanzas/meta-de-ahorro/' }],
+    faq: [
+      { q: '¿Cuánto tardo en pagar mi tarjeta pagando solo el mínimo?', a: 'Depende del saldo, la tasa y cómo calcula el mínimo tu banco. Con B/.2,000.00 al 36% anual y un mínimo del 5% (al menos B/.25.00), serían 95 meses y B/.2,366.65 de intereses. Con un pago fijo de B/.100.00, 31 meses.' },
+      { q: '¿Cómo se calcula el interés de la tarjeta de crédito?', a: 'En esta simulación, el saldo de cada mes se multiplica por la tasa anual dividida entre 12. Muchos bancos calculan el interés sobre el saldo promedio diario, así que el importe real puede variar algo.' },
+      { q: '¿Qué pasa si mi pago no cubre los intereses?', a: 'La deuda no baja nunca. La calculadora te avisa y te pide un pago mayor.' },
     ],
   },
 ];

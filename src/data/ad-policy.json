@@ -138,6 +138,10 @@
     "/vida-cotidiana/dias-habiles-y-feriados/": {
       "tier": "stage1",
       "reason": "Solo fechas de un calendario: no son datos personales."
+    },
+    "/finanzas/tarjeta-de-credito/": {
+      "tier": "stage2",
+      "reason": "Deuda personal. Requiere calculadora aislada."
     }
   }
 }

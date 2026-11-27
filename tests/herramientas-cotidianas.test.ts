@@ -110,3 +110,31 @@ describe('días hábiles y feriados (Código de Trabajo, arts. 46 y 47; Ley 291 
     expect(holidaysOf(2027).map(h => h.text)).toContain('lunes 29 de noviembre: lunes de descanso por una fiesta en domingo (art. 47)');
   });
 });
+
+import { creditCard } from '../src/lib/tools/calculations';
+describe('tarjeta de crédito', () => {
+  it('reproduce los ejemplos publicados', () => {
+    expect(creditCard({ balance: 2000, annualRate: 36, mode: 'fixed', payment: 100, minPercent: 0 })).toMatchObject({ months: 31, interest: 1099.92, paid: 3099.92 });
+    expect(creditCard({ balance: 2000, annualRate: 36, mode: 'minimum', payment: 25, minPercent: 5 })).toMatchObject({ months: 95, interest: 2366.65, firstPayment: 103 });
+  });
+  it('coincide con la fórmula cerrada del número de pagos', () => {
+    // n = −ln(1 − B·i/P) / ln(1 + i) con B = 2000, i = 3%, P = 100 → 30.99… → 31 pagos.
+    expect(Math.ceil(-Math.log(1 - 2000 * 0.03 / 100) / Math.log(1.03))).toBe(31);
+  });
+  it('el saldo final es cero y lo pagado = saldo + intereses', () => {
+    const r = creditCard({ balance: 1234.56, annualRate: 29.9, mode: 'fixed', payment: 75, minPercent: 0 });
+    expect(r.schedule.at(-1)!.balance).toBe(0);
+    expect(Math.round(r.paid * 100)).toBe(123456 + Math.round(r.interest * 100));
+  });
+  it('el pago fijo para 12, 24 y 36 meses salda la deuda en ese plazo', () => {
+    const r = creditCard({ balance: 2000, annualRate: 36, mode: 'fixed', payment: 100, minPercent: 0 });
+    for (const p of r.payoff) expect(creditCard({ balance: 2000, annualRate: 36, mode: 'fixed', payment: p.payment, minPercent: 0 }).months).toBe(p.months);
+  });
+  it('con tasa cero no hay intereses', () => expect(creditCard({ balance: 300, annualRate: 0, mode: 'fixed', payment: 100, minPercent: 0 })).toMatchObject({ months: 3, interest: 0 }));
+  it('rechaza un pago que no cubre los intereses y datos inválidos', () => {
+    expect(() => creditCard({ balance: 2000, annualRate: 36, mode: 'fixed', payment: 60, minPercent: 0 })).toThrow(/no cubre los intereses/);
+    expect(() => creditCard({ balance: 0, annualRate: 36, mode: 'fixed', payment: 60, minPercent: 0 })).toThrow();
+    expect(() => creditCard({ balance: 100, annualRate: 101, mode: 'fixed', payment: 60, minPercent: 0 })).toThrow();
+    expect(() => creditCard({ balance: 100, annualRate: 20, mode: 'minimum', payment: 0, minPercent: 0 })).toThrow();
+  });
+});
