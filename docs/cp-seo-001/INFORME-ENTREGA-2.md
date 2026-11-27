@@ -31,7 +31,11 @@
 
 - **Comportamiento:** sin desbordamiento horizontal, sin peticiones a terceros y sin errores de JavaScript.
 
-**Además:** el flujo «Validación de producción» (`produccion.yml`) se lanzó sobre `main` en Chromium, Firefox, WebKit y iPhone. Ver su resultado en Actions.
+**Además, flujo «Validación de producción»** (`produccion.yml`, ejecución `46030717889`, con `check_app: 0`, como las ejecuciones anteriores): **correcto**.
+- HTTPS y redirecciones correctas.
+- Todas las URL del sitemap responden 200, con canónica y CSP estricta, y sin AdSense.
+
+**Incidencia:** una primera ejecución con el valor por defecto `check_app: 1` falló porque `app.calculapanama.com` **no existe en el DNS** (NXDOMAIN en Cloudflare). No guarda relación con este PR: la app aislada aún no está desplegada (`quincenaMoved: false`).
 
 ## 2. Preparado sin publicar
 
