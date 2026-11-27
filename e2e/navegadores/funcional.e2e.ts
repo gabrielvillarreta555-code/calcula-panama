@@ -2,7 +2,8 @@ import { test, expect, type Page } from '@playwright/test';
 
 // CP-DESIGN-007: comprobaciones de Midnight Functional que se ejecutan también en Firefox y WebKit (Safari)
 // con playwright.browsers.config.ts. Solo usan APIs estándar para funcionar igual en los tres motores.
-const ORIGIN = 'http://127.0.0.1:4329';
+// FX_BASE_URL permite ejecutar las mismas pruebas contra producción (https://calculapanama.com).
+const ORIGIN = new URL(process.env.FX_BASE_URL ?? 'http://127.0.0.1:4329').origin;
 function watch(page: Page) {
   const errors: string[] = [], external: string[] = [];
   page.on('pageerror', e => errors.push(e.message));

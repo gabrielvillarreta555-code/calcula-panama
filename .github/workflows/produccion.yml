@@ -30,6 +30,10 @@ jobs:
         run: npx playwright test --config playwright.production.config.ts --trace off
         env:
           PROD_CHECK_APP: ${{ inputs.check_app }}
+      - name: Probar Salario neto, Mi Quincena y Modo Pasillo en producción (Chromium, Firefox, WebKit y iPhone)
+        run: npx playwright test --config playwright.browsers.config.ts --trace off --reporter=list
+        env:
+          FX_BASE_URL: https://calculapanama.com
       - name: Guardar informe
         if: always()
         uses: actions/upload-artifact@v4
