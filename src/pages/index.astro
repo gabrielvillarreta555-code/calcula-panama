@@ -1,19 +1,22 @@
 ---
+/**
+ * Portada editorial Midnight Edition (CP-DESIGN-006), integrada en el sitio.
+ * Origen: docs/cp-design-006/prototipos/index.html (rama design/cp-design-005-midnight), portado sin cambios de
+ * composición. Se sustituyen los enlaces de ejemplo por las rutas reales y las cifras fijas por datos del sitio.
+ * El <head> (título, descripción, canónica, datos estructurados, CSP y política de publicidad) es el de antes.
+ */
 import Layout from '../layouts/Layout.astro';
-import Icon from '../components/Icon.astro';
-import CalculatorArtwork from '../components/CalculatorArtwork.astro';
-import ShoppingScene from '../components/ShoppingScene.astro';
-import { CALCULATORS, SITE } from '../data/site';
+import EdPicture from '../components/editorial/EdPicture.astro';
+import { CALCULATORS, GUIDES, SITE } from '../data/site';
 import { expansionTools, vehicleTools } from '../data/expansion-tools';
-import '../styles/home-showcase.css';
 import { calculateNetSalary } from '../lib/calculations';
 import { formatMoney } from '../lib/format';
+import { searchIndex } from '../lib/search-index';
 
 const base = import.meta.env.BASE_URL;
 const href = (p: string) => `${base}${p.replace(/^\//, '')}`;
-const example = calculateNetSalary({ grossPerPay: 1500, frequency: 'monthly' });
-const share = (n: number) => `${((n / example.gross) * 100).toFixed(1)}%`;
-const moreTools = [...vehicleTools, ...expansionTools.filter(t => t.category !== 'Compras')];
+
+// Datos estructurados: idénticos a la portada anterior.
 const allTools = [
   ...CALCULATORS.map(c => ({ name: c.label, path: c.path })),
   { name: 'Mi Quincena', path: '/finanzas/mi-quincena/' },
@@ -22,163 +25,232 @@ const allTools = [
   ...[...expansionTools, ...vehicleTools].map(t => ({ name: t.title, path: t.path }))
 ];
 const schema = [
-  {
-    '@context': 'https://schema.org',
-    '@type': 'WebSite',
-    name: SITE.name,
-    description: SITE.description,
-    inLanguage: 'es-PA',
-    url: new URL(base, Astro.site ?? Astro.url.origin).toString()
-  },
-  {
-    '@context': 'https://schema.org',
-    '@type': 'ItemList',
-    name: 'Herramientas de Calcula Panamá',
-    itemListElement: allTools.map((c, i) => ({ '@type': 'ListItem', position: i + 1, name: c.name, url: new URL(c.path.replace(/^\//, ''), Astro.site ?? Astro.url.origin).toString() }))
-  }
+  { '@context': 'https://schema.org', '@type': 'WebSite', name: SITE.name, description: SITE.description, inLanguage: 'es-PA', url: new URL(base, Astro.site ?? Astro.url.origin).toString() },
+  { '@context': 'https://schema.org', '@type': 'ItemList', name: 'Herramientas de Calcula Panamá', itemListElement: allTools.map((c, i) => ({ '@type': 'ListItem', position: i + 1, name: c.name, url: new URL(c.path.replace(/^\//, ''), Astro.site ?? Astro.url.origin).toString() })) }
 ];
+
+// «El dato»: cifra del motor real de salario neto.
+const example = calculateNetSalary({ grossPerPay: 1500, frequency: 'monthly' });
+const pct = (n: number) => (n / example.gross) * 100;
+const fmtPct = (n: number) => `${new Intl.NumberFormat('es-PA', { maximumFractionDigits: 2 }).format(pct(n))} %`;
+const [netInt, netCents] = formatMoney(example.net).replace(/^B\/\.\s?/, '').split('.');
+
+// Secciones del prototipo con las rutas reales.
+type Tool = { n: string; name: string; desc: string; path: string };
+const sections: { id: string; num: string; name: string; deck: string; tools: Tool[] }[] = [
+  { id: 'movilidad', num: '01', name: 'Movilidad', deck: 'Más allá del precio.', tools: [
+    { n: '1.1', name: 'Financiamiento de autos', desc: 'Letra, tasa efectiva y tabla de amortización.', path: '/vehiculos/financiamiento-de-auto/' },
+    { n: '1.2', name: 'Combustible por viaje', desc: 'Litros, galones y costo por persona.', path: '/vehiculos/combustible-por-viaje/' },
+    { n: '1.3', name: 'Costo mensual de un auto', desc: 'Letra, seguro, mantenimiento y costo por kilómetro.', path: '/vehiculos/costo-mensual-de-un-auto/' }] },
+  { id: 'finanzas', num: '02', name: 'Finanzas', deck: 'Tu futuro comienza hoy.', tools: [
+    { n: '2.1', name: 'Préstamos', desc: 'Cuota, intereses y costo total.', path: '/finanzas/calculadora-prestamos/' },
+    { n: '2.2', name: 'Metas de ahorro', desc: 'Cuánto apartar por quincena o por mes.', path: '/finanzas/meta-de-ahorro/' },
+    { n: '2.3', name: 'Mi Quincena', desc: 'Tu dinero disponible hasta el próximo pago.', path: '/finanzas/mi-quincena/' }] },
+  { id: 'trabajo', num: '03', name: 'Trabajo', deck: 'El valor de tu esfuerzo.', tools: [
+    { n: '3.1', name: 'Salario neto', desc: 'Seguro Social, Seguro Educativo e ISR.', path: '/calculadoras/salario-neto/' },
+    { n: '3.2', name: 'Décimo tercer mes', desc: 'Partidas del 15 de abril, agosto y diciembre.', path: '/calculadoras/decimo-tercer-mes/' },
+    { n: '3.3', name: 'Vacaciones', desc: 'Días acumulados y pago proporcional.', path: '/calculadoras/vacaciones/' },
+    { n: '3.4', name: 'Liquidación laboral', desc: 'Prima de antigüedad, indemnización y preaviso.', path: '/calculadoras/liquidacion-laboral/' }] },
+  { id: 'hogar', num: '04', name: 'Hogar y compras', deck: 'El costo de vivir.', tools: [
+    { n: '4.1', name: 'Consumo eléctrico', desc: 'kWh de cada aparato y su costo con tu tarifa.', path: '/vida-cotidiana/consumo-electrico/' },
+    { n: '4.2', name: 'Modo Pasillo', desc: 'Suma tu compra mientras recorres el supermercado.', path: '/compras/modo-pasillo/' },
+    { n: '4.3', name: 'Descuentos y promociones', desc: 'El ahorro real de un 2x1 o un 3x2.', path: '/compras/descuentos-y-promociones/' },
+    { n: '4.4', name: 'Precio por unidad', desc: 'Libra, kilo o litro: qué sale más barato.', path: '/compras/precio-por-unidad/' }] },
+  { id: 'educacion', num: '05', name: 'Educación', deck: 'Cuentas claras para estudiar.', tools: [
+    { n: '5.1', name: 'Promedio de notas', desc: 'Tu promedio ponderado y la nota que necesitas.', path: '/educacion/promedio-de-notas/' }] }
+];
+const byId = Object.fromEntries(sections.map(s => [s.id, s]));
+const toolCount = new Set(sections.flatMap(s => s.tools.map(t => t.path))).size;
+const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
+const guides = GUIDES;
+const index = searchIndex(href);
 ---
-<Layout title="Calcula Panamá: calculadoras de salario, finanzas, compras y autos" description="Calculadoras gratuitas para Panamá: salario neto, décimo, liquidación, préstamos, financiamiento de autos, combustible, compras y presupuesto, con fórmulas y fuentes explicadas." canonicalPath="/" schema={schema} blueShowcase>
-  <section class="hero">
-    <div class="container hero-inner">
+<Layout title="Calcula Panamá: calculadoras de salario, finanzas, compras y autos" description="Calculadoras gratuitas para Panamá: salario neto, décimo, liquidación, préstamos, financiamiento de autos, combustible, compras y presupuesto, con fórmulas y fuentes explicadas." canonicalPath="/" schema={schema} variant="editorial">
+  <Fragment slot="masthead">
+    <div class="wrap">
+      <div class="rail"><span class="label">Calcula Panamá — Edición Midnight</span><span class="label">Panamá · {new Date().getFullYear()}</span></div>
+      <header class="masthead">
+        <a class="wordmark" href={href('/')} aria-label={`${SITE.name}, inicio`}><b>CALCULA.</b><small>PANAMÁ</small></a>
+        <nav aria-label="Secciones" class="sections">
+          <a href="#movilidad">Movilidad</a><a href="#finanzas">Finanzas</a><a href="#trabajo">Trabajo</a><a href="#hogar">Hogar</a><a href="#educacion">Educación</a><a href="#revista">Revista</a>
+        </nav>
+        <div class="tools"><button type="button" data-open aria-controls="overlay" aria-expanded="false">Buscar</button><button type="button" data-open aria-controls="overlay" aria-expanded="false">Índice</button></div>
+      </header>
+    </div>
+    <figure class="photo ed-hero-photo">
+      <EdPicture name="hero" dir="fotos" height={567} eager sizes="100vw" alt="Rascacielos de la ciudad de Panamá iluminados al anochecer, reflejados en la bahía." />
+    </figure>
+    <div class="wrap"><div class="photo"><figcaption><span>Ciudad de Panamá al anochecer · Fotografía real</span><span>Elemaki · <a href="https://creativecommons.org/licenses/by/3.0" rel="noopener noreferrer" target="_blank">CC BY 3.0</a></span></figcaption></div></div>
+  </Fragment>
+
+  <section class="wrap grid ed-hero">
+    <h1>Decisiones inteligentes. <em>Una vida mejor.</em></h1>
+    <div class="ed-hero-side">
+      <p>Descubre cuánto cuesta lo que realmente importa. Calculadoras gratuitas para Panamá, con fórmulas, fuentes y límites explicados.</p>
+      <a class="arrow-link" href="#indice">Explorar herramientas <span>→</span></a>
       <div>
-        <span class="eyebrow">Hecho para Panamá</span>
-        <h1>Tus cuentas de cada día, <em>más claras.</em></h1>
-        <p class="lead">Desde tu salario hasta las compras del supermercado: calcula con herramientas sencillas, gratuitas y hechas para Panamá.</p>
-        <div class="actions">
-          <a class="button primary" href={href('/calculadoras/salario-neto/')}>Calcular mi salario <Icon name="arrow" size={18} /></a>
-          <a class="button secondary" href="#calculadoras">Ver calculadoras</a>
+        <label class="search"><span aria-hidden="true">⌕</span><input type="search" placeholder="¿Qué necesitas calcular?" aria-label="Buscar una herramienta" autocomplete="off" data-search="hero" /></label>
+        <ul class="toollist ed-results" data-results="hero" hidden></ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap index hair" id="indice" aria-labelledby="indice-t">
+    <div class="index-head"><h2 class="label" id="indice-t">Índice</h2><span class="label">{plural(toolCount, 'herramienta', 'herramientas')} · {plural(guides.length, 'guía', 'guías')}</span></div>
+    <ol>
+      {sections.map(s => <li><a href={`#${s.id}`}><span class="num">{s.num}</span><span class="name">{s.name}</span><span class="deck">{s.deck}</span><span class="count">{plural(s.tools.length, 'herramienta', 'herramientas')} →</span></a></li>)}
+      <li><a href="#revista"><span class="num">—</span><span class="name">Revista</span><span class="deck">Conocimiento que vale.</span><span class="count">{plural(guides.length, 'guía', 'guías')} →</span></a></li>
+    </ol>
+  </section>
+
+  <section class="wrap grid datum hair" aria-labelledby="dato-t">
+    <h2 class="label" id="dato-t" style="grid-column:1/-1">El dato</h2>
+    <p class="figure"><small>B/.</small>{netInt}.{netCents}</p>
+    <p>Es lo que recibe al mes quien gana {formatMoney(example.gross)} brutos en Panamá, después del Seguro Social, el Seguro Educativo y el impuesto sobre la renta.</p>
+    <div class="bar" role="img" aria-label={`Neto ${fmtPct(example.net)}, Seguro Social ${fmtPct(example.socialSecurity)}, Seguro Educativo ${fmtPct(example.educationalInsurance)}, ISR ${fmtPct(example.incomeTax)}`}><span style={`flex:${pct(example.net)};background:var(--ivory)`}></span><span style={`flex:${pct(example.socialSecurity)};background:var(--silver)`}></span><span style={`flex:${pct(example.educationalInsurance)};background:#5a7593`}></span><span style={`flex:${pct(example.incomeTax)};background:var(--steel)`}></span></div>
+    <div class="legend"><span><b>{fmtPct(example.net)}</b> neto</span><span><b>{fmtPct(example.socialSecurity)}</b> Seguro Social</span><span><b>{fmtPct(example.educationalInsurance)}</b> Seguro Educativo</span><span><b>{fmtPct(example.incomeTax)}</b> ISR</span></div>
+    <a class="arrow-link cta" href={href('/calculadoras/salario-neto/')}>Calcula tu salario neto <span>→</span></a>
+  </section>
+
+  <section class="wrap grid ed-feature hair" id="movilidad" aria-labelledby="mov-t">
+    <figure class="photo bleed-left"><EdPicture name="movilidad" ratio="4/3" alt="Camioneta Toyota Hilux negra estacionada de noche junto a un edificio de concreto." /><figcaption><span>Toyota Hilux negra · Imagen generada con IA</span><span>Recurso de Calcula Panamá</span></figcaption></figure>
+    <div class="text">
+      <span class="label">01 — Movilidad</span>
+      <h2 id="mov-t">Más allá del precio.</h2>
+      <p class="lede">Comprar, financiar y mantener tu próximo vehículo, con la tasa y los costos que tú escribes.</p>
+      <ul class="toollist">{byId.movilidad!.tools.map(t => <li><a href={href(t.path)}><span class="n">{t.n}</span><strong>{t.name}</strong><i aria-hidden="true">→</i><small>{t.desc}</small></a></li>)}</ul>
+    </div>
+  </section>
+
+  <section class="wrap grid ed-feature reverse hair" id="finanzas" aria-labelledby="fin-t">
+    <figure class="photo bleed-right"><EdPicture name="finanzas" ratio="4/5" alt="Escritorio de oficina frente a un ventanal con vista nocturna de la ciudad de Panamá." /><figcaption><span>Oficina panorámica · Imagen generada con IA</span><span>Recurso de Calcula Panamá</span></figcaption></figure>
+    <div class="text">
+      <span class="label">02 — Finanzas</span>
+      <h2 id="fin-t">Tu futuro comienza hoy.</h2>
+      <p class="lede">Préstamos, metas de ahorro y el dinero de tu quincena, con ejemplos que puedes comprobar.</p>
+      <ul class="toollist">{byId.finanzas!.tools.map(t => <li><a href={href(t.path)}><span class="n">{t.n}</span><strong>{t.name}</strong><i aria-hidden="true">→</i><small>{t.desc}</small></a></li>)}</ul>
+    </div>
+  </section>
+
+  <section class="wrap grid ed-feature hair" id="trabajo" aria-labelledby="tra-t">
+    <figure class="photo bleed-left">
+      <EdPicture name="trabajo" dir="fotos" height={953} ratio="3/2" alt="Esclusas de Miraflores del Canal de Panamá." />
+      <figcaption><span>Esclusas de Miraflores, Canal de Panamá · Fotografía real</span><span>GameOfLight · <a href="https://creativecommons.org/licenses/by-sa/3.0" rel="noopener noreferrer" target="_blank">CC BY-SA 3.0</a></span></figcaption>
+    </figure>
+    <div class="text">
+      <span class="label">03 — Trabajo</span>
+      <h2 id="tra-t">El valor de tu esfuerzo.</h2>
+      <p class="lede">Salario neto, décimo tercer mes, vacaciones y liquidación, con la norma que respalda cada regla.</p>
+      <ul class="toollist">{byId.trabajo!.tools.map(t => <li><a href={href(t.path)}><span class="n">{t.n}</span><strong>{t.name}</strong><i aria-hidden="true">→</i><small>{t.desc}</small></a></li>)}</ul>
+      <p class="label" id="decimo-next"><a href={href('/guias/fechas-de-pago-del-decimo-tercer-mes/')}>Décimo: pagos el 15 de abril, agosto y diciembre →</a></p>
+    </div>
+  </section>
+
+  <section class="wrap grid columns hair" id="hogar" aria-label="Hogar y compras">
+    <section>
+      <figure class="photo"><EdPicture name="hogar" ratio="3/2" alt="Sala de un apartamento con vista al atardecer sobre los edificios de la ciudad." /><figcaption><span>Apartamento moderno · Imagen generada con IA</span><span>Recurso de Calcula Panamá</span></figcaption></figure>
+      <span class="label" style="display:block;margin-top:22px">04 — Hogar</span>
+      <h2>El costo de vivir.</h2>
+      <ul class="toollist">{byId.hogar!.tools.slice(0, 1).map(t => <li><a href={href(t.path)}><span class="n">{t.n}</span><strong>{t.name}</strong><i aria-hidden="true">→</i><small>{t.desc}</small></a></li>)}</ul>
+    </section>
+    <section>
+      <figure class="photo"><EdPicture name="compras" ratio="3/2" alt="Carrito con frutas, verduras y productos en el pasillo de un supermercado." /><figcaption><span>Supermercado · Imagen generada con IA</span><span>Recurso de Calcula Panamá</span></figcaption></figure>
+      <span class="label" style="display:block;margin-top:22px">04 — Compras</span>
+      <h2>Del estante al carrito.</h2>
+      <ul class="toollist">{byId.hogar!.tools.slice(1).map(t => <li><a href={href(t.path)}><span class="n">{t.n}</span><strong>{t.name}</strong><i aria-hidden="true">→</i><small>{t.desc}</small></a></li>)}</ul>
+    </section>
+  </section>
+
+  <section class="wrap grid ed-feature reverse hair" id="educacion" aria-labelledby="edu-t">
+    <figure class="photo bleed-right"><EdPicture name="educacion" ratio="16/10" alt="Mesa de estudio con libros y cuadernos en una biblioteca con vista a la ciudad." /><figcaption><span>Biblioteca moderna · Imagen generada con IA</span><span>Recurso de Calcula Panamá</span></figcaption></figure>
+    <div class="text">
+      <span class="label">05 — Educación</span>
+      <h2 id="edu-t">Cuentas claras para estudiar.</h2>
+      <ul class="toollist">{byId.educacion!.tools.map(t => <li><a href={href(t.path)}><span class="n">{t.n}</span><strong>{t.name}</strong><i aria-hidden="true">→</i><small>{t.desc}</small></a></li>)}</ul>
+    </div>
+  </section>
+
+  <section class="wrap magazine hair" id="revista" aria-labelledby="rev-t">
+    <span class="label">Revista · Guías</span>
+    <h2 id="rev-t">Conocimiento que vale.</h2>
+    <div class="grid articles">
+      <article class="lead">
+        <figure class="photo"><EdPicture name="revista" ratio="16/10" alt="Escritorio con cuaderno, calculadora, informes y café, iluminado por una lámpara." /><figcaption><span>Escritorio editorial · Imagen generada con IA</span><span>Recurso de Calcula Panamá</span></figcaption></figure>
+        <div style="display:flex;flex-direction:column;gap:14px;justify-content:end">
+          <span class="label">Guía · Trabajo</span>
+          <h3><a href={href(guides[0]!.path)}>{guides[0]!.title}</a></h3>
+          <p>{guides[0]!.description}</p>
+          <div class="meta"><span>Con tablas de ejemplo</span><span>·</span><span>Norma citada</span></div>
         </div>
-        <a class="hero-shopping-link" href={href('/compras/modo-pasillo/')}>¿Vas de compras? Abre Modo Pasillo <Icon name="arrow" size={16} /></a>
-        <ul class="trust-row">
-          <li><Icon name="check" size={18} />Gratis y sin registro</li>
-          <li><Icon name="check" size={18} />Tus datos no salen del teléfono</li>
-          <li><Icon name="check" size={18} />Basado en el Código de Trabajo</li>
-        </ul>
-      </div>
-      <div class="hero-example">
-        <aside class="hero-preview" aria-label="Ejemplo de cálculo">
-          <h2 class="preview-title">Ejemplo de salario neto</h2>
-          <div class="preview-head"><small>Salario de {formatMoney(example.gross)} al mes</small><small>Estimación</small></div>
-          <div class="preview-amount">{formatMoney(example.net)}</div>
-          <small>neto estimado por mes</small>
-          <div class="stack-bar" role="img" aria-label={`Neto ${share(example.net)}, Seguro Social ${share(example.socialSecurity)}, Seguro Educativo ${share(example.educationalInsurance)}, ISR ${share(example.incomeTax)}`} style="margin-top:14px">
-            <span class="tone-net" style={`width:${share(example.net)}`}></span>
-            <span class="tone-css" style={`width:${share(example.socialSecurity)}`}></span>
-            <span class="tone-edu" style={`width:${share(example.educationalInsurance)}`}></span>
-            <span class="tone-isr" style={`width:${share(example.incomeTax)}`}></span>
-          </div>
-          <ul class="breakdown">
-            <li class="minus"><span>Seguro Social 9.75%</span><strong>{formatMoney(example.socialSecurity)}</strong></li>
-            <li class="minus"><span>Seguro Educativo 1.25%</span><strong>{formatMoney(example.educationalInsurance)}</strong></li>
-            <li class="minus"><span>ISR estimado</span><strong>{formatMoney(example.incomeTax)}</strong></li>
-          </ul>
-        </aside>
-        <div class="blue-example-guide">
-          <img src={href('/blue-orienta.webp')} alt="" width="88" height="106" />
-          <div>
-            <strong>Blue te orienta</strong>
-            <p>Conoce cómo se calcula el salario neto y qué descuentos se aplican.</p>
-            <a href={href('/calculadoras/salario-neto/#como-se-calcula')}>Entender este cálculo <Icon name="arrow" size={16} /></a>
-          </div>
-        </div>
-      </div>
+      </article>
+      {guides.slice(1).map(g => <article><span class="label">Guía · Trabajo</span><h3><a href={href(g.path)}>{g.title}</a></h3><p>{g.description}</p></article>)}
+      <article><span class="label">Principios</span><h3><a href={href('/sobre-nosotros/')}>Privado, con fuentes y sin falsa precisión</a></h3><p>Los cálculos ocurren en tu navegador; cada regla cita su norma.</p></article>
     </div>
   </section>
 
-  <section class="section shopping-feature-section" aria-labelledby="shopping-feature-title">
-    <div class="container">
-      <div class="shopping-feature">
-        <div class="shopping-feature-copy">
-          <span class="shopping-kicker">Compras y gastos <span aria-hidden="true">✦</span></span>
-          <h2 id="shopping-feature-title">Tu supermercado, con las cuentas claras.</h2>
-          <p>Organiza tus compras, añade productos y cantidades, calcula el total y controla cuánto queda de tu presupuesto mientras recorres los pasillos.</p>
-          <div class="shopping-feature-actions">
-            <a class="shopping-feature-button" href={href('/compras/modo-pasillo/')}>Abrir Modo Pasillo <Icon name="arrow" size={19} /></a>
-            <a class="shopping-feature-more" href={href('/compras/')}>Conoce Compras y gastos</a>
-          </div>
-          <span class="shopping-feature-note"><Icon name="shield" size={16} /> Tu lista se calcula en tu dispositivo.</span>
-        </div>
-        <ShoppingScene />
+  <Fragment slot="colophon">
+    <footer class="wrap colophon">
+      <p class="big" aria-hidden="true">CALCULA<span>.</span></p>
+      <div class="grid cols">
+        <div><span class="label">Movilidad</span><a href={href('/vehiculos/financiamiento-de-auto/')}>Financiamiento</a><a href={href('/vehiculos/combustible-por-viaje/')}>Combustible</a><a href={href('/vehiculos/costo-mensual-de-un-auto/')}>Costo mensual</a></div>
+        <div><span class="label">Finanzas</span><a href={href('/finanzas/calculadora-prestamos/')}>Préstamos</a><a href={href('/finanzas/meta-de-ahorro/')}>Ahorro</a><a href={href('/finanzas/mi-quincena/')}>Mi Quincena</a></div>
+        <div><span class="label">Trabajo</span><a href={href('/calculadoras/salario-neto/')}>Salario neto</a><a href={href('/calculadoras/decimo-tercer-mes/')}>Décimo</a><a href={href('/calculadoras/vacaciones/')}>Vacaciones</a><a href={href('/calculadoras/liquidacion-laboral/')}>Liquidación</a></div>
+        <div><span class="label">Hogar y compras</span><a href={href('/compras/modo-pasillo/')}>Modo Pasillo</a><a href={href('/compras/descuentos-y-promociones/')}>Descuentos</a><a href={href('/compras/precio-por-unidad/')}>Precio por unidad</a><a href={href('/vida-cotidiana/consumo-electrico/')}>Electricidad</a></div>
+        <div><span class="label">Revista</span><a href={href('/guias/')}>Guías</a><a href={href('/educacion/promedio-de-notas/')}>Educación</a><a href={href('/herramientas/')}>Todas las herramientas</a></div>
+        <div><span class="label">Calcula Panamá</span><a href={href('/sobre-nosotros/')}>Sobre nosotros</a><a href={href('/contacto/')}>Contacto</a><a href={href('/privacidad/')}>Privacidad</a><a href={href('/terminos/')}>Términos</a></div>
+      </div>
+      <div class="fine"><span>Una plataforma de Blue Lab Studios</span><span>© {new Date().getFullYear()} {SITE.name}. Resultados orientativos. No somos una entidad del Gobierno de Panamá.</span></div>
+    </footer>
+
+    <div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-label="Índice y búsqueda">
+      <div class="wrap">
+        <div class="overlay-top"><a class="wordmark" href={href('/')}><b>CALCULA.</b><small>PANAMÁ</small></a><button type="button" data-close>Cerrar</button></div>
+        <label class="search"><span aria-hidden="true">⌕</span><input type="search" placeholder="¿Qué necesitas calcular?" aria-label="Buscar una herramienta" autocomplete="off" data-search="overlay" /></label>
+        <ul class="toollist ed-results" data-results="overlay" hidden></ul>
+        <ol>
+          {sections.map(s => <li><a href={`#${s.id}`}><span class="num">{s.num}</span><span class="name">{s.name}</span></a></li>)}
+          <li><a href="#revista"><span class="num">—</span><span class="name">Revista</span></a></li>
+        </ol>
+        <div class="secondary"><a href={href('/herramientas/')}>Todas las herramientas</a><a href={href('/sobre-nosotros/')}>Sobre nosotros</a><a href={href('/contacto/')}>Contacto</a><a href={href('/privacidad/')}>Privacidad</a></div>
       </div>
     </div>
-  </section>
-
-  <section class="section" aria-labelledby="home-budget-title">
-    <div class="container"><div class="home-budget-feature">
-      <div><span class="eyebrow">Finanzas personales</span><h2 id="home-budget-title">Haz que tu dinero llegue más lejos.</h2><p>Organiza tus gastos hasta tu próximo pago o calcula y compara préstamos.</p><div class="actions"><a class="button primary" href={href('/finanzas/mi-quincena/')}>Abrir Mi Quincena <Icon name="arrow" size={18} /></a><a class="button secondary" href={href('/finanzas/calculadora-prestamos/')}>Calcular préstamo <Icon name="arrow" size={18} /></a></div></div>
-      <img src={href('/blue-flotante.webp')} alt="" width="150" height="180" loading="lazy" />
-    </div></div>
-  </section>
-
-  <section class="section labor-showcase" id="calculadoras">
-    <div class="container">
-      <div class="section-title">
-        <span class="eyebrow">Trabajo e ingresos</span>
-        <h2>Entiende lo que te corresponde.</h2>
-        <p>Cuatro calculadoras para tus preguntas laborales, con resultados desglosados y supuestos explicados.</p>
-      </div>
-      <div class="labor-cards">
-        {CALCULATORS.map(c => (
-          <a class:list={['labor-card', `labor-card-${c.icon}`]} href={href(c.path)}>
-            <div class="labor-card-copy">
-              <span class="labor-card-label">Calculadora laboral</span>
-              <h3>{c.label}</h3>
-              <p>{c.description}</p>
-              <span class="labor-card-link">Comenzar <Icon name="arrow" size={17} /></span>
-            </div>
-            <CalculatorArtwork type={c.icon} />
-          </a>
-        ))}
-      </div>
-    </div>
-  </section>
-
-  <section class="section" aria-labelledby="fechas-decimo">
-    <div class="container">
-      <div class="section-title">
-        <span class="eyebrow">Calendario</span>
-        <h2 id="fechas-decimo">Fechas de pago del décimo tercer mes</h2>
-        <p>Cada partida cubre cuatro meses y se paga el día 15. <a href={href('/guias/fechas-de-pago-del-decimo-tercer-mes/')}>Ver períodos y reglas</a>.</p>
-      </div>
-      <div class="dates-strip" id="decimo-dates">
-        <div class="date-chip" data-month="4"><strong>15 abr</strong><span>16 dic – 15 abr</span></div>
-        <div class="date-chip" data-month="8"><strong>15 ago</strong><span>16 abr – 15 ago</span></div>
-        <div class="date-chip" data-month="12"><strong>15 dic</strong><span>16 ago – 15 dic</span></div>
-      </div>
-    </div>
-  </section>
-
-  <section class="section" aria-labelledby="home-more-title">
-    <div class="container">
-      <div class="section-title">
-        <span class="eyebrow">Más herramientas</span>
-        <h2 id="home-more-title">Autos, ahorro, estudios y hogar.</h2>
-        <p>Cada herramienta explica su fórmula con un ejemplo verificable, sus límites y sus fuentes. <a href={href('/herramientas/')}>Ver todas las herramientas</a>.</p>
-      </div>
-      <div class="guide-list">
-        {moreTools.map(t => <a class="guide-card" href={href(t.path)}><strong>{t.title}</strong><span>{t.description}</span></a>)}
-      </div>
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="container">
-      <div class="feature-grid">
-        <div class="feature"><Icon name="shield" size={28} /><h3>Privado por diseño</h3><p>Los cálculos se hacen en tu navegador. No pedimos nombre, cédula ni correo, y no enviamos tus cifras a ningún servidor.</p></div>
-        <div class="feature"><Icon name="book" size={28} /><h3>Con fuentes</h3><p>Las calculadoras laborales citan el artículo de cada regla (Código de Trabajo, Ley Orgánica de la CSS y Código Fiscal), y las financieras, los acuerdos de la Superintendencia de Bancos.</p></div>
-        <div class="feature"><Icon name="alert" size={28} /><h3>Sin falsa precisión</h3><p>Cuando un caso depende de datos que no tenemos o de una interpretación jurídica, te lo decimos en lugar de inventar una cifra.</p></div>
-      </div>
-    </div>
-  </section>
-
+    <script type="application/json" id="ed-search-index" set:html={JSON.stringify(index)} />
+  </Fragment>
 </Layout>
 
-<script is:inline>
-  (function () {
-    var d = new Date(), md = (d.getMonth() + 1) * 100 + d.getDate();
-    var next = md >= 1216 || md <= 415 ? 4 : md <= 815 ? 8 : 12;
-    var chip = document.querySelector('#decimo-dates [data-month="' + next + '"]');
-    if (chip) { chip.classList.add('next'); chip.insertAdjacentHTML('beforeend', '<span style="display:block;color:var(--brand-2);font-weight:700">Próxima</span>'); }
-  })();
+<script>
+  import { searchEntries, type SearchEntry } from '../lib/search-index';
+  const overlay = document.getElementById('overlay')!;
+  const openers = document.querySelectorAll<HTMLButtonElement>('[data-open]');
+  let lastOpener: HTMLButtonElement | null = null;
+  const setOpen = (open: boolean) => {
+    overlay.classList.toggle('open', open);
+    openers.forEach(b => b.setAttribute('aria-expanded', String(open)));
+    document.documentElement.style.overflow = open ? 'hidden' : '';
+    if (open) overlay.querySelector<HTMLInputElement>('input')?.focus(); else lastOpener?.focus();
+  };
+  openers.forEach(b => b.addEventListener('click', () => { lastOpener = b; setOpen(true); }));
+  overlay.querySelector('[data-close]')!.addEventListener('click', () => setOpen(false));
+  overlay.querySelectorAll('ol a, .secondary a').forEach(a => a.addEventListener('click', () => { lastOpener = null; setOpen(false); }));
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && overlay.classList.contains('open')) setOpen(false); });
+
+  // Búsqueda local (mismo índice que la cabecera de las herramientas): sin peticiones.
+  const entries = JSON.parse(document.getElementById('ed-search-index')?.textContent ?? '[]') as SearchEntry[];
+  document.querySelectorAll<HTMLInputElement>('[data-search]').forEach(input => {
+    const list = document.querySelector<HTMLUListElement>(`[data-results="${input.dataset.search}"]`)!;
+    input.addEventListener('input', () => {
+      list.replaceChildren();
+      if (!input.value.trim()) { list.hidden = true; return; }
+      const hits = searchEntries(entries, input.value);
+      for (const hit of hits) {
+        const li = document.createElement('li'), a = document.createElement('a'), strong = document.createElement('strong'), i = document.createElement('i'), small = document.createElement('small');
+        a.href = hit.p; strong.textContent = hit.t; i.textContent = '→'; i.setAttribute('aria-hidden', 'true'); small.textContent = hit.c;
+        const n = document.createElement('span'); n.className = 'n';
+        a.append(n, strong, i, small); li.append(a); list.append(li);
+      }
+      if (!hits.length) { const li = document.createElement('li'); li.className = 'ed-empty'; li.textContent = 'Sin resultados. Prueba con otra palabra.'; list.append(li); }
+      list.hidden = false;
+    });
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') { const first = list.querySelector('a'); if (first) { e.preventDefault(); location.href = first.href; } } });
+  });
 </script>
