@@ -1,12 +1,11 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import Breadcrumbs from '../../components/Breadcrumbs.astro';
-import BlueHelp from '../../components/BlueHelp.astro';
-import { BLUE_GUIDES } from '../../data/blue-help';
+import FxCrumb from '../../components/fx/FxCrumb.astro';
+import FxIcon from '../../components/fx/FxIcon.astro';
+import FxRelated from '../../components/fx/FxRelated.astro';
+import FxGuide from '../../components/fx/FxGuide.astro';
 import Faq from '../../components/Faq.astro';
-import Icon from '../../components/Icon.astro';
 import LegalSources from '../../components/LegalSources.astro';
-import RelatedCalculators from '../../components/RelatedCalculators.astro';
 
 const path = '/calculadoras/decimo-tercer-mes/';
 const base = import.meta.env.BASE_URL;
@@ -29,18 +28,15 @@ const schema = {
   offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' }
 };
 ---
-<Layout title="Calculadora del décimo tercer mes Panamá 2026: abril, agosto y diciembre" description="Calcula tu décimo tercer mes en Panamá: partidas de abril, agosto y diciembre, período exacto, descuento de 7.25% de CSS, ISR estimado y cálculo proporcional si entraste a mitad del período." canonicalPath={path} schema={schema}>
-  <header class="page-head container">
-    <Breadcrumbs items={[{ label: 'Décimo tercer mes', path }]} />
-    <span class="eyebrow">Prestación laboral</span>
-    <h1>Calculadora del décimo tercer mes</h1>
-    <p>Calcula la partida de abril, agosto o diciembre con tu salario fijo o con lo que realmente devengaste en el período.</p>
-  </header>
+<Layout title="Calculadora del décimo tercer mes Panamá 2026: abril, agosto y diciembre" description="Calcula tu décimo tercer mes en Panamá: partidas de abril, agosto y diciembre, período exacto, descuento de 7.25% de CSS, ISR estimado y cálculo proporcional si entraste a mitad del período." canonicalPath={path} schema={schema} variant="functional">
+<div class="fx-wrap">
+  <FxCrumb items={[{ label: 'Décimo tercer mes', path }]} category={{ label: 'Trabajo', path: '/herramientas/#trabajo' }} />
+  <div class="fx-title"><FxIcon name="calendar" size={22} framed class="is-lg" /><h1>Calculadora del décimo tercer mes</h1></div>
+  <p class="fx-lede">Calcula la partida de abril, agosto o diciembre con tu salario fijo o con lo que realmente devengaste en el período.</p>
 
-  <BlueHelp guide={BLUE_GUIDES.thirteenth} />
-
-  <div class="container calculator-shell">
-    <form class="panel" id="thirteenth-form" novalidate>
+  <FxGuide guide="thirteenth" />
+  <div class="fx-tool fx-legacy">
+    <form class="fx-panel fx-form fx-col-side fx-o2" id="thirteenth-form" novalidate>
       <h2>Datos de la partida</h2>
       <div class="form-grid">
         <div class="field">
@@ -88,11 +84,11 @@ const schema = {
         </div>
       </div>
       <p class="form-error" id="thirteenth-error" role="alert"></p>
-      <button class="calculate" type="submit">Calcular décimo</button>
+      <button class="fx-btn is-block" type="submit">Calcular décimo</button>
     </form>
 
-    <section class="panel results" id="thirteenth-results" aria-live="polite" aria-label="Resultado">
-      <div id="thirteenth-empty" class="empty-state"><Icon name="thirteenth" size={40} /><p>Elige la partida, escribe tu salario y pulsa <strong>Calcular</strong>.</p></div>
+    <section class="fx-panel fx-o1 results" id="thirteenth-results" aria-live="polite" aria-label="Resultado">
+      <div id="thirteenth-empty" class="empty-state"><FxIcon name="calendar" size={28} /><p>Elige la partida, escribe tu salario y pulsa <strong>Calcular</strong>.</p></div>
       <div id="thirteenth-result" hidden>
         <div class="result-hero">
           <div class="label"><span data-out="netLabel"></span> · <span data-out="periodLabel"></span></div>
@@ -111,15 +107,15 @@ const schema = {
         <p class="callout info" data-row="prorated">Prorrateado: <span data-out="workedDays"></span> de <span data-out="periodDays"></span> días del período, con cortes el día 15.</p>
         <p class="callout info">Resultado orientativo: sigue la práctica de planilla (devengado ÷ 12). Si tu empleador corta los períodos a fin de mes o tuviste variables, usa el modo «Con lo devengado».</p>
         <div class="result-actions">
-          <button class="button secondary" type="button" id="thirteenth-share"><Icon name="share" size={18} />Compartir resultado</button>
-          <a class="button secondary" href={`${base}guias/fechas-de-pago-del-decimo-tercer-mes/`}>Fechas y reglas</a>
+          <button class="fx-btn is-ghost" type="button" id="thirteenth-share"><FxIcon name="share" size={18} />Compartir resultado</button>
+          <a class="fx-btn is-ghost" href={`${base}guias/fechas-de-pago-del-decimo-tercer-mes/`}>Fechas y reglas</a>
         </div>
       </div>
     </section>
   </div>
 
 
-  <article class="container article">
+  <article class="fx-prose article">
     <h2>¿Cómo se calcula el décimo tercer mes?</h2>
     <p>El décimo tercer mes lo creó el Decreto de Gabinete 221 de 1971 y se paga en tres partidas, el 15 de abril, el 15 de agosto y el 15 de diciembre. Cada una corresponde a lo devengado en los cuatro meses anteriores. La norma fija las fechas de pago; los cortes del día 15 de la tabla son los habituales en planilla:</p>
     <div class="table-wrap">
@@ -147,8 +143,8 @@ const schema = {
     <Faq items={faq} />
     <LegalSources sources={['thirteenth', 'thirteenthRegulation', 'css', 'incomeTax', 'mitradel']} />
   </article>
-
-  <div class="container"><RelatedCalculators current={path} /></div>
+  <div class="fx-related-wrap"><FxRelated current={path} /></div>
+</div>
 </Layout>
 
 <script>
