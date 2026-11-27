@@ -54,9 +54,13 @@ export interface QuickInput {
   salary: number; basis: PayBasis; weeklyHours: number;
   minutes: number; overtime: QuickOvertime; day: QuickDay; overLimit: boolean;
 }
+/** Resultado que depende de una interpretación que no se pudo confirmar en fuentes oficiales. */
+export interface Conditional { code: 'divisor' | 'rest-fixed' | 'rotating'; message: string; altAdditional?: number }
+
 export interface QuickResult {
   hourly: number; factor: number; hourValue: number; hours: number;
   base: number; surcharge: number; total: number; parts: string[];
+  conditional: Conditional[];
 }
 
 export const QUICK_OVERTIME: Record<QuickOvertime, number> = { none: 0, d25: R.overtime.day, n50: R.overtime.night, n75: R.overtime.nightExtension };
@@ -66,6 +70,13 @@ export const QUICK_DAY: Record<QuickDay, number> = { normal: 0, descanso: R.day.
 export function chainFactor(daySurcharge: number, overtimeSurcharge: number, overLimit: boolean): number {
   return (1 + daySurcharge) * (1 + overtimeSurcharge) * (overLimit ? 1 + R.overLimitSurcharge : 1);
 }
+
+export const CONDITIONAL_TEXT = {
+  divisor: 'Estimación condicionada: el valor de la hora sale de dividir el salario entre 4⅓ semanas por mes. Ni el Código de Trabajo (art. 142) ni el Decreto Ejecutivo 13 de 2025 fijan ese divisor. Si tu comprobante indica el valor de tu hora, elige «Por hora» y escríbelo.',
+  rotating: 'Estimación condicionada: con turnos rotativos de distinta jornada en una misma semana, el Código no dice qué límite semanal ordinario aplica (48, 45 o 42 h, art. 31). Se usan las horas semanales que indicaste; confírmalas en tu contrato (art. 32).'
+} as const;
+const restFixedText = (alt: number) => `Estimación condicionada: se supone que el salario fijo no paga las horas trabajadas en el día de descanso, así que se suman completas más el recargo. Si tu salario ya incluye ese día, lo adicional sería solo el recargo: ${formatAmount(alt)}. El art. 48 no lo precisa.`;
+const formatAmount = (n: number) => `B/.${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 export function calculateQuick(input: QuickInput): QuickResult {
   if (!Number.isInteger(input.minutes) || input.minutes <= 0) throw new Error('Indica cuántas horas o minutos trabajaste.');
@@ -82,7 +93,13 @@ export function calculateQuick(input: QuickInput): QuickResult {
   if (day) parts.push(input.day === 'feriado' ? 'Fiesta o duelo nacional +150%' : 'Día de descanso +50%');
   if (ot) parts.push(`Hora extraordinaria +${Math.round(ot * 100)}%`);
   if (input.overLimit) parts.push('Exceso del límite legal +75%');
-  return { hourly, factor, hourValue: hourly * factor, hours, base, surcharge: cents(total - base), total, parts };
+  const conditional: Conditional[] = [];
+  if (input.basis !== 'hourly') conditional.push({ code: 'divisor', message: CONDITIONAL_TEXT.divisor });
+  if (input.basis !== 'hourly' && input.day === 'descanso') {
+    const alt = cents(total - base);
+    conditional.push({ code: 'rest-fixed', message: restFixedText(alt), altAdditional: alt });
+  }
+  return { hourly, factor, hourValue: hourly * factor, hours, base, surcharge: cents(total - base), total, parts, conditional };
 }
 
 /* ----------------------------------------------------------------------------------------------------------------- */
@@ -100,6 +117,9 @@ export interface ShiftEntry {
   dayKind: DayKind;
   nextDayKind?: DayKind;     // tipo del día siguiente cuando la jornada cruza la medianoche
   contractDailyHours?: number; // límite contractual inferior al legal (art. 33)
+  /** Horario ordinario contratado (HH:MM). Si se indica, clasifica la jornada (art. 30) y lo que queda fuera es extra (art. 33). */
+  contractStart?: string;
+  contractEnd?: string;
 }
 
 export interface Settings {
@@ -140,6 +160,8 @@ export interface LogResult {
   periodSalary: number | null;
   /** Salario ordinario del período más lo adicional, cuando se puede estimar. */
   grandTotal: number | null;
+  /** Partes del resultado que son estimaciones condicionadas a una interpretación no confirmada. */
+  conditional: Conditional[];
 }
 
 const TIME = /^([01]\d|2[0-3]):([0-5]\d)$/;
@@ -196,7 +218,24 @@ export function classify(nightFlags: boolean[]): { type: ShiftType; startedAtNig
   return { type: 'nocturna', startedAtNight };
 }
 
-interface Expanded { entry: ShiftEntry; startAbs: number; endAbs: number; minutes: { abs: number; worked: boolean }[] }
+interface Expanded { entry: ShiftEntry; startAbs: number; endAbs: number; minutes: { abs: number; worked: boolean }[]; window?: { start: number; end: number } }
+
+/** Ventana del horario contratado que más se superpone con la jornada (puede haber empezado el día anterior). */
+function contractWindow(entry: ShiftEntry, startAbs: number, endAbs: number): { start: number; end: number } | undefined {
+  if (!entry.contractStart && !entry.contractEnd) return undefined;
+  if (!entry.contractStart || !entry.contractEnd) throw new Error('Indica la entrada y la salida de tu horario contratado, o deja ambas vacías.');
+  const cs = parseTime(entry.contractStart), ce = parseTime(entry.contractEnd);
+  if (cs === ce) throw new Error('El horario contratado no puede empezar y terminar a la misma hora.');
+  const length = ce > cs ? ce - cs : ce + MIN_PER_DAY - cs;
+  const day = parseDate(entry.date);
+  let best: { start: number; end: number; overlap: number } | undefined;
+  for (const d of [day - 1, day, day + 1]) {
+    const start = d * MIN_PER_DAY + cs, end = start + length;
+    const overlap = Math.max(0, Math.min(end, endAbs) - Math.max(start, startAbs));
+    if (!best || overlap > best.overlap) best = { start, end, overlap };
+  }
+  return best && best.overlap > 0 ? { start: best.start, end: best.end } : undefined;
+}
 
 function expand(entry: ShiftEntry): Expanded {
   const day = parseDate(entry.date);
@@ -207,12 +246,18 @@ function expand(entry: ShiftEntry): Expanded {
   if (breakMinutes >= span) throw new Error('El descanso es igual o mayor que el tiempo entre la entrada y la salida.');
   const startAbs = day * MIN_PER_DAY + start;
   const minutes = Array.from({ length: span }, (_, i) => ({ abs: startAbs + i, worked: true }));
+  const window = contractWindow(entry, startAbs, startAbs + span);
   if (breakMinutes > 0 && !entry.breakPaid) {
     let offset: number;
     if (entry.breakStart) {
       const b = parseTime(entry.breakStart);
       offset = (b - start + MIN_PER_DAY) % MIN_PER_DAY;
       if (offset + breakMinutes > span) throw new Error('El descanso queda fuera del horario de la jornada.');
+    } else if (window) {
+      // Con horario contratado, el descanso se ubica a mitad de ese horario (dentro de la jornada trabajada).
+      const from = Math.max(window.start, startAbs) - startAbs, to = Math.min(window.end, startAbs + span) - startAbs;
+      offset = Math.max(0, Math.floor(from + (to - from - breakMinutes) / 2));
+      if (offset + breakMinutes > span) offset = span - breakMinutes;
     } else {
       // Criterio de cálculo: sin hora indicada, el descanso se ubica a mitad de la parte ordinaria.
       const ordinaryGuess = Math.min(span - breakMinutes, R.dailyMaxMinutes.diurna);
@@ -221,7 +266,7 @@ function expand(entry: ShiftEntry): Expanded {
     }
     for (let i = offset; i < offset + breakMinutes; i++) minutes[i]!.worked = false;
   }
-  return { entry, startAbs, endAbs: startAbs + span, minutes };
+  return { entry, startAbs, endAbs: startAbs + span, minutes, window };
 }
 
 /** Semana de lunes a domingo (criterio de cálculo: el Código no define en qué día empieza la semana). */
@@ -271,8 +316,15 @@ export function calculateLog(entries: readonly ShiftEntry[], settings: Settings)
     const { entry } = shift;
     const worked = shift.minutes.filter(m => m.worked);
     const night = worked.map(m => isNightMinute(((m.abs % MIN_PER_DAY) + MIN_PER_DAY) % MIN_PER_DAY));
-    const { type, startedAtNight } = classify(night);
+    const win = shift.window;
+    const inWindow = worked.map(m => !win || (m.abs >= win.start && m.abs < win.end));
+    if ((entry.contractStart || entry.contractEnd) && !win) alerts.push({ level: 'warn', entryId: entry.id, code: 'contract-outside', message: 'La jornada no coincide con tu horario contratado: se clasifica con las horas trabajadas. Revisa el horario.' });
+    // Art. 30: con horario contratado, la jornada ordinaria es la pactada; si no, las primeras horas trabajadas.
+    const classified = win ? classify(night.filter((_, i) => inWindow[i])) : classify(night);
+    const type = classified.type;
+    const startedAtNight = win ? isNightMinute(((win.start % MIN_PER_DAY) + MIN_PER_DAY) % MIN_PER_DAY) : classified.startedAtNight;
     const legal = R.dailyMaxMinutes[type];
+    if (win && win.end - win.start - (entry.breakPaid ? 0 : entry.breakMinutes) > legal) alerts.push({ level: 'warn', entryId: entry.id, code: 'contract-over-legal', message: `Tu horario contratado supera la jornada ${type} máxima de ${formatMinutes(legal)} (art. 31): el exceso se calcula como horas extraordinarias.` });
     const contract = entry.contractDailyHours !== undefined ? Math.round(entry.contractDailyHours * 60) : legal;
     const dailyLimit = Math.min(legal, contract);
     const week = weekOf(shift.startAbs);
@@ -283,12 +335,14 @@ export function calculateLog(entries: readonly ShiftEntry[], settings: Settings)
     const firstDay = parseDate(entry.date);
 
     const buckets = new Map<string, Bucket>();
-    let ordinaryMinutes = 0, extraMinutes = 0, overLimitMinutes = 0, dayExtra = 0;
+    let ordinaryMinutes = 0, extraMinutes = 0, overLimitMinutes = 0, dayExtra = 0, inWindowCount = 0;
     worked.forEach((m, i) => {
       const isNight = night[i]!;
       const kind = Math.floor(m.abs / MIN_PER_DAY) === firstDay ? entry.dayKind : (entry.nextDayKind ?? 'normal');
       const daySurcharge = daySurchargeFor(kind, type);
-      let ordinary = i < dailyLimit;
+      // Ordinario: dentro del horario contratado (o de las primeras horas, sin horario) y sin pasar el límite diario.
+      let ordinary = inWindow[i]! && inWindowCount < dailyLimit;
+      if (inWindow[i]) inWindowCount++;
       if (ordinary && countsWeekly) {
         const used = weeklyOrdinary.get(week) ?? 0;
         if (used >= weekly) ordinary = false; else weeklyOrdinary.set(week, used + 1);
@@ -336,7 +390,6 @@ export function calculateLog(entries: readonly ShiftEntry[], settings: Settings)
   for (const [week, extra] of weeklyExtra) {
     if (extra > R.overtimeWeeklyLimitMinutes) alerts.push({ level: 'warn', code: 'weekly-limit', message: `La semana del ${isoFromDay(week * 7 - 3)} supera las 9 horas extraordinarias semanales (art. 36): el exceso lleva 75% de recargo adicional.` });
   }
-  if ([...typesByWeek.values()].some(t => t.size > 1)) alerts.push({ level: 'info', code: 'rotating', message: 'Hay turnos rotativos con distintas jornadas en una misma semana. El salario debe ser uniforme (art. 32); confirma en tu contrato cuántas horas ordinarias semanales te corresponden.' });
 
   // 4. Período.
   if (kept.length) {
@@ -349,6 +402,14 @@ export function calculateLog(entries: readonly ShiftEntry[], settings: Settings)
   const shifts = entries.map(e => results.get(e.id)!);
   const included = shifts.filter(s => s.included);
   const distribution = mergeBuckets(included.flatMap(s => s.buckets));
+  const conditional: Conditional[] = [];
+  if (fixed && included.length) conditional.push({ code: 'divisor', message: CONDITIONAL_TEXT.divisor });
+  const restBuckets = distribution.filter(b => fixed && b.ordinary && b.covered === 0 && b.daySurcharge > 0);
+  if (restBuckets.length) {
+    const alt = cents(distribution.reduce((acc, b) => acc + (restBuckets.includes(b) ? b.rawAdditional - (hourly * b.minutes) / 60 : b.rawAdditional), 0));
+    conditional.push({ code: 'rest-fixed', message: restFixedText(alt), altAdditional: alt });
+  }
+  if ([...typesByWeek.values()].some(t => t.size > 1)) conditional.push({ code: 'rotating', message: CONDITIONAL_TEXT.rotating });
   const additional = sum(distribution.map(b => b.rawAdditional));
   const ordinaryPay = fixed ? 0 : sum(distribution.filter(b => b.covered).map(b => (hourly * b.minutes) / 60));
   const ps = periodSalary(settings.salary, settings.basis, settings.period);
@@ -361,7 +422,8 @@ export function calculateLog(entries: readonly ShiftEntry[], settings: Settings)
     overLimitMinutes: sumInt(included.map(s => s.overLimitMinutes)),
     distribution, additional, ordinaryPay,
     periodSalary: ps === null ? null : cents(ps),
-    grandTotal: included.length ? (ps === null ? cents(ordinaryPay + additional) : cents(ps + additional)) : null
+    grandTotal: included.length ? (ps === null ? cents(ordinaryPay + additional) : cents(ps + additional)) : null,
+    conditional
   };
 }
 

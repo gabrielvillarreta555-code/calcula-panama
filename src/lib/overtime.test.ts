@@ -258,13 +258,73 @@ describe('datos inválidos, duplicados y alertas', () => {
   });
   it('turnos rotativos, descanso de 12 h entre jornadas y período excedido', () => {
     const r = calculateLog([shift('2026-11-02', '07:00', '15:00'), shift('2026-11-02', '23:00', '06:00'), shift('2026-11-20', '07:00', '15:00')], { ...base, period: 'weekly' });
-    expect(r.alerts.map(a => a.code)).toEqual(expect.arrayContaining(['rotating', 'rest-12h', 'period']));
+    expect(r.alerts.map(a => a.code)).toEqual(expect.arrayContaining(['rest-12h', 'period']));
+    expect(r.conditional.map(c => c.code)).toContain('rotating');
   });
   it('CSV con encabezado, filas y totales, sin datos personales', () => {
     const e = [shift('2026-11-02', '07:00', '17:00')];
     const csv = toCsv(e, calculateLog(e, base));
     expect(csv.startsWith('﻿Fecha;Entrada;Salida')).toBe(true);
     expect(csv).toContain('2026-11-02;07:00;17:00;0;Día laborable;diurna;600;480;120;0;12.50;Incluida');
+  });
+});
+
+describe('horario ordinario contratado (arts. 30 y 33)', () => {
+  it('clasifica por el horario pactado: entrar antes de un horario diurno es extra, no jornada mixta', () => {
+    // Contrato 10:00–18:00 (diurno). Trabaja 05:00–18:00: 05–06 es extra nocturna (50%), 06–10 extra diurna (25%).
+    const sin = one(shift('2026-11-02', '05:00', '18:00'));
+    expect(sin.shifts[0]!.type).toBe('mixta');
+    const con = one(shift('2026-11-02', '05:00', '18:00', { contractStart: '10:00', contractEnd: '18:00' }));
+    expect(con.shifts[0]).toMatchObject({ type: 'diurna', ordinaryMinutes: 480, extraMinutes: 300, overLimitMinutes: 120 });
+    // 1 h × 1.5 + 2 h × 1.25 + 2 h × 1.25 × 1.75 (las dos últimas superan las 3 h diarias, art. 36)
+    expect(con.additional).toBe(cents(5 * (1.5 + 2 * 1.25 + 2 * 1.25 * 1.75)));
+  });
+  it('salir después del horario contratado: la prolongación es extra con el recargo de su jornada', () => {
+    const r = one(shift('2026-11-02', '22:00', '06:00', { contractStart: '22:00', contractEnd: '05:00' }));
+    expect(r.shifts[0]).toMatchObject({ type: 'nocturna', ordinaryMinutes: 420, extraMinutes: 60 });
+    expect(r.additional).toBe(8.75);
+  });
+  it('un horario que empezó el día anterior se reconoce en jornadas después de medianoche', () => {
+    const r = one(shift('2026-11-03', '01:00', '07:00', { contractStart: '23:00', contractEnd: '06:00' }));
+    expect(r.shifts[0]).toMatchObject({ type: 'nocturna', ordinaryMinutes: 300, extraMinutes: 60 });
+  });
+  it('el descanso se ubica dentro del horario contratado y se descuenta', () => {
+    const r = one(shift('2026-11-02', '06:00', '15:00', { contractStart: '07:00', contractEnd: '15:00', breakMinutes: 60 }));
+    expect(r.shifts[0]).toMatchObject({ workedMinutes: 480, ordinaryMinutes: 420, extraMinutes: 60 });
+  });
+  it('un horario contratado mayor que el máximo legal genera extras y un aviso', () => {
+    const r = one(shift('2026-11-02', '07:00', '17:00', { contractStart: '07:00', contractEnd: '17:00' }));
+    expect(r.shifts[0]!.extraMinutes).toBe(120);
+    expect(r.alerts.some(a => a.code === 'contract-over-legal')).toBe(true);
+  });
+  it('horario incompleto o sin coincidencia', () => {
+    expect(one(shift('2026-11-02', '07:00', '15:00', { contractStart: '07:00' })).alerts[0]!.level).toBe('error');
+    const r = one(shift('2026-11-02', '07:00', '15:00', { contractStart: '18:00', contractEnd: '23:00' }));
+    expect(r.alerts.some(a => a.code === 'contract-outside')).toBe(true);
+    expect(r.shifts[0]!.included).toBe(true);
+  });
+});
+
+describe('estimaciones condicionadas y criterios confirmados', () => {
+  it('salario fijo: el divisor de 4⅓ semanas se marca como condicionado; por hora, no', () => {
+    expect(one(shift('2026-11-02', '07:00', '17:00')).conditional.map(c => c.code)).toEqual(['divisor']);
+    expect(one(shift('2026-11-02', '07:00', '17:00'), { ...base, salary: 5, basis: 'hourly' }).conditional).toEqual([]);
+  });
+  it('domingo con salario fijo: muestra también la lectura alternativa (solo el recargo)', () => {
+    const r = one(shift('2026-11-01', '07:00', '15:00', { dayKind: 'descanso' }));
+    expect(r.additional).toBe(60);
+    expect(r.conditional.find(c => c.code === 'rest-fixed')!.altAdditional).toBe(20);
+    const q = calculateQuick({ salary: 1040, basis: 'monthly', weeklyHours: 48, minutes: 480, overtime: 'none', day: 'descanso', overLimit: false });
+    expect(q.conditional.find(c => c.code === 'rest-fixed')!.altAdditional).toBe(20);
+  });
+  it('feriado: coincide con el ejemplo oficial de MITRADEL (20 + 30 = 50 por el día)', () => {
+    const r = one(shift('2026-11-03', '07:00', '15:00', { dayKind: 'feriado' }), { ...base, salary: 2.5, basis: 'hourly' });
+    expect(r.ordinaryPay).toBe(20);
+    expect(r.additional).toBe(30);
+    expect(r.conditional).toEqual([]);
+  });
+  it('20 de diciembre: duelo nacional por la Ley 291 de 2022', () => {
+    expect(holidayName('2027-12-20')).toMatch(/Ley 291 de 2022/);
   });
 });
 

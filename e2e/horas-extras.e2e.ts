@@ -156,3 +156,36 @@ test('sin publicidad, con CSP estricta y fuera del sitemap mientras no se publiq
   const index = await (await request.get('/sitemap-0.xml')).text();
   expect(index).not.toContain('horas-extras');
 });
+
+test('horario contratado, estimaciones condicionadas e imagen editorial', async ({ page }) => {
+  await page.goto(PATH);
+  await salary(page);
+  await page.locator('#ot-hours').fill('2');
+  // Salario fijo: el valor de la hora depende del divisor → estimación condicionada.
+  await expect(page.locator('#ot-conditional')).toBeVisible();
+  await expect(page.locator('#ot-alerts [data-conditional="divisor"]')).toContainText('4⅓');
+  // Por hora: ya no depende del divisor.
+  await page.locator('input[name=basis][value=hourly]').check({ force: true });
+  await salary(page, '5');
+  await expect(page.locator('#ot-conditional')).toBeHidden();
+
+  // Registro con horario contratado 10:00–18:00 trabajando 05:00–18:00: jornada diurna con 5 h extra.
+  await page.locator('input[name=basis][value=monthly]').check({ force: true });
+  await salary(page, '1040');
+  await logMode(page);
+  await page.locator('.fx-details summary').click();
+  await page.locator('#ot-contract-start').fill('10:00');
+  await page.locator('#ot-contract-end').fill('18:00');
+  await addShift(page, '2026-11-02', '05:00', '18:00');
+  await expect(page.locator('.fx-shift small').first()).toContainText('Diurna');
+  await expect(page.locator('[data-ot="logExtra"]')).toHaveText('5 h');
+  // Domingo de descanso con salario fijo: se muestra la lectura alternativa.
+  await addShift(page, '2026-11-08', '07:00', '15:00', { kind: 'descanso' });
+  await expect(page.locator('#ot-alerts [data-conditional="rest-fixed"]')).toContainText('solo el recargo');
+
+  const img = page.locator('.fx-figure img');
+  await expect(img).toHaveAttribute('alt', /reloj despertador/);
+  await img.scrollIntoViewIfNeeded();
+  expect(await img.evaluate((i: HTMLImageElement) => i.complete && i.naturalWidth > 0)).toBe(true);
+  await expect(page.locator('.sources')).toContainText('Ley 291 de 2022');
+});

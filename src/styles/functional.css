@@ -345,3 +345,11 @@ body.fx { margin: 0; padding: 0; background: var(--fx-bg); color: var(--fx-text)
 .fx .fx-prose .formula { color: var(--fx-text) !important; border-left-width: 1px; } /* global.css usa !important */
 .fx .callout { background: var(--fx-panel); border: 1px solid var(--fx-border); border-radius: var(--fx-radius-sm); color: var(--fx-text); }
 .fx .callout.warning { border-color: var(--fx-warn); background: var(--fx-warn-bg); }
+/* CP-TOOL-008: estimaciones condicionadas (interpretación no confirmada en fuentes oficiales) */
+.fx-conditional { display: inline-flex; align-items: center; gap: 6px; margin: 6px 0 0; padding: 4px 10px; border: 1px dashed var(--fx-warn); border-radius: var(--fx-radius-sm); color: var(--fx-warn); font-size: 13px; font-weight: 600; }
+.fx-conditional[hidden] { display: none; }
+.fx-alerts li.is-conditional { border-style: dashed; border-color: var(--fx-warn); color: var(--fx-text); }
+.fx-alerts li.is-conditional .fx-icon { color: var(--fx-warn); }
+.fx .fx-figure { margin: 0 0 20px; }
+.fx .fx-figure img { display: block; width: 100%; height: auto; border: 1px solid var(--fx-border); border-radius: var(--fx-radius); }
+.fx .fx-figure figcaption { display: flex; justify-content: space-between; gap: 12px; margin-top: 8px; color: var(--fx-muted); font-size: 13px; }

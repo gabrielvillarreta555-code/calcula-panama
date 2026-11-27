@@ -35,7 +35,10 @@ export const OVERTIME_RULES = {
     restDay: 0.5,
     /** Arts. 48 y 49, segundos párrafos: trabajo en el día compensatorio, 50%. */
     compensatory: 0.5,
-    /** Art. 49: fiesta o duelo nacional, 150% sobre el salario de la jornada ordinaria (incluye la remuneración del descanso). */
+    /**
+     * Art. 49: fiesta o duelo nacional, 150% sobre el salario de la jornada ordinaria (incluye la remuneración del descanso).
+     * MITRADEL (comunicado del 1-11-2025): salario diario 20 + recargo 30 = 50 por el día trabajado (2.5 veces).
+     */
     holiday: 1.5,
     /** Art. 49, tercer párrafo: días libres por jornadas semanales de menos de seis días, 50% en jornada diurna… */
     shortWeekDay: 0.5,
@@ -51,7 +54,7 @@ export const OVERTIME_RULES = {
    */
   weeksPerMonth: 13 / 3,
   holidays: {
-    /** Art. 46 (Leyes 55 y 305 de 2001). El 20 de diciembre figura como pendiente de confirmar su norma. */
+    /** Art. 46 (Leyes 55 y 305 de 2001). Num. 2 c (20 de diciembre): Ley 291 de 2022, art. 7 (Gaceta Oficial 29507-B, 31-03-2022). */
     fixed: [
       { date: '01-01', name: 'el 1 de enero (art. 46)' },
       { date: '01-09', name: 'el 9 de enero, día de los mártires (art. 46)' },
@@ -61,7 +64,7 @@ export const OVERTIME_RULES = {
       { date: '11-10', name: 'el 10 de noviembre (art. 46)' },
       { date: '11-28', name: 'el 28 de noviembre (art. 46)' },
       { date: '12-08', name: 'el 8 de diciembre (art. 46)' },
-      { date: '12-20', name: 'el 20 de diciembre, día de duelo nacional (norma pendiente de verificar en la Gaceta Oficial)' },
+      { date: '12-20', name: 'el 20 de diciembre, día de duelo nacional (art. 46, Ley 291 de 2022)' },
       { date: '12-25', name: 'el 25 de diciembre (art. 46)' }
     ],
     /** Art. 46 num. 8: día de la toma de posesión presidencial (1 de julio cada cinco años desde 2024). */

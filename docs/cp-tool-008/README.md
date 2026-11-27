@@ -221,3 +221,64 @@ La auditoría de contraste detectó texto ilegible en **Salario neto**, ya publi
   1. cambiar `published: true` en `src/data/launch.ts`;
   2. revisar la fecha del título;
   3. fusionar.
+
+## 10. Validación final (27-11-2026)
+
+Continúa desde `4ecb2bd`, con `main` incorporado (portada editorial y corrección de contraste). La §8 ya está publicada (PR #42).
+
+### 10.1 Las cinco incertidumbres legales
+
+| # | Cuestión | Fuente oficial consultada | Resultado | Tratamiento en la calculadora |
+|---|---|---|---|---|
+| 1 | Divisor para pasar de salario mensual o quincenal a hora | Código de Trabajo, art. 142 (salario por mes, quincena, semana, día u hora) y arts. 172-180. **Decreto Ejecutivo 13 de 2025** (Gaceta Oficial 30438, copia LEGISPAN), arts. 1 y 2: el salario mínimo se fija **por hora** | **No confirmable:** ninguna norma fija la conversión | **Estimación condicionada** (4⅓ semanas por mes), señalada junto a la cifra. Se recomienda escribir el valor de la hora del comprobante con «Por hora»; así el resultado deja de ser condicionado |
+| 2 | Domingo o descanso con salario fijo: ¿se pagan las horas además del 50%? | Art. 48; no hay criterio oficial accesible | **No confirmable** | **Estimación condicionada:** se muestran las dos lecturas: horas completas más 50% (principal) y solo el 50% (alternativa) |
+| 3 | Feriado con salario fijo: ¿150% adicional o total? | Art. 49 y **comunicado de MITRADEL del 1-11-2025**: salario diario B/.20 + recargo B/.30 = **B/.50 por el día trabajado** (2.5 veces) | **Confirmado** | Total de 2.5 veces la hora. Con salario fijo, lo adicional es el 150% (el salario ya paga el descanso, art. 45). Una prueba unitaria reproduce el ejemplo oficial |
+| 4 | 20 de diciembre | **Ley 291 de 2022, art. 7** (Gaceta Oficial 29507-B, 31-03-2022, copia de la Procuraduría): añade el 20 de diciembre al art. 46 num. 2 (duelo nacional) | **Confirmado** | Sugerido como feriado, citando la Ley 291 |
+| 5 | Límite semanal ordinario con turnos rotativos de distinta jornada | Arts. 31 y 32; no hay criterio oficial | **No confirmable** | **Estimación condicionada** cuando se detectan jornadas distintas en una misma semana; se usan las horas semanales del contrato |
+
+**Fuentes que no se pudieron consultar:**
+- El comunicado de MITRADEL y el sitio de la Gaceta Oficial están protegidos por Incapsula, que bloquea las descargas automáticas. No se intentó evadirlo.
+- El comunicado se cita por su URL oficial y por su reproducción en prensa.
+- La Ley 291 y el Decreto 13 se leyeron en las copias oficiales de la Procuraduría y de LEGISPAN (dominios autorizados por el CEO).
+- El número «291» no se lee bien en el PDF escaneado. Título, fecha, Gaceta y contenido coinciden con esa ley.
+
+### 10.2 Descansos y clasificación según el horario contratado
+
+**Verificado en el Código:**
+- Art. 33: la jornada es el tiempo a disposición del empleador. Lo que excede los límites legales **o contractuales** es extraordinario.
+- Art. 34.3: el tiempo de comida cuenta si el trabajador debe permanecer en el local.
+- Art. 39: descansos de 30 min a 2 h.
+
+**Cambio en el motor:** campos opcionales «Mi horario contratado: entrada / salida». Sin rehacer el motor:
+- La jornada se **clasifica con el horario pactado** (art. 30).
+- Las horas trabajadas **fuera** de ese horario, antes o después, son extraordinarias. Por ejemplo, con contrato de 10:00 a 18:00 y entrada a las 5:00, la jornada sigue siendo diurna y la hora de 5:00 a 6:00 lleva 50%. Sin horario, el motor la clasificaba como mixta.
+- El descanso sin hora indicada se ubica **a mitad del horario contratado**.
+- Avisos: horario contratado mayor que el máximo legal (el exceso es extra) y jornada que no coincide con el horario.
+- Reconoce horarios nocturnos que empezaron el día anterior.
+
+### 10.3 Imagen editorial
+
+- La imagen suministrada (escritorio con reloj, calculadora y libreta) está al inicio del contenido editorial, para que el resultado siga arriba.
+- Formatos: AVIF y WebP de 800 y 1600 px (20–84 KB), con `width` y `height`.
+- Pie: «Imagen ilustrativa · Recurso de Calcula Panamá». **Pendiente del CEO:** confirmar si se generó con IA, para indicarlo como en la portada.
+
+### 10.4 Persistencia
+
+Propuesta en `PERSISTENCIA.md`:
+- Solo en el origen aislado `app.calculapanama.com`, con consentimiento explícito.
+- Salario opcional, caducidad automática, borrado y validación.
+- Nunca en el dominio principal.
+- No implementada: depende de activar la app en Cloudflare Pages.
+
+### 10.5 Pruebas ejecutadas (solo las necesarias)
+
+| Prueba | Resultado |
+|---|---|
+| Unitarias del motor | 52/52 (10 nuevas: horario contratado, estimaciones condicionadas, ejemplo de MITRADEL y Ley 291) |
+| vitest completo | 267/267 |
+| e2e: horas extras, las tres calculadoras Midnight Functional y la portada (Chromium) | 27/27 (1 nueva: horario contratado, avisos condicionados e imagen) |
+| Firefox, WebKit y WebKit iPhone | CI de la rama (ver el informe de entrega) |
+| `astro check`, `check:app`, `verify:seo` y `verify:app` | Correctos |
+| Sin publicar | `noindex`, fuera de los dos sitemaps, del buscador y del catálogo |
+
+Captura: `capturas/v8-hero.jpg` (estimación condicionada) y `capturas/v8-img.jpg` (imagen editorial).

@@ -5,7 +5,7 @@
 import {
   calculateLog, calculateQuick, DAY_LABELS, formatMinutes, holidayName, hourlyRate, legalWeeklyHours, toCsv,
   type Bucket, type DayKind, type LogResult, type PayBasis, type PeriodKind, type QuickDay, type QuickOvertime,
-  type Settings, type ShiftEntry, type ShiftType, type Alert
+  type Settings, type ShiftEntry, type ShiftType, type Alert, type Conditional
 } from './overtime';
 import { formatMoney } from './format';
 import { fxCopy, fxIcon, fxIconFrame, fxPulse } from './fx-icons';
@@ -58,8 +58,11 @@ export function mountOvertime(root: HTMLElement) {
 
   /* ------------------------------------------------------------------ Resultado principal compartido */
 
-  function renderHero(o: { total: number | null; caption: string; extraMinutes: number | null; hourly: number | null; buckets: { label: string; value: number }[]; alerts: Alert[] }) {
+  function renderHero(o: { total: number | null; caption: string; extraMinutes: number | null; hourly: number | null; buckets: { label: string; value: number }[]; alerts: Alert[]; conditional?: Conditional[] }) {
     out('total', o.total === null ? 'B/. —' : formatMoney(o.total));
+    // Las estimaciones condicionadas se señalan junto a la cifra y se explican en la lista de avisos.
+    const conditional = o.total !== null && (o.conditional?.length ?? 0) > 0;
+    const badge = $('#ot-conditional'); badge.hidden = !conditional;
     out('caption', o.caption);
     out('extraHours', o.extraMinutes === null ? '—' : hoursText(o.extraMinutes));
     out('hourly', o.hourly === null ? '—' : formatMoney(o.hourly));
@@ -79,6 +82,12 @@ export function mountOvertime(root: HTMLElement) {
       const li = document.createElement('li'); li.className = `is-${alert.level}`;
       li.append(fxIcon(alert.level === 'info' ? 'info' : 'alert', 18));
       const span = document.createElement('span'); span.textContent = alert.message; li.append(span);
+      list.append(li);
+    }
+    for (const c of (o.total === null ? [] : o.conditional ?? [])) {
+      const li = document.createElement('li'); li.className = 'is-conditional'; li.dataset.conditional = c.code;
+      li.append(fxIcon('info', 18));
+      const span = document.createElement('span'); span.textContent = c.message; li.append(span);
       list.append(li);
     }
     fxPulse($('#ot-hero'));
@@ -115,9 +124,9 @@ export function mountOvertime(root: HTMLElement) {
       renderHero({
         total: r.total, caption: `${hoursText(total)} × ${formatMoney(r.hourValue)} por hora (${r.parts.join(' · ')})`,
         extraMinutes: overtime === 'none' ? 0 : total, hourly: r.hourly,
-        buckets: [{ label: 'Paga de las horas', value: r.base }, { label: 'Recargos', value: r.surcharge }], alerts
+        buckets: [{ label: 'Paga de las horas', value: r.base }, { label: 'Recargos', value: r.surcharge }], alerts, conditional: r.conditional
       });
-      shareData = { tool: 'overtime', primary: `Pago estimado por ${hoursText(total)}: ${formatMoney(r.total)}`, details: [`Hora ordinaria: ${formatMoney(r.hourly)}`, `Hora con recargo: ${formatMoney(r.hourValue)} (${r.parts.join(', ')})`, `Recargo: ${formatMoney(r.surcharge)}`] };
+      shareData = { tool: 'overtime', primary: `Pago estimado por ${hoursText(total)}: ${formatMoney(r.total)}${r.conditional.length ? ' (estimación condicionada)' : ''}`, details: [`Hora ordinaria: ${formatMoney(r.hourly)}`, `Hora con recargo: ${formatMoney(r.hourValue)} (${r.parts.join(', ')})`, `Recargo: ${formatMoney(r.surcharge)}`] };
     } catch (e) { err.textContent = e instanceof Error ? e.message : String(e); clear('Corrige los datos para ver el cálculo.'); }
   }
 
@@ -147,7 +156,7 @@ export function mountOvertime(root: HTMLElement) {
       total: r.additional,
       caption: fixed ? `Adicional a tu salario por ${r.days} ${r.days === 1 ? 'día' : 'días'} registrados: horas extras y recargos.` : `Horas extras y recargos de ${r.days} ${r.days === 1 ? 'día' : 'días'}. Las horas ordinarias suman ${formatMoney(r.ordinaryPay)} aparte.`,
       extraMinutes: r.extraMinutes, hourly: r.hourly,
-      buckets: special.map(b => ({ label: b.label, value: b.additional })), alerts: r.alerts
+      buckets: special.map(b => ({ label: b.label, value: b.additional })), alerts: r.alerts, conditional: r.conditional
     });
     out('days', String(r.days)); out('ordinaryHours', hoursText(r.ordinaryMinutes)); out('logExtra', hoursText(r.extraMinutes)); out('overLimit', hoursText(r.overLimitMinutes));
     out('periodLabel', fixed ? PERIOD_LABEL[settings.period] : 'Horas ordinarias pagadas');
@@ -157,7 +166,7 @@ export function mountOvertime(root: HTMLElement) {
     $('#ot-summary').hidden = false;
     renderDistribution(special);
     dist.hidden = !special.length;
-    shareData = { tool: 'overtime', primary: `Adicional estimado por horas extras y recargos: ${formatMoney(r.additional)}`, details: [`Días registrados: ${r.days}`, `Horas extraordinarias: ${hoursText(r.extraMinutes)}`, `Hora ordinaria: ${formatMoney(r.hourly)}`, ...special.map(b => `${b.label}: ${formatMoney(b.additional)}`)] };
+    shareData = { tool: 'overtime', primary: `Adicional estimado por horas extras y recargos: ${formatMoney(r.additional)}${r.conditional.length ? ' (estimación condicionada)' : ''}`, details: [`Días registrados: ${r.days}`, `Horas extraordinarias: ${hoursText(r.extraMinutes)}`, `Hora ordinaria: ${formatMoney(r.hourly)}`, ...special.map(b => `${b.label}: ${formatMoney(b.additional)}`)] };
   }
 
   function renderDistribution(buckets: Bucket[]) {
@@ -224,7 +233,8 @@ export function mountOvertime(root: HTMLElement) {
       id: editing ?? newId(), date: text('date'), start: text('start'), end: text('end'), breakMinutes,
       breakStart: text('breakStart') || undefined, breakPaid: d.get('breakPaid') === 'on',
       dayKind: text('dayKind') as DayKind, nextDayKind: crosses ? (text('nextDayKind') as DayKind) : undefined,
-      contractDailyHours: contract
+      contractDailyHours: contract,
+      contractStart: text('contractStart') || undefined, contractEnd: text('contractEnd') || undefined
     };
   }
 
@@ -243,6 +253,7 @@ export function mountOvertime(root: HTMLElement) {
     set('#ot-date', e.date); set('#ot-start', e.start); set('#ot-end', e.end); set('#ot-break', String(e.breakMinutes));
     set('#ot-daykind', e.dayKind); set('#ot-nextkind', e.nextDayKind ?? 'normal'); set('#ot-breakstart', e.breakStart ?? '');
     set('#ot-contract', e.contractDailyHours === undefined ? '' : String(e.contractDailyHours));
+    set('#ot-contract-start', e.contractStart ?? ''); set('#ot-contract-end', e.contractEnd ?? '');
     $<HTMLInputElement>('#ot-breakpaid').checked = Boolean(e.breakPaid);
     $('#ot-entry-submit').lastChild!.textContent = 'Guardar cambios';
     $('#ot-entry-cancel').hidden = false;

@@ -7,6 +7,7 @@
 import Layout from '../../layouts/Layout.astro';
 import FxCrumb from '../../components/fx/FxCrumb.astro';
 import FxIcon from '../../components/fx/FxIcon.astro';
+import EdPicture from '../../components/editorial/EdPicture.astro';
 import Faq from '../../components/Faq.astro';
 import LegalSources from '../../components/LegalSources.astro';
 import { OVERTIME_TOOL } from '../../data/launch';
@@ -58,6 +59,7 @@ const schema = {
     <section class="fx-panel fx-o1" id="ot-hero" aria-labelledby="ot-hero-label" aria-live="polite">
       <span class="fx-overline" id="ot-hero-label" data-ot-hero-label>Pago por horas extras (bruto estimado)</span>
       <strong class="fx-amount" data-ot="total">B/. —</strong>
+      <p class="fx-conditional" id="ot-conditional" hidden><FxIcon name="info" size={16} />Estimación condicionada: lee los avisos de abajo.</p>
       <p class="fx-sub" data-ot="caption">Escribe tu salario y tus horas para ver el cálculo.</p>
       <div class="fx-stats">
         <div class="fx-stat"><span><FxIcon name="clock" size={16} />Horas extras</span><strong data-ot="extraHours">—</strong></div>
@@ -150,6 +152,11 @@ const schema = {
             <div class="fx-details-body">
               <div><label class="fx-label" for="ot-breakstart">Hora en que empieza el descanso (opcional)</label><input id="ot-breakstart" name="breakStart" type="time" /></div>
               <label class="fx-check"><input type="checkbox" name="breakPaid" id="ot-breakpaid" /><span>Durante el descanso no puedo salir del lugar de trabajo: cuenta como tiempo trabajado (art. 34).</span></label>
+              <div class="fx-grid-2">
+                <div><label class="fx-label" for="ot-contract-start">Mi horario contratado: entrada</label><input id="ot-contract-start" name="contractStart" type="time" /></div>
+                <div><label class="fx-label" for="ot-contract-end">Mi horario contratado: salida</label><input id="ot-contract-end" name="contractEnd" type="time" /></div>
+              </div>
+              <p class="fx-hint">Opcional. Con tu horario contratado, la jornada se clasifica con ese horario (art. 30) y el tiempo trabajado fuera de él cuenta como extra (art. 33), también si entras antes.</p>
               <div><label class="fx-label" for="ot-contract">Horas ordinarias diarias de mi contrato (si son menos que el máximo legal)</label><input id="ot-contract" name="contract" type="text" inputmode="decimal" autocomplete="off" placeholder="Máximo legal" /></div>
             </div>
           </details>
@@ -210,6 +217,10 @@ const schema = {
   </div>
 
   <article class="fx-prose">
+    <figure class="fx-figure">
+      <EdPicture name="horas-extras" ratio="16/9" sizes="(min-width: 960px) 760px, 100vw" alt="Escritorio con un reloj despertador, una calculadora, una libreta con bolígrafo y una computadora portátil." />
+      <figcaption><span>Imagen ilustrativa</span><span>Recurso de Calcula Panamá</span></figcaption>
+    </figure>
     <p class="fx-meta-line">Actualizado el {reviewed} con el texto del Código de Trabajo. Estimación orientativa: no sustituye tu comprobante de pago ni una consulta a MITRADEL.</p>
 
     <h2 id="como-se-calcula">Cómo calcular las horas extras en Panamá</h2>
@@ -223,7 +234,8 @@ const schema = {
     <p class="formula">Pago de la hora extra = hora ordinaria × (1 + recargo) × horas</p>
 
     <h3>Cómo calcular horas extras con salario mensual</h3>
-    <p>El Código de Trabajo no fija un divisor para pasar un salario mensual a valor por hora. Esta calculadora usa la equivalencia de 4⅓ semanas por mes, la misma con la que el artículo 54 paga las vacaciones a quien cobra por semana. Con B/.1,000 al mes y una jornada diurna de 48 horas semanales: 1,000 ÷ (48 × 4⅓) = 1,000 ÷ 208 = <strong>{formatMoney(h1000)}</strong> por hora. Si cobras por quincena, se toma el doble como salario mensual. Algunas empresas usan otro divisor; si tu comprobante no coincide, compara el valor de la hora que aparece en él.</p>
+    <p>El Código de Trabajo no fija un divisor para pasar un salario mensual a valor por hora. Esta calculadora usa la equivalencia de 4⅓ semanas por mes, la misma con la que el artículo 54 paga las vacaciones a quien cobra por semana. Con B/.1,000 al mes y una jornada diurna de 48 horas semanales: 1,000 ÷ (48 × 4⅓) = 1,000 ÷ 208 = <strong>{formatMoney(h1000)}</strong> por hora. Si cobras por quincena, se toma el doble como salario mensual. Algunas empresas usan otro divisor.</p>
+    <p class="fx-meta-line"><strong>Estimación condicionada.</strong> Ni el Código de Trabajo (el art. 142 permite fijar el salario por mes, quincena, semana, día u hora) ni el Decreto Ejecutivo 13 de 2025, que fija el salario mínimo por hora, establecen cómo convertir un salario mensual en valor por hora. Si tu comprobante de pago indica el valor de tu hora, elige «Por hora» y escríbelo: así el resultado no depende de este criterio.</p>
 
     <h2>Cuánto vale una hora extra</h2>
     <div class="table-wrap">
@@ -262,9 +274,11 @@ const schema = {
 
     <h2>Cuánto pagan por trabajar un domingo</h2>
     <p>El trabajo en domingo, o en el día de descanso semanal que tengas pactado en su lugar, se paga con un recargo del 50% sobre la jornada ordinaria y te da derecho a otro día de descanso (arts. 41 y 48). Si también trabajas ese día compensatorio, lleva otro 50%. Si tu semana es de menos de seis días, el trabajo en tus días libres lleva un 50% en jornada diurna y un 75% en mixta o nocturna (art. 49).</p>
+    <p class="fx-meta-line"><strong>Estimación condicionada con salario fijo.</strong> El artículo 48 no precisa si un salario mensual ya paga las horas del día de descanso. La calculadora supone que no: suma esas horas completas más el 50%. Si tu empleador considera que el salario ya cubre ese día, lo adicional sería solo el 50%. La calculadora te muestra las dos cifras.</p>
 
     <h2>Cómo se pagan los días feriados</h2>
-    <p>Los días de fiesta o duelo nacional del artículo 46 se descansan con salario (art. 45). Si trabajas, el recargo es del 150% sobre el salario de la jornada ordinaria, que incluye la remuneración de ese descanso (art. 49). Con salario fijo, el día ya está pagado en tu salario y lo adicional es el 150%: con B/.1,000 al mes, 8 horas en un feriado suman {formatMoney(ex.holiday.surcharge)} a tu salario.</p>
+    <p>Los días de fiesta o duelo nacional del artículo 46 se descansan con salario (art. 45). Si trabajas, el recargo es del 150% sobre el salario de la jornada ordinaria, que incluye la remuneración de ese descanso (art. 49). Así lo explica MITRADEL: con un salario diario de B/.20.00, el recargo es de B/.30.00 y el día trabajado se paga en total B/.50.00, es decir, 2.5 veces la jornada. Con salario fijo, el día ya está pagado en tu salario y lo adicional es el 150%: con B/.1,000 al mes, 8 horas en un feriado suman {formatMoney(ex.holiday.surcharge)} a tu salario.</p>
+    <p>El 20 de diciembre es día de duelo nacional y de descanso obligatorio desde la Ley 291 de 2022, que lo añadió al artículo 46 (Gaceta Oficial 29507-B, 31 de marzo de 2022).</p>
     <p>Si un feriado cae en domingo, el lunes siguiente es descanso obligatorio (art. 47). La calculadora sugiere los días del artículo 46, pero eres tú quien marca el tipo de día: los días puente que decrete el Órgano Ejecutivo no se pueden saber de antemano.</p>
 
     <h2>Límites legales de las horas extras</h2>
@@ -272,10 +286,10 @@ const schema = {
 
     <h2>Qué hace el registro de jornadas</h2>
     <ul>
-      <li>Clasifica cada jornada con las horas que realmente caen de noche, no con el nombre del turno.</li>
+      <li>Clasifica cada jornada con las horas que realmente caen de noche, no con el nombre del turno. Si indicas tu horario contratado, la clasifica con ese horario (art. 30), y lo que trabajes fuera de él, antes o después, cuenta como extra (art. 33).</li>
       <li>Separa las horas ordinarias de las extraordinarias con el límite diario y el semanal (de lunes a domingo).</li>
       <li>Aplica el recargo de cada minuto según el momento y el día en que lo trabajas, incluso si la jornada empieza en un feriado y termina en un día normal.</li>
-      <li>Descuenta el descanso no pagado. Si no indicas su hora, lo ubica a mitad de la jornada ordinaria. Si no puedes salir del lugar de trabajo, puedes contarlo como tiempo trabajado (art. 34).</li>
+      <li>Descuenta el descanso no pagado, porque la jornada es el tiempo que no puedes usar libremente (art. 33). Si no indicas su hora, lo ubica a mitad de tu horario contratado o de la jornada ordinaria. Si no puedes salir del lugar de trabajo para comer, puedes contarlo como tiempo trabajado (art. 34).</li>
       <li>No cuenta dos veces una jornada duplicada o solapada: te la señala y la excluye.</li>
     </ul>
 
@@ -288,7 +302,7 @@ const schema = {
     </ul>
 
     <Faq items={faq} />
-    <LegalSources sources={['laborCodeOvertime', 'mitradel']} reviewedOn={OVERTIME_RULES.reviewedOn} />
+    <LegalSources sources={['laborCodeOvertime', 'law291', 'minimumWage2025', 'mitradelHolidays', 'mitradel']} reviewedOn={OVERTIME_RULES.reviewedOn} />
   </article>
 </div>
 </Layout>
