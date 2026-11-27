@@ -70,7 +70,7 @@ export function mountBudget(root: HTMLElement) {
     const alert = get<HTMLElement>('#budget-alert'), blue = get<HTMLElement>('[data-blue-message]');
     if (!valid || !state.payday) {
       for (const key of ['free', 'daily', 'days', 'pending', 'savings', 'opening', 'paid', 'current', 'expenses']) output(key, '—');
-      progress(null);
+      progress(null); alert.classList.remove('is-warn'); root.querySelector('#budget-summary')?.classList.remove('is-warn');
       alert.textContent = valid ? 'Elige la fecha de tu próximo pago para ver el resumen.' : 'Corrige los datos para ver el resumen.';
       blue.textContent = 'Completa las fechas y los importes para empezar tu plan.';
       if (valid) persist();
@@ -84,6 +84,8 @@ export function mountBudget(root: HTMLElement) {
       output('expenses', money(result.paidCents + result.pendingCents));
       progress(state.openingCents > 0 ? result.freeCents / state.openingCents : null);
       fxPulse(root.querySelector('#budget-summary'));
+      const warn = result.past || result.currentCents < result.pendingCents || result.freeCents < 0;
+      alert.classList.toggle('is-warn', warn); root.querySelector('#budget-summary')?.classList.toggle('is-warn', result.freeCents < 0);
       if (result.past) alert.textContent = 'La fecha de pago es hoy o ya pasó. Actualiza tu próximo período.';
       else if (result.currentCents < result.pendingCents) alert.textContent = 'Los compromisos pendientes superan el saldo actual. Revisa tu plan con calma.';
       else if (result.freeCents < 0) alert.textContent = 'Los compromisos y el ahorro superan el saldo actual. Puedes ajustar tu plan.';
@@ -92,7 +94,7 @@ export function mountBudget(root: HTMLElement) {
       else alert.textContent = 'Tu presupuesto diario se redondea hacia abajo para no asignar más de lo disponible.';
       blue.textContent = result.freeCents <= 0 ? 'Revisemos las reservas para hacer espacio en tu plan.' : 'Vas bien: revisa tu plan cuando cambien tus gastos.';
       persist();
-    } catch (e) { for (const key of ['free', 'daily', 'days', 'pending', 'savings', 'opening', 'paid', 'current', 'expenses']) output(key, '—'); progress(null); periodError.textContent = errorMessage(e); alert.textContent = 'Corrige las fechas para ver el resumen.'; }
+    } catch (e) { for (const key of ['free', 'daily', 'days', 'pending', 'savings', 'opening', 'paid', 'current', 'expenses']) output(key, '—'); progress(null); alert.classList.remove('is-warn'); root.querySelector('#budget-summary')?.classList.remove('is-warn'); periodError.textContent = errorMessage(e); alert.textContent = 'Corrige las fechas para ver el resumen.'; }
   };
   const button = (label: string, action: () => void) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = label; b.addEventListener('click', action); return b; };
   const renderList = () => {

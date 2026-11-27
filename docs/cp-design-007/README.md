@@ -2,7 +2,7 @@
 
 - **Rama experimental:** `design/cp-design-007-functional`, creada desde `main` (`453f9d3`).
 - **Respaldo del trabajo anterior:** rama `design/cp-design-005-midnight` (CP-DESIGN-005 y los prototipos editoriales de CP-DESIGN-006).
-- **Estado:** no publicado, sin fusionar con `main` y con la publicidad desactivada.
+- **Estado:** aprobado por el CEO para producción (ver §7), con la publicidad desactivada.
 - **Portada:** no se ha modificado.
 - **Alcance:** solo **Salario neto**, **Mi Quincena** y **Modo Pasillo**. El resto del sitio conserva su diseño actual.
 
@@ -35,6 +35,7 @@ Paleta exacta del CEO:
 | Iconos | `#729EFF` |
 | Texto | `#F4F5F7` |
 | Texto secundario | `#AEB6C4` |
+| Alerta (aprobada) | `#F5A524` sobre `#1E1708` |
 
 - **Formas:** esquinas de 6 y 8 px; iconos lineales de 16 a 20 px; marcos de 40 px para las funciones importantes (48 px junto al título).
 - **Tipografía:** la del sistema (San Francisco, Roboto, Segoe UI…), sin descargas. Las cifras usan números tabulares.
@@ -86,11 +87,15 @@ Paleta exacta del CEO:
 
 ## 6. Limitaciones y decisiones pendientes
 
-1. **Aviso de presupuesto excedido sin color de alerta.** La paleta no incluye rojo ni ámbar. El aviso usa borde azul `#3978EF`, un icono de advertencia, el texto «Superaste tu presupuesto» y la barra llena. ¿Se autoriza un color de advertencia?
+1. **Color de alerta: resuelto.** El CEO aprobó el ámbar `#F5A524` sobre fondo `#1E1708`. Se usa en el borde, el icono y el texto de los avisos:
+   - **Modo Pasillo:** presupuesto superado (aviso, saldo y barra);
+   - **Mi Quincena:** saldo libre negativo (cifra y barra), además del aviso cuando los compromisos superan el saldo actual o la fecha de pago venció.
+
+   El contraste medido es 9.76:1 sobre `#08090C`, 8.71:1 sobre `#1E1708` y 8.96:1 sobre los paneles; todos cumplen AAA. Antes se había estimado 10.2:1, y esta es la cifra medida. Capturas: `despues-alerta-modo-pasillo.jpg` y `despues-alerta-mi-quincena.jpg`.
 2. **Copiar** pone en el portapapeles el resultado con importes por acción directa del usuario; queda en el dispositivo. **Compartir** mantiene la vista previa con casillas desmarcadas por defecto.
 3. **Coherencia temporal:** las otras calculadoras siguen con el diseño anterior y con Blue hasta que se autorice extender Midnight Functional.
 4. **Modo Pasillo en escritorio** usa una columna (resumen → formulario → carrito), como exigen las pruebas existentes y el uso con una mano. La barra inferior con el total y «Agregar» queda fija al desplazarse.
 5. La **categoría visible** en la ruta (por ejemplo «Trabajo») no se añadió al `BreadcrumbList`, para no cambiar los datos estructurados.
 6. **Tipografía del sistema:** el aspecto varía ligeramente entre Android, iOS y Windows.
 7. **Navegadores:** solo se probó en Chromium. El workflow «Validación de producción» cubre Firefox y WebKit, pero solo se puede usar una vez publicado.
-8. Las **referencias visuales** de Mi Quincena mostraban «Ingresos»; en el prototipo es «Dinero inicial», que es el dato que existe hoy. No se creó una función nueva de ingresos.
+8. **«Dinero inicial»** se mantiene en Mi Quincena por decisión del CEO. No se creó una función nueva de ingresos.

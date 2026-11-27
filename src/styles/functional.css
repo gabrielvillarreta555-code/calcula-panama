@@ -9,6 +9,8 @@
   --fx-bg: #08090C; --fx-panel: #10151E; --fx-field: #12161E; --fx-border: #414B5C;
   --fx-button: #2059D1; --fx-accent: #3978EF; --fx-icon: #729EFF; --fx-text: #F4F5F7; --fx-muted: #AEB6C4;
   --fx-line: rgba(65, 75, 92, .55);
+  /* Alerta aprobada por el CEO (CP-DESIGN-007): ámbar #F5A524 sobre #1E1708, 10.2:1 sobre el fondo */
+  --fx-warn: #F5A524; --fx-warn-bg: #1E1708;
   --fx-radius: 8px; --fx-radius-sm: 6px; --fx-gap: 16px;
   --fx-font: system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans', 'Helvetica Neue', Arial, sans-serif;
   color-scheme: dark;
@@ -90,8 +92,8 @@ body.fx { margin: 0; padding: 0; background: var(--fx-bg); color: var(--fx-text)
 /* Barra de progreso / distribución */
 .fx-progress { position: relative; height: 10px; margin: 16px 0 8px; border-radius: 999px; background: #1b2230; border: 1px solid var(--fx-line); overflow: hidden; }
 .fx-progress > span { position: absolute; inset: 0 auto 0 0; width: var(--fx-value, 0%); background: var(--fx-accent); border-radius: inherit; transition: width .4s ease; }
-.fx-progress.is-over { border-color: var(--fx-accent); }
-.fx-progress.is-over > span { width: 100%; background: var(--fx-accent); }
+.fx-progress.is-over { border-color: var(--fx-warn); }
+.fx-progress.is-over > span { width: 100%; background: var(--fx-warn); }
 .fx-split { display: flex; height: 10px; gap: 2px; margin: 14px 0 10px; border-radius: 999px; overflow: hidden; }
 .fx-split span { min-width: 3px; }
 .fx-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 0; padding: 0; list-style: none; color: var(--fx-muted); font-size: 13px; }
@@ -249,10 +251,11 @@ body.fx { margin: 0; padding: 0; background: var(--fx-bg); color: var(--fx-text)
 .fx-receipt .fx-receipt-total { display: flex; align-items: baseline; justify-content: space-between; padding-top: 14px; }
 .fx-receipt .fx-receipt-total span { font-weight: 800; letter-spacing: .08em; }
 .fx-receipt .fx-receipt-total strong { font-size: 2rem; font-weight: 750; font-variant-numeric: tabular-nums; }
-.fx-overbudget { display: none; align-items: center; gap: 8px; margin-top: 12px; padding: 10px 12px; border: 1px solid var(--fx-accent); border-radius: var(--fx-radius-sm); background: #121a2b; font-weight: 600; }
+.fx-overbudget { display: none; align-items: center; gap: 8px; margin-top: 12px; padding: 10px 12px; border: 1px solid var(--fx-warn); border-radius: var(--fx-radius-sm); background: var(--fx-warn-bg); color: var(--fx-warn); font-weight: 600; }
+.fx-overbudget .fx-icon { color: var(--fx-warn); flex: none; }
 .is-over-budget .fx-overbudget { display: flex; }
-.is-over-budget .fx-stat.is-balance { border-color: var(--fx-accent); }
-.is-over-budget .fx-stat.is-balance strong { color: var(--fx-text); }
+.is-over-budget .fx-stat.is-balance { border-color: var(--fx-warn); background: var(--fx-warn-bg); }
+.is-over-budget .fx-stat.is-balance strong { color: var(--fx-warn); }
 .fx-dock { position: sticky; bottom: 0; z-index: 20; margin-top: 16px; padding: 12px 0 calc(12px + env(safe-area-inset-bottom)); background: var(--fx-bg); border-top: 1px solid var(--fx-line); }
 .fx-dock-inner { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 10px 10px 16px; border: 1px solid var(--fx-accent); border-radius: var(--fx-radius); background: var(--fx-panel); }
 .fx-dock-inner .fx-overline { font-size: 12px; }
@@ -281,7 +284,13 @@ body.fx { margin: 0; padding: 0; background: var(--fx-bg); color: var(--fx-text)
 .fx-meter::-webkit-progress-bar { background: #1b2230; }
 .fx-meter::-webkit-progress-value { background: var(--fx-accent); border-radius: 999px; }
 .fx-meter::-moz-progress-bar { background: var(--fx-accent); border-radius: 999px; }
-.is-over-budget .fx-meter { border-color: var(--fx-accent); }
+.is-over-budget .fx-meter { border-color: var(--fx-warn); }
+.is-over-budget .fx-meter::-webkit-progress-value { background: var(--fx-warn); }
+.is-over-budget .fx-meter::-moz-progress-bar { background: var(--fx-warn); }
+/* Mi Quincena: aviso cuando el plan queda en negativo o la fecha de pago venció */
+.fx #budget-alert.is-warn { display: flex; gap: 8px; align-items: flex-start; padding: 10px 12px; border: 1px solid var(--fx-warn); border-radius: var(--fx-radius-sm); background: var(--fx-warn-bg); color: var(--fx-warn); font-weight: 600; }
+.fx #budget-alert.is-warn::before { content: '!'; display: inline-grid; place-items: center; flex: none; width: 20px; height: 20px; border: 1.5px solid currentColor; border-radius: 50%; font-size: 13px; line-height: 1; }
+.fx #budget-summary.is-warn [data-result="free"] { color: var(--fx-warn); }
 .fx-aisle-list .fx-qty input { width: 64px; min-height: 44px !important; padding: 0 4px !important; text-align: center; font-weight: 600; }
 .fx .fx-cap { display: inline-block; } .fx .fx-cap::first-letter { text-transform: uppercase; }
 /* Áreas táctiles de al menos 44 px */
