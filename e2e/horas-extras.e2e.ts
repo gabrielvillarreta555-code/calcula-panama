@@ -26,7 +26,7 @@ async function addShift(page: Page, date: string, start: string, end: string, op
 test('modo rápido: hora ordinaria, hora extra, recargo y total', async ({ page }) => {
   const w = watch(page);
   await page.goto(PATH);
-  await expect(page.locator('meta[name=robots]')).toHaveAttribute('content', /noindex/);
+  await expect(page.locator('meta[name=robots]')).toHaveCount(0);
   await expect(page.locator('h1')).toHaveText(/horas extras/i);
   await salary(page);
   await page.locator('#ot-hours').fill('2');
@@ -147,14 +147,16 @@ for (const width of [360, 390, 412, 768, 1440]) {
   });
 }
 
-test('sin publicidad, con CSP estricta y fuera del sitemap mientras no se publique', async ({ page, request }) => {
+test('publicada: indexable, en ambos sitemaps, en el buscador y en el catálogo; sin publicidad y con CSP estricta', async ({ page, request }) => {
   await page.goto(PATH);
   await expect(page.locator('script[src*="adsbygoogle"]')).toHaveCount(0);
   await expect(page.locator('meta[http-equiv="Content-Security-Policy"]')).toHaveAttribute('content', /connect-src 'none'/);
-  const sitemap = await (await request.get('/sitemap.xml')).text();
-  expect(sitemap).not.toContain('horas-extras');
-  const index = await (await request.get('/sitemap-0.xml')).text();
-  expect(index).not.toContain('horas-extras');
+  for (const map of ['/sitemap.xml', '/sitemap-0.xml']) expect(await (await request.get(map)).text()).toContain('https://calculapanama.com/calculadoras/horas-extras/');
+  const index = JSON.parse(await page.locator('#fx-search-index').textContent() ?? '[]') as { p: string }[];
+  expect(index.some(e => e.p === PATH)).toBe(true);
+  await page.goto('/herramientas/');
+  await page.locator(`#trabajo a[href="${PATH}"]`).click();
+  await expect(page).toHaveURL(new RegExp(`${PATH}$`));
 });
 
 test('horario contratado, estimaciones condicionadas e imagen editorial', async ({ page }) => {
