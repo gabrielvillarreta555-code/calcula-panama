@@ -236,7 +236,7 @@ export const expansionTools: Tool[] = [
     steps: ['Elige la fecha inicial y la final. Las dos se cuentan.', 'Indica si trabajas de lunes a viernes o de lunes a sábado.', 'Revisa la lista de feriados del intervalo y si caen en día laborable.'],
     formula: 'Días hábiles = días del intervalo − domingos (y sábados, si no son laborables) − fiestas y duelos nacionales que caen en un día laborable. Viernes Santo y martes de carnaval dependen de la fecha de Pascua de cada año.',
     example: 'En 2027, de lunes a viernes, hay 261 días laborables. Nueve fiestas nacionales caen en un día laborable, así que quedan 252 días hábiles.',
-    limits: ['Incluye las fiestas y duelos nacionales del art. 46 del Código de Trabajo y el lunes de descanso del art. 47. No incluye días libres decretados por el Órgano Ejecutivo, feriados locales ni días de cierre de una institución.', 'No sirve para plazos judiciales ni administrativos, que tienen sus propias reglas de cómputo.', 'Intervalo de hasta 10 años, con fechas entre 2000 y 2100.'],
+    limits: ['Incluye las fiestas y duelos nacionales del art. 46 del Código de Trabajo y el lunes de descanso del art. 47. No incluye los días puente que el Órgano Ejecutivo puede decretar (art. 46), los días compensatorios individuales del art. 47, feriados locales ni días de cierre de una institución.', 'No sirve para plazos judiciales ni administrativos, que tienen sus propias reglas de cómputo.', 'Intervalo de hasta 10 años, con fechas entre 2000 y 2100.'],
     context: [
       'Fiestas y duelos nacionales de 2027, según el Código de Trabajo:',
       ...holidaysOf(2027).map(h => h.text),
@@ -248,7 +248,7 @@ export const expansionTools: Tool[] = [
     related: [{ title: 'Calcular las horas extras y el trabajo en feriados', path: '/calculadoras/horas-extras/' }, { title: 'Calcular las vacaciones', path: '/calculadoras/vacaciones/' }, { title: 'Planear una meta de ahorro', path: '/finanzas/meta-de-ahorro/' }],
     faq: [
       { q: '¿Cuáles son los feriados de Panamá en 2027?', a: `Según el Código de Trabajo: ${holidaysOf(2027).map(h => h.day).join('; ')}.` },
-      { q: '¿Qué pasa si un feriado cae en domingo?', a: 'El lunes siguiente es día de descanso obligatorio (Código de Trabajo, art. 47). Si cae en sábado, la norma no traslada el descanso.' },
+      { q: '¿Qué pasa si un feriado cae en domingo?', a: 'El lunes siguiente es día de descanso obligatorio (Código de Trabajo, art. 47). Si coincide con otro día de descanso semanal obligatorio de la persona, el mismo artículo le da derecho a otro día libre de esa semana como compensación. Esta calculadora solo resta el lunes del domingo; no conoce tu día de descanso.' },
       { q: '¿El 4 de noviembre es feriado?', a: 'No figura entre las fiestas nacionales del artículo 46 del Código de Trabajo. Algunos años el Órgano Ejecutivo decreta días libres adicionales; esta herramienta no los incluye.' },
     ],
   },
