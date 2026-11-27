@@ -9,6 +9,8 @@ import {
 } from './shopping';
 import { formatMoney } from './format';
 import { openSharePreview } from './share-ui';
+import { buildShareText } from './share';
+import { fxCopy, fxIcon, fxIconFrame } from './fx-icons';
 
 const quantityText = (milli: number) => {
   const value = milli / 1000;
@@ -80,36 +82,58 @@ export function mountAisleMode(root: HTMLElement): () => void {
       const row = document.createElement('li');
       row.className = 'aisle-item';
       row.dataset.itemId = item.id;
-      const top = document.createElement('div');
-      top.className = 'aisle-item-top';
+      const label = document.createElement('span');
+      label.className = 'fx-row-label';
       const title = document.createElement('strong');
       title.textContent = item.name || 'Producto sin nombre';
+      const unit = document.createElement('small');
+      unit.textContent = `${formatMoney(item.priceCents / 100)} / unidad`;
+      label.append(title, unit);
       const subtotal = document.createElement('strong');
-      subtotal.className = 'aisle-line-total';
+      subtotal.className = 'aisle-line-total fx-line-total';
       subtotal.textContent = formatMoney(lineSubtotalCents(item.priceCents, item.quantityMilli) / 100);
-      top.append(title, subtotal);
-      const edits = document.createElement('div');
-      edits.className = 'aisle-item-edits';
-      edits.append(
-        itemControl('Nombre', item.name, 'text', value => updateItem(item.id, { name: normalizeItemName(value) })),
-        itemControl('Precio unitario', (item.priceCents / 100).toFixed(2), 'decimal', value => updateItem(item.id, { priceCents: parseMoneyToCents(value) })),
-        itemControl('Cantidad', String(item.quantityMilli / 1000), 'decimal', value => updateItem(item.id, { quantityMilli: parseQuantityToMilli(value) }))
-      );
+      const productName = item.name || 'producto sin nombre';
+      // Controles: cantidad editable con − y +, eliminar y edición de nombre y precio.
+      const controls = document.createElement('div');
+      controls.className = 'fx-aisle-controls';
+      const qty = document.createElement('div');
+      qty.className = 'fx-qty';
+      const minus = document.createElement('button');
+      minus.type = 'button'; minus.textContent = '−'; minus.setAttribute('aria-label', `Quitar una unidad de ${productName}`);
+      minus.disabled = item.quantityMilli <= 1000;
+      minus.addEventListener('click', () => updateItem(item.id, { quantityMilli: parseQuantityToMilli(String((item.quantityMilli - 1000) / 1000)) }), options);
+      const plus = document.createElement('button');
+      plus.type = 'button'; plus.textContent = '+'; plus.setAttribute('aria-label', `Añadir una unidad de ${productName}`);
+      plus.addEventListener('click', () => updateItem(item.id, { quantityMilli: parseQuantityToMilli(String((item.quantityMilli + 1000) / 1000)) }), options);
+      const quantityControl = itemControl('Cantidad', String(item.quantityMilli / 1000), 'decimal', value => updateItem(item.id, { quantityMilli: parseQuantityToMilli(value) }));
+      const quantityField = quantityControl.querySelector('input')!;
+      qty.append(minus, quantityField, plus);
       const remove = document.createElement('button');
       remove.type = 'button';
-      remove.className = 'aisle-remove';
-      remove.textContent = 'Eliminar';
-      remove.setAttribute('aria-label', `Eliminar ${item.name || 'producto sin nombre'}`);
+      remove.className = 'aisle-remove fx-trash';
+      remove.setAttribute('aria-label', `Eliminar ${productName}`);
+      remove.append(fxIcon('trash', 18));
       remove.addEventListener('click', () => {
         items = items.filter(current => current.id !== item.id);
         announceError();
         render();
       }, options);
-      row.append(top, edits, remove);
+      controls.append(qty, remove);
+      const edit = document.createElement('details');
+      edit.className = 'fx-aisle-edit';
+      const summary = document.createElement('summary');
+      summary.append(fxIcon('pencil', 16), 'Editar nombre y precio');
+      const edits = document.createElement('div');
+      edits.className = 'aisle-item-edits';
+      edits.append(
+        itemControl('Nombre', item.name, 'text', value => updateItem(item.id, { name: normalizeItemName(value) })),
+        itemControl('Precio unitario', (item.priceCents / 100).toFixed(2), 'decimal', value => updateItem(item.id, { priceCents: parseMoneyToCents(value) }))
+      );
+      edit.append(summary, edits);
+      row.append(fxIconFrame('box'), label, subtotal, controls, edit);
       list!.append(row);
     }
   }
-
   function updateItem(id: string, patch: Partial<ShoppingItem>) {
     try {
       items = items.map(item => item.id === id ? { ...item, ...patch } : item);
@@ -125,8 +149,16 @@ export function mountAisleMode(root: HTMLElement): () => void {
     try {
       const summary = summarizeShopping(items, budgetCents);
       const nearBudget = summary.budgetCents !== null && summary.budgetCents > 0 && summary.subtotalCents >= summary.budgetCents * 0.9;
-      if (blueHint) blueHint.textContent = summary.overBudget ? 'Tu presupuesto está excedido.' : nearBudget ? 'Tu presupuesto está cerca del límite.' : 'Blue te acompaña en tu compra.';
+      if (blueHint) blueHint.textContent = summary.overBudget ? 'Tu presupuesto está excedido.' : nearBudget ? 'Tu presupuesto está cerca del límite.' : summary.lineCount ? 'Tu total se actualiza con cada producto.' : 'Añade productos para ver tu total.';
       total!.textContent = formatMoney(summary.subtotalCents / 100);
+      // Ticket de resumen y barra inferior (presentación del mismo resumen).
+      const set = (selector: string, text: string) => root.querySelectorAll<HTMLElement>(selector).forEach(el => { el.textContent = text; });
+      set('[data-aisle-dock-total]', formatMoney(summary.subtotalCents / 100));
+      set('[data-aisle-receipt-total]', formatMoney(summary.subtotalCents / 100));
+      set('[data-aisle-units]', quantityText(summary.quantityMilli));
+      set('[data-aisle-lines]', `${summary.lineCount} ${summary.lineCount === 1 ? 'producto' : 'productos'}`);
+      set('[data-aisle-budget-view]', summary.budgetCents === null ? 'Sin presupuesto' : formatMoney(summary.budgetCents / 100));
+      set('[data-aisle-remaining]', summary.balanceCents === null ? '—' : summary.overBudget ? `−${formatMoney(Math.abs(summary.balanceCents) / 100)}` : formatMoney(summary.balanceCents / 100));
       count!.textContent = `${summary.lineCount} ${summary.lineCount === 1 ? 'producto' : 'productos'} · ${quantityText(summary.quantityMilli)} unidades`;
       root.classList.toggle('is-over-budget', summary.overBudget);
       if (summary.balanceCents === null) {
@@ -210,6 +242,19 @@ export function mountAisleMode(root: HTMLElement): () => void {
     }
   }, options);
 
+  root.querySelector<HTMLButtonElement>('#aisle-copy')?.addEventListener('click', async () => {
+    const status = root.querySelector<HTMLElement>('#aisle-action-status');
+    if (!items.length) { if (status) status.textContent = 'Añade productos para copiar tu lista.'; return; }
+    const shopping = summarizeShopping(items, null);
+    const products = items.map(item => `${quantityText(item.quantityMilli)} × ${item.name || 'Producto sin nombre'}`);
+    const text = buildShareText({ tool: 'aisle', primary: `Total de la compra: ${formatMoney(shopping.subtotalCents / 100)}`, products }, { includePrimary: true, includeDetails: false, selectedProducts: products.map((_, i) => i) });
+    if (status) status.textContent = await fxCopy(text) ? 'Lista copiada.' : 'No se pudo copiar. Usa Compartir para ver el texto.';
+  }, options);
+  root.querySelector<HTMLButtonElement>('#aisle-dock-add')?.addEventListener('click', () => {
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    root.querySelector('.aisle-entry')?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+    priceInput.focus({ preventScroll: true });
+  }, options);
   const shareButton = root.querySelector<HTMLButtonElement>('#aisle-share');
   shareButton?.addEventListener('click', () => {
     const shopping = summarizeShopping(items, null);

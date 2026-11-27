@@ -1,5 +1,10 @@
 import { CATEGORIES, MAX_MOVEMENTS, civilDay, emptyBudget, isBudgetState, localToday, newPeriod, parseCents, summarizeBudget, type BudgetState, type Category, type Movement } from './pay-period';
 import { openSharePreview } from '../share-ui';
+import { buildShareText } from '../share';
+import { fxCopy, fxIcon, fxIconFrame, fxPulse, type FxIconName } from '../fx-icons';
+
+/** Icono de cada categoría (solo presentación, CP-DESIGN-007). */
+const CATEGORY_ICONS: Record<Category, FxIconName> = { alimentacion: 'cart', transporte: 'bus', vivienda: 'home', servicios: 'bolt', deudas: 'card', salud: 'heart', otros: 'tag' };
 import type { ShareData } from '../share';
 
 import { BUDGET_KEY as KEY } from './storage-keys';
@@ -42,6 +47,16 @@ export function mountBudget(root: HTMLElement) {
   };
   const output = (key: string, value: string) => { get<HTMLElement>(`[data-result="${key}"]`).textContent = value; };
   const syncInputs = () => { start.value = state.start; payday.value = state.payday; opening.value = (state.openingCents / 100).toFixed(2); savings.value = (state.savingsCents / 100).toFixed(2); };
+  // Barra: proporción del dinero inicial que queda libre (presentación del resultado existente).
+  const progress = (ratio: number | null) => {
+    const bar = root.querySelector<HTMLElement>('#budget-progress'), text = root.querySelector<HTMLElement>('#budget-progress-text');
+    if (!bar || !text) return;
+    if (ratio === null) { bar.style.setProperty('--fx-value', '0%'); bar.classList.remove('is-over'); text.textContent = 'Completa las fechas y los importes para ver tu plan.'; return; }
+    const pct = Math.max(0, Math.min(1, ratio));
+    bar.style.setProperty('--fx-value', `${(pct * 100).toFixed(1)}%`);
+    bar.classList.toggle('is-over', ratio < 0);
+    text.textContent = ratio < 0 ? 'Tus compromisos y tu ahorro superan el dinero inicial.' : `${new Intl.NumberFormat('es-PA', { maximumFractionDigits: 1 }).format(pct * 100)}% de tu dinero inicial queda libre.`;
+  };
   const renderSummary = () => {
     shareData = { tool: 'budget' };
     let valid = true;
@@ -54,7 +69,8 @@ export function mountBudget(root: HTMLElement) {
     catch (e) { savingsError.textContent = errorMessage(e); valid = false; }
     const alert = get<HTMLElement>('#budget-alert'), blue = get<HTMLElement>('[data-blue-message]');
     if (!valid || !state.payday) {
-      for (const key of ['free', 'daily', 'days', 'pending', 'savings', 'opening', 'paid', 'current']) output(key, '—');
+      for (const key of ['free', 'daily', 'days', 'pending', 'savings', 'opening', 'paid', 'current', 'expenses']) output(key, '—');
+      progress(null); alert.classList.remove('is-warn'); root.querySelector('#budget-summary')?.classList.remove('is-warn');
       alert.textContent = valid ? 'Elige la fecha de tu próximo pago para ver el resumen.' : 'Corrige los datos para ver el resumen.';
       blue.textContent = 'Completa las fechas y los importes para empezar tu plan.';
       if (valid) persist();
@@ -65,6 +81,11 @@ export function mountBudget(root: HTMLElement) {
       shareData = { tool: 'budget', primary: `Dinero libre: ${money(result.freeCents)}`, details: [`Días hasta el próximo pago: ${result.days}`, `Presupuesto diario: ${result.dailyCents === null ? 'no disponible' : money(result.dailyCents)}`, `Compromisos pendientes: ${money(result.pendingCents)}`, `Ahorro reservado: ${money(result.savingsCents)}`] };
       output('free', money(result.freeCents)); output('daily', result.dailyCents === null ? '—' : money(result.dailyCents)); output('days', String(result.days));
       output('pending', money(result.pendingCents)); output('savings', money(result.savingsCents)); output('opening', money(state.openingCents)); output('paid', money(result.paidCents)); output('current', money(result.currentCents));
+      output('expenses', money(result.paidCents + result.pendingCents));
+      progress(state.openingCents > 0 ? result.freeCents / state.openingCents : null);
+      fxPulse(root.querySelector('#budget-summary'));
+      const warn = result.past || result.currentCents < result.pendingCents || result.freeCents < 0;
+      alert.classList.toggle('is-warn', warn); root.querySelector('#budget-summary')?.classList.toggle('is-warn', result.freeCents < 0);
       if (result.past) alert.textContent = 'La fecha de pago es hoy o ya pasó. Actualiza tu próximo período.';
       else if (result.currentCents < result.pendingCents) alert.textContent = 'Los compromisos pendientes superan el saldo actual. Revisa tu plan con calma.';
       else if (result.freeCents < 0) alert.textContent = 'Los compromisos y el ahorro superan el saldo actual. Puedes ajustar tu plan.';
@@ -73,7 +94,7 @@ export function mountBudget(root: HTMLElement) {
       else alert.textContent = 'Tu presupuesto diario se redondea hacia abajo para no asignar más de lo disponible.';
       blue.textContent = result.freeCents <= 0 ? 'Revisemos las reservas para hacer espacio en tu plan.' : 'Vas bien: revisa tu plan cuando cambien tus gastos.';
       persist();
-    } catch (e) { for (const key of ['free', 'daily', 'days', 'pending', 'savings', 'opening', 'paid', 'current']) output(key, '—'); periodError.textContent = errorMessage(e); alert.textContent = 'Corrige las fechas para ver el resumen.'; }
+    } catch (e) { for (const key of ['free', 'daily', 'days', 'pending', 'savings', 'opening', 'paid', 'current', 'expenses']) output(key, '—'); progress(null); alert.classList.remove('is-warn'); root.querySelector('#budget-summary')?.classList.remove('is-warn'); periodError.textContent = errorMessage(e); alert.textContent = 'Corrige las fechas para ver el resumen.'; }
   };
   const button = (label: string, action: () => void) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = label; b.addEventListener('click', action); return b; };
   const renderList = () => {
@@ -83,15 +104,37 @@ export function mountBudget(root: HTMLElement) {
     get<HTMLElement>('#movement-count').textContent = String(state.movements.length);
     get<HTMLElement>('#movement-empty').hidden = state.movements.length > 0;
     state.movements.forEach(item => {
-      const li = document.createElement('li'); li.className = 'budget-item';
+      const li = document.createElement('li'); li.className = `budget-item${item.status === 'pagado' ? ' is-paid' : ''}`;
+      const label = document.createElement('span'); label.className = 'fx-row-label';
       const title = document.createElement('strong'); title.textContent = item.name;
+      const details = document.createElement('small'); details.textContent = `${CATEGORIES[item.category]} · ${item.kind === 'deuda' ? 'Deuda' : 'Gasto'} · ${item.status === 'pagado' ? 'Pagado' : 'Pendiente'}${item.date ? ` · ${item.date}` : ''}${item.recurring ? ' · Recurrente' : ''}`;
+      label.append(title, details);
       const total = document.createElement('strong'); total.textContent = money(item.cents);
-      const top = document.createElement('div'); top.className = 'budget-item-top'; top.append(title, total);
-      const details = document.createElement('p'); details.textContent = `${CATEGORIES[item.category]} · ${item.kind === 'deuda' ? 'Deuda' : 'Gasto'} · ${item.status === 'pagado' ? 'Pagado' : 'Pendiente'}${item.date ? ` · ${item.date}` : ''}${item.recurring ? ' · Recurrente' : ''}`;
-      const actions = document.createElement('div'); actions.className = 'budget-item-actions';
-      actions.append(button(item.status === 'pagado' ? 'Marcar pendiente' : 'Marcar pagado', () => { item.status = item.status === 'pagado' ? 'pendiente' : 'pagado'; renderList(); renderSummary(); }), button('Editar', () => editItem(li, item)), button('Eliminar', () => { state.movements = state.movements.filter(m => m.id !== item.id); renderList(); renderSummary(); }));
-      li.append(top, details, actions); list.append(li);
+      const actions = document.createElement('div'); actions.className = 'budget-item-actions fx-row-actions';
+      const remove = button('', () => { state.movements = state.movements.filter(m => m.id !== item.id); renderList(); renderSummary(); });
+      remove.className = 'fx-trash'; remove.setAttribute('aria-label', `Eliminar ${item.name}`); remove.append(fxIcon('trash', 18));
+      actions.append(button(item.status === 'pagado' ? 'Marcar pendiente' : 'Marcar pagado', () => { item.status = item.status === 'pagado' ? 'pendiente' : 'pagado'; renderList(); renderSummary(); }), button('Editar', () => editItem(li, item)), remove);
+      li.append(fxIconFrame(CATEGORY_ICONS[item.category]), label, total, actions); list.append(li);
     });
+    renderDistribution();
+  };
+  // Distribución por categoría de todos los movimientos registrados (solo presentación).
+  const renderDistribution = () => {
+    const dist = root.querySelector<HTMLUListElement>('#budget-distribution'), emptyDist = root.querySelector<HTMLElement>('#budget-distribution-empty');
+    if (!dist) return;
+    dist.replaceChildren();
+    const totals = new Map<Category, number>();
+    for (const m of state.movements) totals.set(m.category, (totals.get(m.category) ?? 0) + m.cents);
+    const sum = [...totals.values()].reduce((a, b) => a + b, 0);
+    if (emptyDist) emptyDist.hidden = sum > 0;
+    for (const [cat, cents] of [...totals.entries()].sort((a, b) => b[1] - a[1])) {
+      const share = sum > 0 ? cents / sum : 0;
+      const li = document.createElement('li');
+      const name = document.createElement('span'); name.className = 'fx-dist-name'; name.append(fxIcon(CATEGORY_ICONS[cat], 16), CATEGORIES[cat]);
+      const value = document.createElement('strong'); value.textContent = `${money(cents)} · ${new Intl.NumberFormat('es-PA', { maximumFractionDigits: 1 }).format(share * 100)}%`;
+      const bar = document.createElement('span'); bar.className = 'fx-dist-bar'; const fill = document.createElement('span'); fill.style.setProperty('--fx-value', `${(share * 100).toFixed(1)}%`); bar.append(fill);
+      li.append(name, value, bar); dist.append(li);
+    }
   };
   function editItem(li: HTMLLIElement, item: Movement) {
     if (li.querySelector('form')) return;
@@ -109,6 +152,12 @@ export function mountBudget(root: HTMLElement) {
     li.append(form); editName.focus();
   }
   get<HTMLFormElement>('#period-form').addEventListener('submit', e => e.preventDefault());
+  const copyButton = root.querySelector<HTMLButtonElement>('#budget-copy');
+  copyButton?.addEventListener('click', async () => {
+    const status = root.querySelector<HTMLElement>('#budget-action-status');
+    const ok = shareData.primary ? await fxCopy(buildShareText(shareData, { includePrimary: true, includeDetails: true, selectedProducts: [] })) : false;
+    if (status) status.textContent = shareData.primary ? (ok ? 'Resumen copiado.' : 'No se pudo copiar. Usa Compartir para ver el texto.') : 'Completa tu plan para copiar el resumen.';
+  });
   const shareButton = get<HTMLButtonElement>('#budget-share');
   shareButton.addEventListener('click', () => openSharePreview(shareData, shareButton));
   for (const field of [start, payday, opening, savings]) field.addEventListener('input', renderSummary);

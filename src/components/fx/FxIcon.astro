@@ -1,0 +1,8 @@
+---
+/** Icono lineal (CP-DESIGN-007). Con `framed`, va dentro de un marco cuadrado para funciones importantes. */
+import { FX_ICONS, type FxIconName } from '../../lib/fx-icons';
+interface Props { name: FxIconName; size?: number; framed?: boolean; class?: string }
+const { name, size = 18, framed = false, class: className } = Astro.props;
+const svg = `<svg class="fx-icon" viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${FX_ICONS[name]}</svg>`;
+---
+{framed ? <span class:list={['fx-iconframe', className]} set:html={svg} /> : <Fragment set:html={svg} />}

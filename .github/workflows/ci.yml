@@ -32,6 +32,27 @@ jobs:
       - name: Comprobar, construir y verificar la app sin publicidad (app.calculapanama.com)
         run: npm run check:app && npm run build:app && npm run verify:app
 
+  browsers:
+    name: Navegadores (Firefox y Safari)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Instalar Firefox y WebKit para Playwright
+        run: npx playwright install --with-deps firefox webkit
+      - name: Construir sitio
+        run: npm run build
+        env:
+          SITE_URL: https://calculapanama.com/
+          BASE_PATH: /
+      - name: Probar Salario neto, Mi Quincena y Modo Pasillo en Firefox, WebKit y WebKit iPhone
+        run: npx playwright test --config playwright.browsers.config.ts --trace off --reporter=list
+
   mobile:
     name: Interfaz móvil
     runs-on: ubuntu-latest

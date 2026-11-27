@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 
-const routes = ['salario-neto', 'decimo-tercer-mes', 'vacaciones', 'liquidacion-laboral'];
+// CP-DESIGN-007: salario neto ya no incluye a Blue (prototipo Midnight Functional).
+const routes = ['decimo-tercer-mes', 'vacaciones', 'liquidacion-laboral'];
 for (const width of [320, 375, 768, 1280]) {
   test(`guía accesible y sin tapar controles a ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 850 });
@@ -122,18 +123,20 @@ test('las capas de ojos y cabeza se animan y se detienen al usar el formulario',
 });
 
 test('Blue ofrece sugerencias según el resultado real sin repetirlas al editar', async ({ page }) => {
-  await page.goto('/calculadoras/salario-neto/');
-  const form = page.locator('#salary-form');
+  await page.goto('/calculadoras/vacaciones/');
+  const form = page.locator('#vacation-form');
   const guide = page.locator('#blue-help');
   await form.locator('button[type=submit]').click();
   await expect(guide.locator('.blue-help-bubble')).toHaveText('Revisa este dato');
   await guide.locator(':scope > summary').click();
   await expect(guide.locator('.blue-help-context')).toContainText('Revisa los datos');
   await guide.locator('.blue-help-close').click();
-  await page.locator('#gross').fill('1500');
+  await page.locator('#salary').fill('1500');
+  await page.locator('input[name=mode][value=days]').check();
+  await page.locator('#pending').fill('15');
   await form.locator('button[type=submit]').click();
-  await expect(page.locator('#salary-result')).toContainText('1,236.92');
+  await expect(page.locator('#vacation-result')).toBeVisible();
   await expect(guide.locator('.blue-help-bubble')).toHaveText('Revisa el resultado');
   await guide.locator(':scope > summary').click();
-  await expect(guide.locator('.blue-help-context')).toContainText('desglose de descuentos');
+  await expect(guide.locator('.blue-help-context')).toContainText('Revisa los días y el pago bruto');
 });

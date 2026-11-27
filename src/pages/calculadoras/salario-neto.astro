@@ -1,16 +1,22 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import Breadcrumbs from '../../components/Breadcrumbs.astro';
-import BlueHelp from '../../components/BlueHelp.astro';
-import { BLUE_GUIDES } from '../../data/blue-help';
+import FxCrumb from '../../components/fx/FxCrumb.astro';
+import FxIcon from '../../components/fx/FxIcon.astro';
+import FxDonut from '../../components/fx/FxDonut.astro';
 import Faq from '../../components/Faq.astro';
-import Icon from '../../components/Icon.astro';
 import LegalSources from '../../components/LegalSources.astro';
-import RelatedCalculators from '../../components/RelatedCalculators.astro';
 import { calculateNetSalary } from '../../lib/calculations';
 import { formatMoney } from '../../lib/format';
 
 const path = '/calculadoras/salario-neto/';
+const base = import.meta.env.BASE_URL;
+const href = (p: string) => `${base}${p.replace(/^\//, '')}`;
+const related = [
+  { label: 'Mi Quincena', path: '/finanzas/mi-quincena/', icon: 'calendar' },
+  { label: 'Décimo tercer mes', path: '/calculadoras/decimo-tercer-mes/', icon: 'calendar' },
+  { label: 'Vacaciones', path: '/calculadoras/vacaciones/', icon: 'calendar' },
+  { label: 'Liquidación laboral', path: '/calculadoras/liquidacion-laboral/', icon: 'receipt' }
+] as const;
 const examples = [650, 800, 1000, 1200, 1500, 2000, 3000, 5000].map(grossPerPay => calculateNetSalary({ grossPerPay, frequency: 'monthly' }));
 const faq = [
   { q: '¿Cuánto me descuentan del salario en Panamá?', a: 'El trabajador aporta 9.75% de Seguro Social y 1.25% de Seguro Educativo sobre su salario. Además, si su ingreso anual proyectado (incluido el décimo tercer mes) supera B/.11,000, el empleador retiene impuesto sobre la renta.' },
@@ -34,91 +40,116 @@ const schema = {
   offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' }
 };
 ---
-<Layout title="Calculadora de salario neto en Panamá | CSS e ISR" description="Estima tu salario neto mensual, quincenal o semanal en Panamá. Consulta el desglose de Seguro Social, Seguro Educativo e ISR y los supuestos del cálculo." canonicalPath={path} schema={schema}>
-  <header class="page-head container">
-    <Breadcrumbs items={[{ label: 'Salario neto', path }]} />
-    <span class="eyebrow">Calculadora laboral</span>
-    <h1>Calculadora de salario neto</h1>
-    <p>Descubre cuánto recibes de verdad después de Seguro Social, Seguro Educativo e impuesto sobre la renta.</p>
-  </header>
+<Layout title="Calculadora de salario neto en Panamá | CSS e ISR" description="Estima tu salario neto mensual, quincenal o semanal en Panamá. Consulta el desglose de Seguro Social, Seguro Educativo e ISR y los supuestos del cálculo." canonicalPath={path} schema={schema} variant="functional">
+<div class="fx-wrap">
+  <FxCrumb items={[{ label: 'Salario neto', path }]} category={{ label: 'Trabajo', path: '/herramientas/#trabajo' }} />
+  <div class="fx-title"><FxIcon name="wallet" size={22} framed class="is-lg" /><h1><span class="visually-hidden">Calculadora de </span><span class="fx-cap">salario neto</span></h1></div>
+  <p class="fx-lede">Descubre cuánto recibes de verdad después de Seguro Social, Seguro Educativo e impuesto sobre la renta.</p>
 
-  <BlueHelp guide={BLUE_GUIDES.salary} />
-
-  <div class="container calculator-shell">
-    <form class="panel" id="salary-form" novalidate>
-      <h2>Tu salario</h2>
-      <div class="form-grid">
-        <div class="field full">
-          <span class="field-label" id="frequency-label">Frecuencia de pago</span>
-          <fieldset class="segmented frequencies" aria-labelledby="frequency-label" aria-describedby="frequency-help">
-            <label><input type="radio" name="frequency" value="monthly" checked />Mensual</label>
-            <label><input type="radio" name="frequency" value="fortnightly" />Quincenal</label>
-            <label><input type="radio" name="frequency" value="biweekly" />Bisemanal</label>
-            <label><input type="radio" name="frequency" value="weekly" />Semanal</label>
-          </fieldset>
-        </div>
-        <div class="field full">
-          <label for="gross">Salario bruto por pago</label>
-          <div class="input-wrap"><span class="prefix">B/.</span><input id="gross" name="gross" type="number" min="0.01" step="0.01" inputmode="decimal" required placeholder="1,500.00" autocomplete="off" /></div>
-          <small id="frequency-help">Lo que dice tu contrato antes de descuentos. Quincenal = 24 pagos al año; bisemanal = 26 (cada dos semanas).</small>
-        </div>
-        <details class="more field full">
-          <summary>Comisiones, deducciones y opciones</summary>
-          <div class="form-grid">
-            <div class="field full">
-              <label for="other">Ingresos variables promedio por pago</label>
-              <div class="input-wrap"><span class="prefix">B/.</span><input id="other" name="other" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" /></div>
-              <small>Comisiones o sobretiempo habituales. Usa un promedio: la calculadora supone que se repiten en cada pago. No incluyas bonos únicos.</small>
+  <div class="fx-tool fx-salary">
+    <div class="fx-contents" id="salary-results">
+      <section class="fx-panel fx-o1" id="salary-empty" aria-label="Resultado">
+        <span class="fx-overline">Salario neto</span>
+        <span class="fx-amount" aria-hidden="true">B/. —</span>
+        <p class="fx-sub">Escribe tu salario bruto y pulsa <strong>Calcular salario neto</strong> para ver el desglose.</p>
+      </section>
+      <div class="fx-contents" id="salary-result" hidden>
+        <section class="fx-panel fx-o1" id="salary-hero" aria-label="Resultado" aria-live="polite">
+          <span class="fx-overline">Salario neto <span data-out="frequencyLabel"></span></span>
+          <strong class="fx-amount" data-out="net">B/. 0.00</strong>
+          <p class="fx-sub">Te descuentan <strong data-out="totalDeductions"></strong> (<span data-out="deductionRate"></span> del bruto)</p>
+          <div class="fx-hero-split">
+            <FxDonut id="salary-donut" label="Porcentaje del salario disponible" caption="Disponible" />
+            <div class="fx-stats">
+              <div class="fx-stat"><span><FxIcon name="banknote" size={16} />Salario bruto</span><strong data-out="gross"></strong></div>
+              <div class="fx-stat"><span><FxIcon name="arrowUpRight" size={16} />Descuentos</span><strong data-out="totalDeductions"></strong></div>
             </div>
-            <label class="check field full"><input type="checkbox" name="joint" /><span><strong>Declaro en forma conjunta con mi cónyuge.</strong> Resta B/.800 al año antes de calcular el ISR (Código Fiscal, art. 709).</span></label>
-            <div class="field full">
-              <label for="deductions">Otras deducciones anuales declaradas a tu empleador</label>
-              <div class="input-wrap"><span class="prefix">B/.</span><input id="deductions" name="deductions" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" /></div>
-              <small>Intereses hipotecarios de tu vivienda, intereses de préstamos educativos, seguro de hospitalización o aportes a fondos de pensiones. Solo cuentan si el empleador los comprueba.</small>
-            </div>
-            <label class="check field full"><input type="checkbox" name="thirteenth" checked /><span><strong>Incluir el décimo tercer mes en la proyección del ISR.</strong> Es lo habitual en la planilla; desmárcalo si este año no recibirás las tres partidas.</span></label>
           </div>
-        </details>
+        </section>
+
+        <section class="fx-panel fx-o3" aria-labelledby="breakdown-title">
+          <h2 class="fx-panel-title" id="breakdown-title">Descuentos aplicados</h2>
+          <div class="fx-split" id="salary-split" role="img" aria-label=""></div>
+          <ul class="fx-legend" id="salary-legend"></ul>
+          <ul class="fx-rows" style="margin-top:14px">
+            <li><FxIcon name="shield" framed /><span class="fx-row-label">Seguro Social<small>9.75% (CSS)</small></span><strong>−<span data-out="socialSecurity"></span></strong></li>
+            <li><FxIcon name="graduation" framed /><span class="fx-row-label">Seguro Educativo<small>1.25%</small></span><strong>−<span data-out="educationalInsurance"></span></strong></li>
+            <li><FxIcon name="bank" framed /><span class="fx-row-label">Impuesto sobre la renta<small data-out="isrNote"></small></span><strong>−<span data-out="incomeTax"></span></strong></li>
+            <li class="is-total"><span class="fx-row-label">Total descontado</span><strong data-out="totalDeductions"></strong></li>
+            <li class="is-total"><span class="fx-row-label">Neto por pago</span><strong data-out="net"></strong></li>
+          </ul>
+        </section>
+
+        <section class="fx-panel fx-o4" aria-labelledby="annual-title">
+          <h2 class="fx-panel-title" id="annual-title">Proyección anual</h2>
+          <div class="fx-stats fx-stats-compact" style="margin-top:0">
+            <div class="fx-stat"><span>Neto mensual equivalente</span><strong data-out="netMonthlyEquivalent"></strong></div>
+            <div class="fx-stat"><span>Ingreso anual proyectado</span><strong data-out="projectedAnnualIncome"></strong></div>
+            <div class="fx-stat"><span>Renta gravable anual</span><strong data-out="taxableAnnual"></strong></div>
+            <div class="fx-stat"><span>ISR anual estimado</span><strong data-out="annualIncomeTax"></strong></div>
+            <div class="fx-stat"><span>Tasa marginal de ISR</span><strong data-out="marginalTaxRate"></strong></div>
+            <div class="fx-stat"><span>Deducciones aplicadas</span><strong data-out="annualDeductions"></strong></div>
+          </div>
+          <p class="fx-hint" style="margin-top:14px">Estimación orientativa para un solo empleador y un ingreso estable todo el año. La retención real sigue las tablas de la DGI, se recalcula si cambia tu salario y se ajusta al cierre del año.</p>
+        </section>
+
+        <div class="fx-o5">
+          <div class="fx-actions" role="group" aria-label="Acciones del resultado">
+            <button class="fx-action" type="button" id="salary-copy"><FxIcon name="copy" size={20} />Copiar</button>
+            <button class="fx-action" type="button" id="salary-share"><FxIcon name="share" size={20} />Compartir</button>
+            <button class="fx-action" type="button" id="salary-reset"><FxIcon name="reset" size={20} />Reiniciar</button>
+          </div>
+          <p class="fx-status" id="salary-action-status" role="status"></p>
+        </div>
       </div>
-      <p class="form-error" id="salary-error" role="alert"></p>
-      <button class="calculate" type="submit">Calcular salario neto</button>
+    </div>
+
+    <form class="fx-panel fx-form fx-col-side fx-o2" id="salary-form" novalidate>
+      <h2 class="fx-panel-title">Configura tu salario</h2>
+      <div>
+        <label class="fx-label" for="gross">Salario bruto por pago</label>
+        <div class="fx-money"><FxIcon name="banknote" size={22} /><span class="fx-prefix" aria-hidden="true">B/.</span><input id="gross" name="gross" type="number" min="0.01" step="0.01" inputmode="decimal" required placeholder="1,500.00" autocomplete="off" aria-describedby="frequency-help" /><FxIcon name="pencil" size={18} /></div>
+      </div>
+      <div>
+        <span class="fx-label" id="frequency-label">Frecuencia de pago</span>
+        <fieldset class="fx-segmented frequencies" aria-labelledby="frequency-label" aria-describedby="frequency-help">
+          <label><input type="radio" name="frequency" value="monthly" checked />Mensual</label>
+          <label><input type="radio" name="frequency" value="fortnightly" />Quincenal</label>
+          <label><input type="radio" name="frequency" value="biweekly" />Bisemanal</label>
+          <label><input type="radio" name="frequency" value="weekly" />Semanal</label>
+        </fieldset>
+        <p class="fx-hint" id="frequency-help">Lo que dice tu contrato antes de descuentos. Quincenal = 24 pagos al año; bisemanal = 26 (cada dos semanas).</p>
+      </div>
+      <details class="fx-details">
+        <summary><FxIcon name="sliders" size={18} />Comisiones, deducciones y opciones<span class="fx-chev"><FxIcon name="chevronDown" size={18} /></span></summary>
+        <div class="fx-details-body">
+          <div>
+            <label class="fx-label" for="other">Ingresos variables promedio por pago</label>
+            <div class="fx-money" style="min-height:52px"><span class="fx-prefix" aria-hidden="true" style="font-size:1.1rem">B/.</span><input id="other" name="other" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" style="font-size:1.1rem" /></div>
+            <p class="fx-hint">Comisiones o sobretiempo habituales. Usa un promedio: la calculadora supone que se repiten en cada pago. No incluyas bonos únicos.</p>
+          </div>
+          <label class="fx-check"><input type="checkbox" name="joint" /><span><strong>Declaro en forma conjunta con mi cónyuge.</strong> Resta B/.800 al año antes de calcular el ISR (Código Fiscal, art. 709).</span></label>
+          <div>
+            <label class="fx-label" for="deductions">Otras deducciones anuales declaradas a tu empleador</label>
+            <div class="fx-money" style="min-height:52px"><span class="fx-prefix" aria-hidden="true" style="font-size:1.1rem">B/.</span><input id="deductions" name="deductions" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" style="font-size:1.1rem" /></div>
+            <p class="fx-hint">Intereses hipotecarios de tu vivienda, intereses de préstamos educativos, seguro de hospitalización o aportes a fondos de pensiones. Solo cuentan si el empleador los comprueba.</p>
+          </div>
+          <label class="fx-check"><input type="checkbox" name="thirteenth" checked /><span><strong>Incluir el décimo tercer mes en la proyección del ISR.</strong> Es lo habitual en la planilla; desmárcalo si este año no recibirás las tres partidas.</span></label>
+        </div>
+      </details>
+      <p class="fx-error" id="salary-error" role="alert"></p>
+      <button class="fx-btn is-block" type="submit"><FxIcon name="calculator" size={20} />Calcular salario neto</button>
+      <p class="fx-hint" style="display:flex;gap:8px;align-items:center;margin:0"><FxIcon name="lock" size={16} />El cálculo ocurre en tu dispositivo. No se guarda ni se envía.</p>
     </form>
 
-    <section class="panel results" id="salary-results" aria-live="polite" aria-label="Resultado">
-      <div id="salary-empty" class="empty-state"><Icon name="salary" size={40} /><p>Escribe tu salario bruto y pulsa <strong>Calcular</strong> para ver el desglose.</p></div>
-      <div id="salary-result" hidden>
-        <div class="result-hero">
-          <div class="label">Salario neto estimado <span data-out="frequencyLabel"></span></div>
-          <div class="amount" data-out="net">B/. 0.00</div>
-          <div class="sub">Te descuentan <strong data-out="totalDeductions"></strong> (<span data-out="deductionRate"></span> del bruto)</div>
-        </div>
-        <div id="salary-bar"></div>
-        <ul class="breakdown">
-          <li><span>Salario bruto</span><strong data-out="gross"></strong></li>
-          <li class="minus"><span>Seguro Social <small>9.75% (CSS)</small></span><strong data-out="socialSecurity"></strong></li>
-          <li class="minus"><span>Seguro Educativo <small>1.25%</small></span><strong data-out="educationalInsurance"></strong></li>
-          <li class="minus"><span>Impuesto sobre la renta <small data-out="isrNote"></small></span><strong data-out="incomeTax"></strong></li>
-          <li class="total"><span>Neto por pago</span><strong data-out="net"></strong></li>
-        </ul>
-        <div class="mini-stats">
-          <div><span>Neto mensual equivalente</span><strong data-out="netMonthlyEquivalent"></strong></div>
-          <div><span>Ingreso anual proyectado</span><strong data-out="projectedAnnualIncome"></strong></div>
-          <div><span>Renta gravable anual</span><strong data-out="taxableAnnual"></strong></div>
-          <div><span>ISR anual estimado</span><strong data-out="annualIncomeTax"></strong></div>
-          <div><span>Tasa marginal de ISR</span><strong data-out="marginalTaxRate"></strong></div>
-          <div><span>Deducciones aplicadas</span><strong data-out="annualDeductions"></strong></div>
-        </div>
-        <div class="result-actions">
-          <button class="button secondary" type="button" id="salary-share"><Icon name="share" size={18} />Compartir resultado</button>
-          <a class="button secondary" href="#como-se-calcula">Ver fórmula</a>
-        </div>
-        <p class="callout info">Estimación orientativa para un solo empleador y un ingreso estable todo el año. La retención real sigue las tablas de la DGI, se recalcula si cambia tu salario y se ajusta al cierre del año.</p>
-      </div>
-    </section>
+    <div class="fx-o6">
+      <a class="fx-linkrow" href="#como-se-calcula"><FxIcon name="book" size={20} /><span>Metodología y fuentes oficiales</span><FxIcon name="chevronRight" size={18} /></a>
+      <h2 class="fx-section-label">Herramientas relacionadas</h2>
+      <ul class="fx-related">{related.map(r => <li><a class="fx-linkrow" href={href(r.path)}><FxIcon name={r.icon} size={20} /><span>{r.label}</span><FxIcon name="arrowUpRight" size={18} /></a></li>)}</ul>
+    </div>
   </div>
 
-
-  <article class="container article">
+  <article class="fx-prose">
     <h2>Antes de calcular tu salario neto</h2>
     <p>El salario bruto es el importe antes de descuentos; el neto es la estimación de lo que recibes después de las retenciones consideradas. Selecciona la frecuencia de tu pago e introduce el bruto correspondiente a ese mismo período. Si tus ingresos varían, puedes indicar un promedio y revisar las opciones adicionales.</p>
     <p>Para estimar el pago de un descanso, utiliza la <a href={`${import.meta.env.BASE_URL}calculadoras/vacaciones/`}>calculadora de vacaciones</a>. Si terminó tu relación de trabajo, consulta la <a href={`${import.meta.env.BASE_URL}calculadoras/liquidacion-laboral/`}>calculadora de liquidación laboral</a>; sus conceptos y supuestos son distintos.</p>
@@ -168,14 +199,15 @@ const schema = {
     <Faq items={faq} />
     <LegalSources sources={['css', 'educationalInsurance', 'incomeTax', 'incomeTaxRegulation']} />
   </article>
-
-  <div class="container"><RelatedCalculators current={path} /></div>
+</div>
 </Layout>
 
 <script>
   import { calculateNetSalary, type Frequency } from '../../lib/calculations';
   import { formatMoney, formatPercent } from '../../lib/format';
-  import { $, bindCalculator, bindShare, readNumber, readText, renderBar, setOutputs } from '../../lib/ui';
+  import { $, bindCalculator, bindShare, readNumber, readText, setOutputs } from '../../lib/ui';
+  import { buildShareText } from '../../lib/share';
+  import { fxCopy, fxPulse } from '../../lib/fx-icons';
 
   const labels: Record<Frequency, string> = { monthly: 'por mes', fortnightly: 'por quincena', biweekly: 'cada dos semanas', weekly: 'por semana' };
   const result = $('#salary-result');
@@ -217,14 +249,49 @@ const schema = {
         taxableAnnual: formatMoney(out.taxableAnnual),
         annualDeductions: formatMoney(out.annualDeductions)
       });
-      renderBar($('#salary-bar'), [
-        { label: 'Neto', value: out.net, tone: 'net' },
-        { label: 'Seguro Social', value: out.socialSecurity, tone: 'css' },
-        { label: 'Seguro Educativo', value: out.educationalInsurance, tone: 'edu' },
-        { label: 'ISR', value: out.incomeTax, tone: 'isr' }
-      ], formatMoney);
+      renderDistribution(out);
       shareData = { tool: 'salary', primary: `Salario neto estimado: ${formatMoney(out.net)} ${labels[frequency]}`, details: [`Seguro Social: ${formatMoney(out.socialSecurity)}`, `Seguro Educativo: ${formatMoney(out.educationalInsurance)}`, `ISR estimado: ${formatMoney(out.incomeTax)}`] };
     }
   });
   bindShare($<HTMLButtonElement>('#salary-share'), () => shareData);
+
+  // Presentación Midnight Functional: anillo de disponible, barra de distribución y animación discreta.
+  function renderDistribution(out: ReturnType<typeof calculateNetSalary>) {
+    const available = out.gross > 0 ? out.net / out.gross : 0;
+    const donut = $('#salary-donut');
+    donut.style.setProperty('--fx-value', String(Math.round(available * 1000) / 10));
+    $('[data-donut-value]', donut).textContent = formatPercent(available);
+    donut.setAttribute('aria-label', `Disponible: ${formatPercent(available)} del salario bruto`);
+    const parts = [
+      { label: 'Neto', value: out.net, tone: 1 },
+      { label: 'Seguro Social', value: out.socialSecurity, tone: 2 },
+      { label: 'Seguro Educativo', value: out.educationalInsurance, tone: 4 },
+      { label: 'ISR', value: out.incomeTax, tone: 3 }
+    ];
+    const split = $('#salary-split'), legend = $('#salary-legend');
+    split.replaceChildren(); legend.replaceChildren();
+    for (const part of parts) {
+      if (part.value <= 0) continue;
+      const bar = document.createElement('span'); bar.className = `fx-tone-${part.tone}`; bar.style.flex = String(part.value); split.append(bar);
+      const item = document.createElement('li'), dot = document.createElement('i'); dot.className = `fx-tone-${part.tone}`;
+      item.append(dot, `${part.label} ${formatPercent(part.value / out.gross)}`); legend.append(item);
+    }
+    split.setAttribute('aria-label', parts.map(p => `${p.label}: ${formatMoney(p.value)}`).join('; '));
+    fxPulse($('#salary-hero'));
+  }
+
+  const status = $('#salary-action-status');
+  $<HTMLButtonElement>('#salary-copy').addEventListener('click', async () => {
+    const text = buildShareText(shareData, { includePrimary: true, includeDetails: true, selectedProducts: [] });
+    status.textContent = await fxCopy(text) ? 'Resultado copiado.' : 'No se pudo copiar. Usa Compartir para ver el texto.';
+  });
+  $<HTMLButtonElement>('#salary-reset').addEventListener('click', () => {
+    $<HTMLFormElement>('#salary-form').reset();
+    result.hidden = true;
+    $('#salary-empty').hidden = false;
+    $('#salary-error').textContent = '';
+    shareData = { tool: 'salary' };
+    status.textContent = 'Cálculo reiniciado.';
+    $<HTMLInputElement>('#gross').focus();
+  });
 </script>
