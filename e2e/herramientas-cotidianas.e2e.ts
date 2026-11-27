@@ -124,18 +124,16 @@ test('guía para administrar el décimo: cifras calculadas y enlaces a las calcu
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 
-test('vivienda: hipoteca con tramo 3, capacidad de compra y alquilar o comprar', async ({ page }) => {
+test('vivienda: hipoteca convencional sin modo preferencial, capacidad de compra y alquilar o comprar', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/vivienda/calculadora-de-hipoteca/', { waitUntil: 'networkidle' });
   const requests: string[] = []; page.on('request', r => requests.push(r.url()));
   await page.getByLabel('Precio de la vivienda (B/.)').fill('150000'); await page.getByLabel('Abono inicial (B/.)').fill('15000');
   await page.getByLabel('Tasa de interés anual del banco (%)').fill('6.5'); await calculate(page);
   await expect(page.locator('[data-result]')).toContainText('Letra mensual: B/.853.29');
-  await page.getByLabel('Interés preferencial').selectOption('tramo3'); await calculate(page);
-  await expect(page.locator('[data-error]')).toContainText('tramo 3');
-  await page.getByLabel('Precio de la vivienda (B/.)').fill('110000'); await page.getByLabel('Abono inicial (B/.)').fill('11000'); await calculate(page);
-  await expect(page.locator('[data-result]')).toContainText('Letra los primeros 84 meses');
-  await expect(page.locator('[data-result]')).toContainText('2.50%');
+  await expect(page.locator('[name="preferential"]')).toHaveCount(0);
+  await expect(page.locator('main')).not.toContainText('tramo');
+  await expect(page.locator('nav.fx-crumb a[href="/vivienda/"]')).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 
   await page.goto('/vivienda/capacidad-de-compra/');
@@ -162,4 +160,17 @@ test('guía de gastos de comprar vivienda: ITBI de la Ley 546 y tramo 3', async 
   await expect(page.locator('main table').first()).toContainText('Exenta');
   await expect(page.locator('main table').first()).toContainText('1.80%');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});
+
+test('sección /vivienda/: enlaza las tres calculadoras y la guía, sin tasas preferenciales', async ({ page }) => {
+  for (const [w, h] of [[390, 844], [1440, 900]] as const) {
+    await page.setViewportSize({ width: w, height: h });
+    await page.goto('/vivienda/');
+    await expect(page.locator('h1')).toBeVisible();
+    for (const path of ['/vivienda/calculadora-de-hipoteca/', '/vivienda/capacidad-de-compra/', '/vivienda/alquilar-o-comprar/', '/guias/gastos-de-comprar-vivienda/']) await expect(page.locator(`main a[href="${path}"]`).first()).toBeVisible();
+    await expect(page.locator('main')).not.toContainText('tramo');
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  }
+  await page.locator('main a[href="/vivienda/calculadora-de-hipoteca/"]').first().click();
+  await expect(page).toHaveURL(/calculadora-de-hipoteca/);
 });

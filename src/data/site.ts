@@ -115,6 +115,6 @@ export const GUIDES = [
     path: '/guias/gastos-de-comprar-vivienda/',
     topic: 'Vivienda',
     title: 'Gastos de comprar vivienda en Panamá',
-    description: 'Abono, gastos de cierre, seguros, ITBI de la vivienda nueva e interés preferencial: qué paga el comprador y qué el vendedor.'
+    description: 'Abono, gastos de cierre, seguros e ITBI de la vivienda nueva: qué paga el comprador y qué el vendedor.'
   }
 ] as const;

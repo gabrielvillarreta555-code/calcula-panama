@@ -154,15 +154,11 @@ for (const root of document.querySelectorAll<HTMLElement>('[data-tool]')) {
           details.append(scroll(table(['Concepto', 'Al mes', 'Parte del total'], r.items.map(item => [item.label, money(item.monthly), `${number(item.share, 1)}%`]), 'Desglose mensual (los anuales se dividen entre 12)'))); break;
         }
         case 'mortgage': {
-          const r = mortgage({ price: num('price'), downPayment: num('down'), annualRate: num('rate'), years: num('years'), insurance: num('insurance'), closingCosts: num('closing'), preferential: value('preferential') === 'tramo3' });
-          const [a, b] = r.phases;
-          if (b) {
-            line(`Letra los primeros ${a!.months} meses: ${money(a!.withInsurance)}`);
-            line(`Con interés preferencial pagas ${number(a!.rate)}%. Después, al ${number(b.rate)}% del banco, la letra pasa a unos ${money(b.withInsurance)} durante ${b.months} meses.`);
-          } else line(`Letra mensual: ${money(a!.withInsurance)}`);
-          line(`Monto financiado: ${money(r.financed)} (abono del ${number(r.downShare, 1)}% del precio). Intereses totales: ${money(r.interest)}.`);
+          const r = mortgage({ price: num('price'), downPayment: num('down'), annualRate: num('rate'), years: num('years'), insurance: num('insurance'), closingCosts: num('closing') });
+          const p = r.phases[0]!;
+          line(`Letra mensual: ${money(p.withInsurance)}`);
+          line(`Monto financiado: ${money(r.financed)} (abono del ${number(r.downShare, 1)}% del precio). Letra sin seguros: ${money(p.payment)}. Intereses totales: ${money(r.interest)}.`);
           line(`Necesitas al inicio ${money(r.cashAtStart)} (abono y gastos iniciales). Costo total de la vivienda en todo el plazo: ${money(r.totalCost)}.`);
-          details.append(scroll(table(['Fase', 'Meses', 'Tasa anual', 'Letra sin seguros', 'Letra con seguros'], r.phases.map((p, i) => [r.phases.length > 1 ? (i === 0 ? 'Con subsidio' : 'Tasa del banco') : 'Todo el plazo', `${p.months}`, `${number(p.rate)}%`, money(p.payment), money(p.withInsurance)]), 'Letra por fase')));
           break;
         }
         case 'affordability': {

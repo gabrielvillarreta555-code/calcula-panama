@@ -17,28 +17,17 @@ export const frenchPayment = (principal: number, monthlyRate: number, months: nu
 export const presentValue = (payment: number, monthlyRate: number, months: number) =>
   monthlyRate === 0 ? payment * months : payment * -Math.expm1(-months * Math.log1p(monthlyRate)) / monthlyRate;
 
-/**
- * Interés preferencial verificado (Ley 468 de 2025 modificada por la Ley 481 de 2025, art. 6 y art. 7, literal c;
- * Decreto Ejecutivo 23 de 2026). Solo el tramo 3: los tramos 1 y 2 no se publican hasta verificar el texto oficial de la Ley 468.
- */
-export const PREFERENTIAL_TRAMO_3 = { min: 80_000.01, max: 120_000, maxSubsidizedRate: 4, months: 84, bankShareCap: 0.85 } as const;
-/** El Estado subsidia el menor entre la tasa del tramo y el 85% de la tasa del banco; el comprador paga la diferencia. */
-export function preferentialClientRate(bankRate: number) {
-  bounded(bankRate, 'Tasa del banco', 0, 30);
-  const subsidy = Math.min(PREFERENTIAL_TRAMO_3.maxSubsidizedRate, bankRate * PREFERENTIAL_TRAMO_3.bankShareCap);
-  return { subsidy, clientRate: bankRate - subsidy };
-}
-
 export interface MortgageInput {
   price: number; downPayment: number; annualRate: number; years: number;
   /** Seguros mensuales exigidos (vida, incendio): se suman a la letra. */
   insurance: number;
   /** Gastos iniciales que paga el comprador (avalúo, notaría, registro, comisión): los escribe el usuario. */
   closingCosts: number;
-  preferential: boolean;
 }
+export interface MortgagePhase { months: number; rate: number }
 
-export function mortgage(input: MortgageInput) {
+/** Valida la entrada común de la hipoteca y devuelve los importes en centésimos. */
+export function mortgageBase(input: MortgageInput) {
   const price = cents(input.price, 'Precio de la vivienda'), down = cents(input.downPayment, 'Abono inicial');
   const insurance = cents(input.insurance, 'Seguros mensuales'), closing = cents(input.closingCosts, 'Gastos iniciales');
   if (price === 0) throw new Error('Precio de la vivienda: debe ser mayor que cero.');
@@ -46,43 +35,39 @@ export function mortgage(input: MortgageInput) {
   bounded(input.annualRate, 'Tasa de interés anual', 0, 30);
   bounded(input.years, 'Plazo', 1, 40);
   if (!Number.isInteger(input.years)) throw new Error('Plazo: usa años enteros.');
-  const months = input.years * 12, financed = price - down;
-  let phases: { months: number; rate: number; payment: number }[];
-  let interest = 0, balance = financed;
-  const run = (rate: number, count: number, payment: number, closes = false) => {
-    const r = rate / 1200;
-    for (let m = 0; m < count && balance > 0; m++) {
+  return { price, down, insurance, closing, months: input.years * 12, financed: price - down };
+}
+
+/**
+ * Amortiza por fases consecutivas. En cada fase la letra se recalcula con el saldo pendiente y los meses restantes.
+ * La última cuota del préstamo ajusta los centésimos para dejar el saldo en cero.
+ */
+export function amortize(input: MortgageInput, phases: MortgagePhase[]) {
+  const { price, down, insurance, closing, months, financed } = mortgageBase(input);
+  let balance = financed, interest = 0, elapsed = 0;
+  const out = phases.map((ph, k) => {
+    const r = ph.rate / 1200;
+    const payment = Math.round(frenchPayment(balance, r, months - elapsed));
+    for (let m = 0; m < ph.months && balance > 0; m++) {
       const i = Math.round(balance * r);
-      // La última cuota del préstamo ajusta los centésimos para dejar el saldo en cero.
-      const p = closes && m === count - 1 ? balance + i : Math.min(payment, balance + i);
+      const last = k === phases.length - 1 && m === ph.months - 1;
+      const p = last ? balance + i : Math.min(payment, balance + i);
       interest += i; balance = balance + i - p;
     }
-  };
-  if (input.preferential) {
-    const p = input.price;
-    if (p < PREFERENTIAL_TRAMO_3.min || p > PREFERENTIAL_TRAMO_3.max) throw new Error('El modo preferencial de esta calculadora solo cubre viviendas nuevas de B/.80,000.01 a B/.120,000.00 (tramo 3). Para precios menores, consulta los tramos con tu banco.');
-    if (months <= PREFERENTIAL_TRAMO_3.months) throw new Error('Con interés preferencial, usa un plazo mayor de 7 años.');
-    const { clientRate } = preferentialClientRate(input.annualRate);
-    const first = Math.round(frenchPayment(financed, clientRate / 1200, months));
-    run(clientRate, PREFERENTIAL_TRAMO_3.months, first);
-    const afterBalance = balance;
-    const second = Math.round(frenchPayment(afterBalance, input.annualRate / 1200, months - PREFERENTIAL_TRAMO_3.months));
-    run(input.annualRate, months - PREFERENTIAL_TRAMO_3.months, second, true);
-    phases = [{ months: PREFERENTIAL_TRAMO_3.months, rate: clientRate, payment: first }, { months: months - PREFERENTIAL_TRAMO_3.months, rate: input.annualRate, payment: second }];
-  } else {
-    const pay = Math.round(frenchPayment(financed, input.annualRate / 1200, months));
-    run(input.annualRate, months, pay, true);
-    phases = [{ months, rate: input.annualRate, payment: pay }];
-  }
-  // El último pago absorbe el redondeo: el saldo final se suma a los intereses pagados para cuadrar el total.
-  const paidLoan = financed + interest;
+    elapsed += ph.months;
+    return { months: ph.months, rate: ph.rate, payment: payment / 100, withInsurance: (payment + insurance) / 100 };
+  });
   return {
-    financed: financed / 100, downShare: down / price * 100,
-    phases: phases.map(ph => ({ months: ph.months, rate: ph.rate, payment: ph.payment / 100, withInsurance: (ph.payment + insurance) / 100 })),
+    financed: financed / 100, downShare: down / price * 100, phases: out,
     interest: interest / 100, insuranceTotal: insurance * months / 100,
     cashAtStart: (down + closing) / 100,
-    totalCost: (down + closing + paidLoan + insurance * months) / 100,
+    totalCost: (down + closing + financed + interest + insurance * months) / 100,
   };
+}
+
+/** Hipoteca convencional: una sola fase a la tasa del banco durante todo el plazo. */
+export function mortgage(input: MortgageInput) {
+  return amortize(input, [{ months: input.years * 12, rate: input.annualRate }]);
 }
 
 export interface AffordabilityInput { netIncome: number; otherDebts: number; maxShare: number; annualRate: number; years: number; downPayment: number; insurance: number }

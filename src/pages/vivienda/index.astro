@@ -1,0 +1,32 @@
+---
+/**
+ * Sección Vivienda en Midnight Editorial (corrección de CP-SEO-003, entrega 3). Mismas piezas que /compras/:
+ * EdPicture (imagen aprobada «hogar»), toollist, ed-steps y notes. Sin tasas de interés preferencial.
+ */
+import EditorialPage from '../../layouts/EditorialPage.astro';
+import EdPicture from '../../components/editorial/EdPicture.astro';
+import { expansionTools } from '../../data/expansion-tools';
+const tools = expansionTools.filter(t => t.category === 'Vivienda');
+const base = import.meta.env.BASE_URL;
+const href = (path: string) => `${base}${path.replace(/^\//, '')}`;
+const related = [
+  { label: 'Gastos de comprar vivienda', path: '/guias/gastos-de-comprar-vivienda/', note: 'Abono, cierre, seguros e ITBI.' },
+  { label: 'Préstamos', path: '/finanzas/calculadora-prestamos/', note: 'Compara dos ofertas de préstamo.' },
+  { label: 'Metas de ahorro', path: '/finanzas/meta-de-ahorro/', note: 'Ahorra para el abono.' }
+];
+---
+<EditorialPage title="Vivienda: hipoteca, capacidad de compra y alquiler | Calcula Panamá" description="Herramientas para comprar o alquilar vivienda en Panamá: calculadora de hipoteca, cuánta vivienda puedes pagar, alquilar o comprar y guía de gastos de la compra." canonicalPath="/vivienda/" kicker="Vivienda" heading="Antes de firmar, pon números a tu vivienda." lede="Calcula la letra, cuánto puedes pagar con tu ingreso y si te conviene más alquilar o comprar. Con los gastos de la compra explicados." crumbs={[{ label: 'Vivienda', path: '/vivienda/' }]} related={related}>
+  <figure class="photo"><EdPicture name="hogar" ratio="3/2" alt="Sala de un apartamento con vista al atardecer sobre los edificios de la ciudad." /><figcaption><span>Apartamento moderno · Imagen ilustrativa</span><span>Recurso de Calcula Panamá</span></figcaption></figure>
+  <h2 id="vivienda-tools-title">Tres preguntas antes de comprar.</h2>
+  <p>¿Cuánto pagaré cada mes? ¿Cuánta vivienda puedo pagar? ¿Me conviene más seguir alquilando?</p>
+  <ul class="toollist">{tools.map((t, i) => <li><a href={href(t.path)}><span class="n" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span><strong>{t.title}</strong><i aria-hidden="true">→</i><small>{t.description}</small></a></li>)}</ul>
+  <h2 id="vivienda-how-title">Cómo usarlas juntas</h2>
+  <div class="ed-steps">
+    <div class="ed-step"><span class="n">01</span><h3>Mide tu capacidad</h3><p>Con tu ingreso neto y tus deudas, calcula la <a href={href('/vivienda/capacidad-de-compra/')}>vivienda que podrías pagar</a>.</p></div>
+    <div class="ed-step"><span class="n">02</span><h3>Calcula la hipoteca</h3><p>Con el precio y tu abono, obtén la letra y el dinero que necesitas al inicio en la <a href={href('/vivienda/calculadora-de-hipoteca/')}>calculadora de hipoteca</a>.</p></div>
+    <div class="ed-step"><span class="n">03</span><h3>Compara con alquilar</h3><p>Prueba tus supuestos en <a href={href('/vivienda/alquilar-o-comprar/')}>alquilar o comprar</a>.</p></div>
+  </div>
+  <h2 id="vivienda-guide-title">Los gastos de la compra</h2>
+  <p>El precio no es lo único que pagas. La <a href={href('/guias/gastos-de-comprar-vivienda/')}>guía de gastos de comprar vivienda</a> explica el abono, los gastos de cierre, los seguros y el impuesto de transferencia, que en la primera venta de una vivienda nueva le corresponde al vendedor (Ley 546 de 2026).</p>
+  <p class="notes">Estas herramientas usan los datos que escribes y no consultan tasas de bancos. No calculan el interés preferencial: si tu compra puede acogerse a ese régimen, pide al banco la tasa y el plazo subsidiados. Los resultados son orientativos y no sustituyen la cotización por escrito del banco.</p>
+</EditorialPage>
