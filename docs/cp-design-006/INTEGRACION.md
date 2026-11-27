@@ -91,3 +91,17 @@ Sección por sección, en móvil (390 px @2x) y escritorio (1440 px):
 4. **Publicación autorizada** tras superar las verificaciones. La calculadora de horas extras sigue sin publicar.
 
 **Corrección añadida:** el fondo de `<html>` usaba una variable definida solo en `body.ed`. Ahora es `#08090C` literal, para que la zona de rebote al desplazarse también sea negra.
+
+## 7. Publicación y verificación en producción (27-11-2026)
+
+- **PR #42** (contraste de Salario neto): fusionado (`550070c`) y publicado.
+- **PR #43** (portada editorial): CI completa en verde, con 102/102 en Firefox, WebKit y WebKit iPhone. Fusionado (`4a9bbf4`) y publicado.
+- **Verificación directa en https://calculapanama.com: 22/22.**
+  - **SEO y seguridad:** título, canónica, `WebSite` + `ItemList`, CSP estricta, sin AdSense.
+  - **Diseño:** sin Blue ni cabecera antigua, tipografía editorial y solo modo oscuro aunque la preferencia sea clara.
+  - **Contenido:** «El dato» B/.1,236.92 y pies de imagen (IA; Hilux sin afiliación).
+  - **Enlaces y red:** 25 enlaces internos responden 200; solo hay peticiones al propio sitio y no hay errores de consola.
+  - **Calculadoras:** Salario neto, Mi Quincena y Modo Pasillo con Midnight Functional; tabla de Salario neto legible.
+  - **Horas extras:** sigue sin publicar (404 y fuera del sitemap).
+- **Incidencia transitoria:** la primera verificación, en los segundos posteriores al despliegue, recibió un 503 al cargar una tipografía mientras se propagaba la CDN. Las dos ejecuciones siguientes dieron 22/22.
+- **Capturas reales de producción:** `produccion/`. Cubren las 10 secciones de la portada y la tabla de Salario neto, en móvil (390 px @2x) y escritorio (1440 px).
