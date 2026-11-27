@@ -42,3 +42,20 @@ test('dividir la cuenta: propina sin ITBMS, reparto exacto y redondeo', async ({
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   expect(requests).toEqual([]);
 });
+
+test('días hábiles: año 2027 completo, feriados y sin peticiones', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/vida-cotidiana/dias-habiles-y-feriados/', { waitUntil: 'networkidle' });
+  const requests: string[] = []; page.on('request', r => requests.push(r.url()));
+  await expect(page.locator('.tool-reading')).toContainText('martes 9 de febrero: martes de carnaval');
+  await page.getByLabel('Fecha inicial').fill('2027-01-01'); await page.getByLabel('Fecha final').fill('2027-12-31'); await calculate(page);
+  await expect(page.locator('[data-result]')).toContainText('Días hábiles: 252');
+  await page.locator('[data-details] summary').click();
+  await expect(page.locator('[data-details] table')).toContainText('Viernes santo');
+  await page.getByLabel('Días laborables').selectOption('mon-sat'); await calculate(page);
+  await expect(page.locator('[data-result]')).toContainText('Días hábiles: 301');
+  await page.getByLabel('Fecha final').fill('2026-12-31'); await calculate(page);
+  await expect(page.locator('[data-error]')).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  expect(requests).toEqual([]);
+});

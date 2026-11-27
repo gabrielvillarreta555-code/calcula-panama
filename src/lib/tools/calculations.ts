@@ -1,5 +1,6 @@
 /** Pure mathematical engines. No DOM, storage, network or official tariff assumptions. */
 import { calculateLoan, type Installment } from '../finance/loans';
+import { holidayName } from '../overtime';
 export const LIMIT = 10_000_000;
 export function bounded(n: number, name: string, min = 0, max = LIMIT): number {
   if (!Number.isFinite(n) || n < min || n > max) throw new Error(`${name}: usa un número entre ${min} y ${max}.`);
@@ -284,4 +285,35 @@ export function splitBill(input: SplitBillInput) {
   const share = Math.ceil(grand / (input.people * step)) * step;
   const collected = share * input.people;
   return { total: total / 100, tipBase: tipBase / 100, tip: tip / 100, grand: grand / 100, share: share / 100, extraPeople: 0, maxShare: share / 100, collected: collected / 100, surplus: (collected - grand) / 100 };
+}
+
+/**
+ * Días hábiles y feriados. Fiestas y duelos nacionales del art. 46 del Código de Trabajo (con la Ley 291 de 2022)
+ * y el lunes de descanso del art. 47 cuando la fiesta cae en domingo: los mismos datos verificados de
+ * src/data/overtime-rules.ts. No incluye días libres decretados por el Órgano Ejecutivo ni feriados locales.
+ */
+export type WorkWeek = 'mon-fri' | 'mon-sat';
+const capitalize = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
+export function holidayLabel(iso: string): string | null {
+  const name = holidayName(iso);
+  return name === null ? null : capitalize(name.replace(/^el /, ''));
+}
+export function businessDays(start: string, end: string, week: WorkWeek) {
+  const first = dateValue(start), last = dateValue(end);
+  if (last < first) throw new Error('La fecha final no puede ser anterior a la inicial.');
+  if (week !== 'mon-fri' && week !== 'mon-sat') throw new Error('Selecciona los días laborables.');
+  const days = Math.round((last.getTime() - first.getTime()) / 86400000) + 1;
+  if (days > 3660) throw new Error('El intervalo admite hasta 10 años.');
+  let business = 0, weekend = 0;
+  const holidays: { date: string; name: string; weekday: number; counted: boolean }[] = [];
+  for (let i = 0; i < days; i++) {
+    const date = new Date(first.getTime() + i * 86400000);
+    const iso = date.toISOString().slice(0, 10), weekday = date.getUTCDay();
+    const workday = weekday !== 0 && (week === 'mon-sat' || weekday !== 6);
+    const name = holidayLabel(iso);
+    if (name) holidays.push({ date: iso, name, weekday, counted: workday });
+    if (!workday) weekend++;
+    else if (!name) business++;
+  }
+  return { days, business, weekend, holidays, holidaysOnWorkdays: holidays.filter(h => h.counted).length };
 }

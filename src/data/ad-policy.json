@@ -134,6 +134,10 @@
     "/guias/itbms-en-panama/": {
       "tier": "stage1",
       "reason": "Artículo original sin campos de usuario."
+    },
+    "/vida-cotidiana/dias-habiles-y-feriados/": {
+      "tier": "stage1",
+      "reason": "Solo fechas de un calendario: no son datos personales."
     }
   }
 }

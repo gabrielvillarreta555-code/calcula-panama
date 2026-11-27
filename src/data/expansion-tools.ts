@@ -1,4 +1,4 @@
-export type ToolId = 'unit' | 'discount' | 'savings' | 'grades' | 'energy' | 'car-loan' | 'fuel-trip' | 'car-cost' | 'itbms' | 'split';
+export type ToolId = 'unit' | 'discount' | 'savings' | 'grades' | 'energy' | 'car-loan' | 'fuel-trip' | 'car-cost' | 'itbms' | 'split' | 'holidays';
 export interface Field {
   key: string; label: string; value?: string; type?: 'date' | 'select';
   options?: { value: string; label: string }[]; optional?: boolean; digits?: number;
@@ -17,6 +17,25 @@ export interface Tool {
   /** Fecha ISO en que se consultaron las fuentes; por defecto, la de la expansión 3. */
   checkedOn?: string;
 }
+import { holidayLabel } from '../lib/tools/calculations';
+const WEEKDAYS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+const MONTHS = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+/** Fiestas y duelos nacionales de un año, con su día de la semana, calculados con las reglas verificadas. */
+export function holidaysOf(year: number) {
+  const list: { day: string; text: string }[] = [];
+  for (let t = Date.UTC(year, 0, 1); t <= Date.UTC(year, 11, 31); t += 86400000) {
+    const d = new Date(t), name = holidayLabel(d.toISOString().slice(0, 10));
+    if (!name) continue;
+    const date = `${d.getUTCDate()} de ${MONTHS[d.getUTCMonth()]}`, day = `${WEEKDAYS[d.getUTCDay()]} ${date}`;
+    // «9 de enero, día de los mártires (art. 46)» → «sábado 9 de enero: día de los mártires (art. 46)».
+    const rest = name.startsWith(date) ? name.slice(date.length).replace(/^, /, '').trim() : name;
+    const lower = rest.charAt(0).toLowerCase() + rest.slice(1);
+    list.push({ day, text: lower.startsWith('(') ? `${day} ${lower}` : `${day}: ${lower}` });
+  }
+  return list;
+}
+const laborCodeSource = { title: 'Código de Trabajo, arts. 46 y 47: fiestas, duelos nacionales y descanso del lunes (copia del Órgano Judicial)', url: 'https://www.organojudicial.gob.pa/uploads/wp_repo/uploads/2016/11/c%C3%B3digo-detrabajo.pdf' };
+const law291Source = { title: 'Ley 291 de 2022, art. 7: el 20 de diciembre, día de duelo nacional (Gaceta Oficial 29507-B)', url: 'https://gacetas.procuraduria-admon.gob.pa/29507-B_57996.pdf' };
 const nist = { title: 'NIST — unidades de medida, Handbook 44 (2026)', url: 'https://www.nist.gov/system/files/documents/2025/12/30/appc-26-HB44-20251222.pdf' };
 /** Ley 8 de 2010 (DGI): fija la tarifa general del ITBMS en 7%. El mismo documento lo cita src/data/legal.ts. */
 const itbms = { title: 'DGI — Ley 8 de 2010: tarifa general del ITBMS de 7%', url: 'https://dgi.mef.gob.pa/itbms/Normativa/Ley-8-15-marzo-2010.pdf' };
@@ -203,6 +222,34 @@ export const expansionTools: Tool[] = [
       { q: '¿La propina se calcula antes o después del ITBMS?', a: 'Es una decisión de quien paga. Si escribes el ITBMS de la factura, la herramienta calcula la propina sobre el consumo sin impuesto; si lo dejas vacío, sobre el total.' },
       { q: '¿Por qué una persona paga un centésimo más?', a: 'Porque no siempre se puede dividir un importe en partes exactas de centésimos. B/.10.00 entre 3 son B/.3.34 + B/.3.33 + B/.3.33: la suma da exactamente B/.10.00.' },
       { q: '¿Qué pasa con lo que sobra al redondear?', a: 'Se suma a la propina. La herramienta te muestra cuánto se recauda en total y cuánto sobra frente al importe exacto.' },
+    ],
+  },
+  {
+    id: 'holidays', path: '/vida-cotidiana/dias-habiles-y-feriados/', category: 'Vida cotidiana', title: 'Calculadora de días hábiles y feriados de Panamá',
+    description: 'Cuenta los días hábiles entre dos fechas sin fines de semana ni feriados nacionales de Panamá. Incluye el calendario de feriados de 2027.',
+    intro: 'Elige dos fechas y obtén los días calendario, los días hábiles y las fiestas y duelos nacionales del intervalo, según el Código de Trabajo.',
+    fields: [
+      { key: 'start', label: 'Fecha inicial', type: 'date' },
+      { key: 'end', label: 'Fecha final', type: 'date' },
+      { key: 'week', label: 'Días laborables', type: 'select', options: [{ value: 'mon-fri', label: 'De lunes a viernes' }, { value: 'mon-sat', label: 'De lunes a sábado' }] },
+    ],
+    steps: ['Elige la fecha inicial y la final. Las dos se cuentan.', 'Indica si trabajas de lunes a viernes o de lunes a sábado.', 'Revisa la lista de feriados del intervalo y si caen en día laborable.'],
+    formula: 'Días hábiles = días del intervalo − domingos (y sábados, si no son laborables) − fiestas y duelos nacionales que caen en un día laborable. Viernes Santo y martes de carnaval dependen de la fecha de Pascua de cada año.',
+    example: 'En 2027, de lunes a viernes, hay 261 días laborables. Nueve fiestas nacionales caen en un día laborable, así que quedan 252 días hábiles.',
+    limits: ['Incluye las fiestas y duelos nacionales del art. 46 del Código de Trabajo y el lunes de descanso del art. 47. No incluye días libres decretados por el Órgano Ejecutivo, feriados locales ni días de cierre de una institución.', 'No sirve para plazos judiciales ni administrativos, que tienen sus propias reglas de cómputo.', 'Intervalo de hasta 10 años, con fechas entre 2000 y 2100.'],
+    context: [
+      'Fiestas y duelos nacionales de 2027, según el Código de Trabajo:',
+      ...holidaysOf(2027).map(h => h.text),
+      'Cuando una fiesta nacional cae en domingo, el lunes siguiente es día de descanso obligatorio (art. 47). En 2027 ocurre con el 28 de noviembre: el descanso es el lunes 29.',
+      'El día de la toma de posesión presidencial (1 de julio) es fiesta solo en los años en que hay cambio de gobierno: el próximo es 2029.',
+    ],
+    checkedOn: '2026-11-27',
+    sources: [laborCodeSource, law291Source],
+    related: [{ title: 'Calcular las horas extras y el trabajo en feriados', path: '/calculadoras/horas-extras/' }, { title: 'Calcular las vacaciones', path: '/calculadoras/vacaciones/' }, { title: 'Planear una meta de ahorro', path: '/finanzas/meta-de-ahorro/' }],
+    faq: [
+      { q: '¿Cuáles son los feriados de Panamá en 2027?', a: `Según el Código de Trabajo: ${holidaysOf(2027).map(h => h.day).join('; ')}.` },
+      { q: '¿Qué pasa si un feriado cae en domingo?', a: 'El lunes siguiente es día de descanso obligatorio (Código de Trabajo, art. 47). Si cae en sábado, la norma no traslada el descanso.' },
+      { q: '¿El 4 de noviembre es feriado?', a: 'No figura entre las fiestas nacionales del artículo 46 del Código de Trabajo. Algunos años el Órgano Ejecutivo decreta días libres adicionales; esta herramienta no los incluye.' },
     ],
   },
 ];

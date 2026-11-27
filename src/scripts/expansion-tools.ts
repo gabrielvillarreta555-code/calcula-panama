@@ -1,3 +1,4 @@
+import { businessDays, type WorkWeek } from '../lib/tools/calculations';
 import { carFinancing, carMonthlyCost, compareUnits, decimal, electricity, fuelTrip, grades, itbms, promotion, savings, splitBill, type EfficiencyUnit, type Frequency, type ItbmsMode, type Promotion, type SplitRounding, type Unit } from '../lib/tools/calculations';
 const number = (n: number, digits = 2) => n.toLocaleString('es-PA', { minimumFractionDigits: digits, maximumFractionDigits: digits });
 const money = (n: number, digits = 2) => `B/.${number(n, digits)}`;
@@ -136,6 +137,17 @@ for (const root of document.querySelectorAll<HTMLElement>('[data-tool]')) {
           line(`Al año: ${money(r.annual)}.${num('depreciationYear') > 0 ? ` Sin la pérdida de valor: ${money(r.withoutDepreciation)} al mes.` : ''}`);
           if (r.perKm !== null) line(`Costo por kilómetro: ${money(r.perKm, 3)}.`);
           details.append(scroll(table(['Concepto', 'Al mes', 'Parte del total'], r.items.map(item => [item.label, money(item.monthly), `${number(item.share, 1)}%`]), 'Desglose mensual (los anuales se dividen entre 12)'))); break;
+        }
+        case 'holidays': {
+          const r = businessDays(value('start'), value('end'), value('week') as WorkWeek);
+          line(`Días hábiles: ${r.business}`);
+          line(`Del ${value('start').split('-').reverse().join('/')} al ${value('end').split('-').reverse().join('/')}: ${r.days} días calendario, ${r.weekend} de descanso semanal y ${r.holidaysOnWorkdays} ${r.holidaysOnWorkdays === 1 ? 'feriado' : 'feriados'} en días laborables.`);
+          if (r.holidays.length) {
+            const section = document.createElement('details'); const summary = document.createElement('summary'); summary.textContent = `Ver los ${r.holidays.length} feriados del intervalo`; section.append(summary);
+            const names = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
+            section.append(scroll(table(['Fecha', 'Día', 'Fiesta o duelo', 'Resta un día hábil'], r.holidays.map(h => [h.date.split('-').reverse().join('/'), names[h.weekday]!, h.name, h.counted ? 'Sí' : 'No: no es laborable']), 'Fiestas y duelos nacionales'))); details.append(section);
+          } else line('No hay fiestas ni duelos nacionales en el intervalo.');
+          break;
         }
         case 'itbms': {
           const r = itbms(num('amount'), Number(value('rate')), value('mode') as ItbmsMode);
