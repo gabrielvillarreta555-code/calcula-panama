@@ -154,6 +154,22 @@
     "/guias/como-administrar-el-decimo/": {
       "tier": "stage1",
       "reason": "Artículo original sin campos de usuario."
+    },
+    "/vivienda/calculadora-de-hipoteca/": {
+      "tier": "stage2",
+      "reason": "Precio, abono y deuda hipotecaria: datos financieros personales. Requiere calculadora aislada."
+    },
+    "/vivienda/capacidad-de-compra/": {
+      "tier": "stage2",
+      "reason": "Ingreso y deudas: datos personales. Requiere calculadora aislada."
+    },
+    "/vivienda/alquilar-o-comprar/": {
+      "tier": "stage2",
+      "reason": "Alquiler, hipoteca y ahorro: datos financieros personales. Requiere calculadora aislada."
+    },
+    "/guias/gastos-de-comprar-vivienda/": {
+      "tier": "stage1",
+      "reason": "Artículo original sin campos de usuario."
     }
   }
 }

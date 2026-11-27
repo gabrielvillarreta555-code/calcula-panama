@@ -1,3 +1,4 @@
+import { affordability, mortgage, rentOrBuy } from '../lib/tools/housing';
 import { businessDays, creditCard, minimumWage, type CardMode, type WageRegion, type WorkWeek } from '../lib/tools/calculations';
 import { carFinancing, carMonthlyCost, compareUnits, decimal, electricity, fuelTrip, grades, itbms, promotion, savings, splitBill, type EfficiencyUnit, type Frequency, type ItbmsMode, type Promotion, type SplitRounding, type Unit } from '../lib/tools/calculations';
 /** Actividad fijada como monto mensual (trabajo doméstico): no usa horas. */
@@ -151,6 +152,34 @@ for (const root of document.querySelectorAll<HTMLElement>('[data-tool]')) {
           line(`Al año: ${money(r.annual)}.${num('depreciationYear') > 0 ? ` Sin la pérdida de valor: ${money(r.withoutDepreciation)} al mes.` : ''}`);
           if (r.perKm !== null) line(`Costo por kilómetro: ${money(r.perKm, 3)}.`);
           details.append(scroll(table(['Concepto', 'Al mes', 'Parte del total'], r.items.map(item => [item.label, money(item.monthly), `${number(item.share, 1)}%`]), 'Desglose mensual (los anuales se dividen entre 12)'))); break;
+        }
+        case 'mortgage': {
+          const r = mortgage({ price: num('price'), downPayment: num('down'), annualRate: num('rate'), years: num('years'), insurance: num('insurance'), closingCosts: num('closing'), preferential: value('preferential') === 'tramo3' });
+          const [a, b] = r.phases;
+          if (b) {
+            line(`Letra los primeros ${a!.months} meses: ${money(a!.withInsurance)}`);
+            line(`Con interés preferencial pagas ${number(a!.rate)}%. Después, al ${number(b.rate)}% del banco, la letra pasa a unos ${money(b.withInsurance)} durante ${b.months} meses.`);
+          } else line(`Letra mensual: ${money(a!.withInsurance)}`);
+          line(`Monto financiado: ${money(r.financed)} (abono del ${number(r.downShare, 1)}% del precio). Intereses totales: ${money(r.interest)}.`);
+          line(`Necesitas al inicio ${money(r.cashAtStart)} (abono y gastos iniciales). Costo total de la vivienda en todo el plazo: ${money(r.totalCost)}.`);
+          details.append(scroll(table(['Fase', 'Meses', 'Tasa anual', 'Letra sin seguros', 'Letra con seguros'], r.phases.map((p, i) => [r.phases.length > 1 ? (i === 0 ? 'Con subsidio' : 'Tasa del banco') : 'Todo el plazo', `${p.months}`, `${number(p.rate)}%`, money(p.payment), money(p.withInsurance)]), 'Letra por fase')));
+          break;
+        }
+        case 'affordability': {
+          const r = affordability({ netIncome: num('income'), otherDebts: num('debts'), maxShare: num('share'), annualRate: num('rate'), years: num('years'), downPayment: num('down'), insurance: num('insurance') });
+          line(`Precio máximo de vivienda: unos ${money(r.maxPrice)}`);
+          line(`Letra máxima sin seguros: ${money(r.maxPayment)} (todas tus deudas: hasta ${money(r.maxTotal)} al mes). Préstamo máximo: ${money(r.maxLoan)}.`);
+          if (r.maxPrice > 0) line(`Tu abono sería el ${number(r.downShare, 1)}% del precio. Comprueba la letra exacta en la calculadora de hipoteca.`);
+          break;
+        }
+        case 'rentbuy': {
+          const r = rentOrBuy({ rent: num('rent'), rentIncrease: num('rentIncrease'), price: num('price'), downPayment: num('down'), closingCosts: num('closing'), annualRate: num('rate'), years: num('years'), ownerCosts: num('ownerCosts'), appreciation: num('appreciation'), savingsReturn: num('savingsReturn'), horizon: num('horizon') });
+          line(r.difference >= 0 ? `Comprar deja ${money(r.difference)} más de patrimonio a ${num('horizon')} años` : `Alquilar deja ${money(-r.difference)} más de patrimonio a ${num('horizon')} años`);
+          line(`Patrimonio comprando: ${money(r.buyerWealth)} (vivienda menos saldo). Alquilando e invirtiendo: ${money(r.renterWealth)}.`);
+          line(`Letra de la hipoteca: ${money(r.payment)}; con gastos del propietario: ${money(r.buyMonthlyStart)} al mes. ${r.breakEven === null ? 'Con estos supuestos, comprar no alcanza a alquilar en el período.' : `Comprar empieza a convenir a partir del año ${r.breakEven}.`}`);
+          const section = document.createElement('details'); const summary = document.createElement('summary'); summary.textContent = 'Ver la comparación año por año'; section.append(summary);
+          section.append(scroll(table(['Año', 'Comprando', 'Alquilando'], r.years.map(y => [`${y.year}`, money(y.buyerWealth), money(y.renterWealth)]), 'Patrimonio al final de cada año'))); details.append(section);
+          break;
         }
         case 'minwage': {
           const r = minimumWage(value('activity'), value('region') as WageRegion, isMonthlyRate(value('activity')) ? 48 : num('hours'));

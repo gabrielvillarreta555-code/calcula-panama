@@ -26,13 +26,13 @@ describe('política de publicidad por página (CP-ADS-002)', () => {
     expect(pagesByTier('stage2').sort()).toEqual([
       '/calculadoras/decimo-tercer-mes/', '/calculadoras/horas-extras/', '/calculadoras/liquidacion-laboral/', '/calculadoras/salario-neto/', '/calculadoras/vacaciones/',
       '/compras/modo-pasillo/', '/educacion/promedio-de-notas/', '/finanzas/calculadora-prestamos/', '/finanzas/meta-de-ahorro/', '/finanzas/tarjeta-de-credito/',
-      '/vehiculos/costo-mensual-de-un-auto/', '/vehiculos/financiamiento-de-auto/'
+      '/vehiculos/costo-mensual-de-un-auto/', '/vehiculos/financiamiento-de-auto/', '/vivienda/alquilar-o-comprar/', '/vivienda/calculadora-de-hipoteca/', '/vivienda/capacidad-de-compra/'
     ]);
   });
   it('la primera etapa contiene solo guías, directorios y herramientas sin datos personales', () => {
     expect(pagesByTier('stage1').sort()).toEqual([
       '/', '/calculadoras/salario-minimo/', '/compras/', '/compras/descuentos-y-promociones/', '/compras/dividir-la-cuenta/', '/compras/precio-por-unidad/', '/guias/', '/guias/calendario-de-quincenas-2027/', '/guias/como-administrar-el-decimo/',
-      '/guias/descuentos-del-salario-en-panama/', '/guias/fechas-de-pago-del-decimo-tercer-mes/', '/guias/horas-extras-en-panama/', '/guias/itbms-en-panama/', '/guias/prima-de-antiguedad-e-indemnizacion/',
+      '/guias/descuentos-del-salario-en-panama/', '/guias/fechas-de-pago-del-decimo-tercer-mes/', '/guias/gastos-de-comprar-vivienda/', '/guias/horas-extras-en-panama/', '/guias/itbms-en-panama/', '/guias/prima-de-antiguedad-e-indemnizacion/',
       '/herramientas/', '/impuestos/itbms/', '/vehiculos/combustible-por-viaje/', '/vida-cotidiana/consumo-electrico/', '/vida-cotidiana/dias-habiles-y-feriados/'
     ]);
   });

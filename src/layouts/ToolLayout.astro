@@ -15,8 +15,8 @@ import type { FxIconName } from '../lib/fx-icons';
 interface Props { tool: Tool }
 const { tool } = Astro.props;
 const href = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\//, '')}`;
-const categoryId = ({ Compras: 'compras', Finanzas: 'finanzas', Educación: 'educacion', 'Vida cotidiana': 'vida-cotidiana', Vehículos: 'vehiculos', Impuestos: 'impuestos', Trabajo: 'trabajo' } as Record<string,string>)[tool.category];
-const icon = ({ Compras: 'tag', Finanzas: 'piggy', Educación: 'graduation', 'Vida cotidiana': 'bolt', Vehículos: 'bus', Impuestos: 'receipt', Trabajo: 'wallet' } as Record<string, FxIconName>)[tool.category] ?? 'calculator';
+const categoryId = ({ Compras: 'compras', Finanzas: 'finanzas', Educación: 'educacion', 'Vida cotidiana': 'vida-cotidiana', Vehículos: 'vehiculos', Impuestos: 'impuestos', Trabajo: 'trabajo', Vivienda: 'vivienda' } as Record<string,string>)[tool.category];
+const icon = ({ Compras: 'tag', Finanzas: 'piggy', Educación: 'graduation', 'Vida cotidiana': 'bolt', Vehículos: 'bus', Impuestos: 'receipt', Trabajo: 'wallet', Vivienda: 'home' } as Record<string, FxIconName>)[tool.category] ?? 'calculator';
 const checkedOn = tool.checkedOn ?? '2026-11-16';
 const checkedLabel = new Intl.DateTimeFormat('es-PA', { dateStyle: 'long', timeZone: 'UTC' }).format(new Date(`${checkedOn}T00:00:00Z`));
 // Datos estructurados idénticos a la versión anterior.
