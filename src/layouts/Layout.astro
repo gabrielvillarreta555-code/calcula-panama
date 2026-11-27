@@ -8,6 +8,7 @@ import FxFooter from '../components/fx/FxFooter.astro';
 import { ADSENSE, SITE } from '../data/site';
 import { ADS_CSP, STRICT_CSP, adsAllowed } from '../data/ad-policy';
 import { BUDGET_KEY } from '../data/isolation';
+import { CF_ANALYTICS_TOKEN, CF_BEACON_SRC, analyticsAllowed, analyticsCsp } from '../data/analytics';
 
 interface Props {
   title: string;
@@ -39,6 +40,9 @@ const canonical = new URL(relativePath.replace(/^\//, ''), siteRoot).toString();
 const schemas = schema ? (Array.isArray(schema) ? schema : [schema]) : [];
 // Política por página (src/data/ad-policy.json). Sin publicidad, la página aplica la CSP estricta.
 const adsense = !disableAds && adsAllowed(relativePath);
+// Cloudflare Web Analytics (src/data/analytics.ts): solo páginas indexables de la primera etapa y con token configurado.
+const analytics = !noindex && analyticsAllowed(relativePath);
+const strictCsp = frameSrc ? `${STRICT_CSP}; frame-src ${new URL(frameSrc).origin}` : STRICT_CSP;
 ---
 <!doctype html>
 <html lang="es-PA">
@@ -47,7 +51,7 @@ const adsense = !disableAds && adsAllowed(relativePath);
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#08090C" />
   <meta name="color-scheme" content="dark" />
-  <meta http-equiv="Content-Security-Policy" content={adsense ? ADS_CSP : frameSrc ? `${STRICT_CSP}; frame-src ${new URL(frameSrc).origin}` : STRICT_CSP} />
+  <meta http-equiv="Content-Security-Policy" content={adsense ? ADS_CSP : analytics ? analyticsCsp(strictCsp) : strictCsp} />
   <title>{title}</title>
   <meta name="description" content={description} />
   <link rel="canonical" href={canonical} />
@@ -63,6 +67,7 @@ const adsense = !disableAds && adsAllowed(relativePath);
   <meta property="og:url" content={canonical} />
   <meta name="twitter:card" content="summary" />
   {schemas.map(item => <script type="application/ld+json" set:html={JSON.stringify(item)} />)}
+  {analytics && <script is:inline defer src={CF_BEACON_SRC} data-cf-beacon={JSON.stringify({ token: CF_ANALYTICS_TOKEN, spa: false })}></script>}
   {adsense && (
     // Guardia (CP-ADS-003): AdSense solo se carga si este navegador NO conserva un presupuesto antiguo
     // de Mi Quincena en este origen y si el almacenamiento se puede comprobar. Si no, no hay anuncios en esta visita.

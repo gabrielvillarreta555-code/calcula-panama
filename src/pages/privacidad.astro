@@ -2,14 +2,16 @@
 import EditorialPage from '../layouts/EditorialPage.astro';
 import { SITE, isAdsenseEnabled } from '../data/site';
 import { ADS_ACTIVE, pagesByTier } from '../data/ad-policy';
+import { analyticsEnabled } from '../data/analytics';
 import { APP_ORIGIN, QUINCENA_MOVED } from '../data/isolation';
 const appHost = new URL(APP_ORIGIN).host;
 const ads = ADS_ACTIVE && isAdsenseEnabled();
 const adPages = pagesByTier('stage1').length;
+const analytics = analyticsEnabled();
 const base = import.meta.env.BASE_URL;
 const href = (p: string) => `${base}${p.replace(/^\//, '')}`;
 ---
-<EditorialPage title="Política de privacidad | Calcula Panamá" description="Cómo trata Calcula Panamá tus datos: cálculos en tu navegador, qué se guarda en tu dispositivo, alojamiento, publicidad y cookies de terceros." canonicalPath="/privacidad/" kicker="Legal" heading="Política de privacidad" lede="Última actualización: 26 de noviembre de 2026." crumbs={[{ label: 'Privacidad', path: '/privacidad/' }]}>
+<EditorialPage title="Política de privacidad | Calcula Panamá" description="Cómo trata Calcula Panamá tus datos: cálculos en tu navegador, qué se guarda en tu dispositivo, alojamiento, publicidad y cookies de terceros." canonicalPath="/privacidad/" kicker="Legal" heading="Política de privacidad" lede="Última actualización: 27 de noviembre de 2026." crumbs={[{ label: 'Privacidad', path: '/privacidad/' }]}>
     <p>Responsable del sitio: Blue Lab Studios, a través del proyecto Calcula Panamá (<a href={href('/sobre-nosotros/')}>quiénes somos</a>).</p>
 
     <h2>Datos que escribes en las herramientas</h2>
@@ -25,10 +27,20 @@ const href = (p: string) => `${base}${p.replace(/^\//, '')}`;
     </ul>
 
     <h2>Preferencias guardadas en tu dispositivo</h2>
-    <p>Si eliges el modo claro u oscuro, o si muestras u ocultas a Blue, la preferencia se guarda en el almacenamiento local de tu navegador. Puedes borrarla desde la configuración del navegador.</p>
+    <p>Aparte del presupuesto de Mi Quincena, el sitio no guarda preferencias ni otros datos en tu navegador.</p>
+
+    <h2>Estadísticas de visitas</h2>
+    {analytics ? (
+      <>
+        <p>Para saber qué páginas se consultan y si cargan rápido, usamos Cloudflare Web Analytics. Según Cloudflare, no usa cookies ni el almacenamiento local, y no sigue a las personas entre visitas mediante la dirección IP ni las características del navegador. Recibe datos técnicos de la visita: la dirección de la página, la página de procedencia, el tipo de navegador y dispositivo, el país y métricas de rendimiento. Consulta su <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer">política de privacidad</a>.</p>
+        <p>Solo se carga en la portada, las guías, los directorios y las herramientas que no piden datos personales. No se carga en Mi Quincena, en {appHost} ni en las calculadoras de salarios, préstamos, ahorro, presupuestos, notas o vehículos financiados. No recibe nunca las cifras que escribes en las herramientas: ninguna herramienta las coloca en la dirección de la página.</p>
+      </>
+    ) : (
+      <p>Ahora mismo el sitio no usa ningún servicio de analítica ni de estadísticas de visitas. Si lo incorporamos, será un servicio sin cookies, solo en páginas que no piden datos personales, y lo indicaremos aquí antes de activarlo.</p>
+    )}
 
     <h2>Protecciones técnicas</h2>
-    <p>Las páginas sin publicidad aplican una política de seguridad de contenido (CSP) que solo permite scripts del propio sitio y bloquea cualquier conexión de red desde la página. Las herramientas donde escribes datos personales, como salarios, préstamos, presupuestos o notas, no cargan publicidad ni scripts de terceros.</p>
+    <p>Las páginas sin publicidad aplican una política de seguridad de contenido (CSP) que solo permite scripts del propio sitio y bloquea cualquier conexión de red desde la página{analytics && ', salvo, en las páginas sin datos personales, el script y el envío de estadísticas de Cloudflare'}. Las herramientas donde escribes datos personales, como salarios, préstamos, presupuestos o notas, no cargan publicidad ni scripts de terceros.</p>
 
     <h2>Alojamiento</h2>
     <p>El sitio se publica en GitHub Pages. Como cualquier servidor web, GitHub puede registrar datos técnicos de la conexión (por ejemplo, la dirección IP) para operar y proteger el servicio, según su propia política de privacidad.</p>

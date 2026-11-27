@@ -89,6 +89,11 @@ const isolation = JSON.parse(readFileSync('src/data/isolation.json', 'utf8'));
 if (policy.active && !isolation.quincenaMoved) errors.push('ad-policy.json activa la publicidad, pero Mi Quincena no se ha trasladado a su propio origen (isolation.json)');
 const strictCsp = readFileSync('src/data/ad-policy.ts', 'utf8').match(/STRICT_CSP = "([^"]+)"/)?.[1];
 if (!strictCsp) errors.push('No se encontró STRICT_CSP en src/data/ad-policy.ts');
+// Cloudflare Web Analytics (CP-SEO-001): solo con token válido y solo en páginas 'stage1' indexables.
+const cfToken = readFileSync('src/data/analytics.ts', 'utf8').match(/CF_ANALYTICS_TOKEN = '([^']*)'/)?.[1] ?? '';
+const cfActive = /^[0-9a-f]{32}$/.test(cfToken);
+const cfCsp = strictCsp?.replace("script-src 'self' 'unsafe-inline'", "script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com").replace("connect-src 'none'", 'connect-src https://cloudflareinsights.com');
+let cfPages = 0;
 const htmlFiles = dir => readdirSync(dir, { withFileTypes: true }).flatMap(entry => {
   const file = join(dir, entry.name);
   return entry.isDirectory() ? htmlFiles(file) : file.endsWith('.html') ? [file] : [];
@@ -109,6 +114,14 @@ for (const file of htmlFiles('dist')) {
     if (/<script[^>]+src="https:\/\/pagead2\.googlesyndication\.com/.test(html)) errors.push(`AdSense cargado sin la guardia en ${path}`);
   } else {
     const content = html.match(/http-equiv="Content-Security-Policy" content="([^"]+)"/)?.[1] ?? '';
+    const shouldHaveAnalytics = cfActive && tier === 'stage1' && !/<meta name="robots" content="noindex"/.test(head);
+    const beacons = html.match(/<script defer src="https:\/\/static\.cloudflareinsights\.com\/beacon\.min\.js"[^>]*>/g) ?? [];
+    if (shouldHaveAnalytics) {
+      cfPages++;
+      if (beacons.length !== 1 || !beacons[0].includes(cfToken) || content !== cfCsp) errors.push(`Analítica ausente, duplicada o con CSP incorrecta en ${path}`);
+      continue;
+    }
+    if (/cloudflareinsights/.test(html)) errors.push(`Analítica en una página excluida: ${path}`);
     const allowedFrame = ['/finanzas/mi-quincena/', '/ensayo/traslado-quincena/'].includes(path) && /^; frame-src https?:\/\/[a-z0-9.-]+(:\d+)?$/.test(content.slice(strictCsp.length));
     if (!(content === strictCsp || (content.startsWith(strictCsp) && allowedFrame))) errors.push(`Falta la CSP estricta en la página sin publicidad ${path}`);
     if (/adsbygoogle|googlesyndication|doubleclick/i.test(html)) errors.push(`Código publicitario en una página sin publicidad: ${path}`);
@@ -117,6 +130,7 @@ for (const file of htmlFiles('dist')) {
     }
   }
 }
+if (cfActive && cfPages === 0) errors.push('La analítica está activa pero ninguna página la carga');
 if (client) {
   const adsTxt = read('dist/ads.txt');
   if (!adsTxt.includes(`google.com, ${client.replace('ca-', '')}, DIRECT, f08c47fec0942fa0`)) errors.push('ads.txt no coincide con el ID de AdSense');
