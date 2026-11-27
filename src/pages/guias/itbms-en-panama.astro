@@ -1,0 +1,72 @@
+---
+/** Guía del ITBMS (CP-SEO-001). Tarifas verificadas en la Ley 8 de 2010 (DGI), art. 76. */
+import EditorialPage from '../../layouts/EditorialPage.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import Faq from '../../components/Faq.astro';
+import LegalSources from '../../components/LegalSources.astro';
+import { GUIDES } from '../../data/site';
+import { itbms } from '../../lib/tools/calculations';
+import { formatMoney } from '../../lib/format';
+
+const guide = GUIDES[4];
+const base = import.meta.env.BASE_URL;
+const examples = [
+  { label: 'Compra general de B/.100.00 sin impuesto', r: itbms(100, 7, 'add') },
+  { label: 'Botella de vino de B/.18.00 sin impuesto', r: itbms(18, 10, 'add') },
+  { label: 'Noche de hotel de B/.120.00 sin impuesto', r: itbms(120, 10, 'add') },
+  { label: 'Precio de B/.53.50 con el 7% incluido', r: itbms(53.5, 7, 'remove') },
+];
+const wrong = (107 * 0.93).toFixed(2);
+const faq = [
+  { q: '¿Cuál es la tarifa del ITBMS en Panamá?', a: 'La tarifa general es 7% desde el 1 de julio de 2010. Las bebidas alcohólicas y el hospedaje pagan 10%, y los productos derivados del tabaco, 15% (Código Fiscal, art. 1057-V, parágrafo 6, según la Ley 8 de 2010).' },
+  { q: '¿Cómo quito el ITBMS de un precio?', a: 'Divide el precio entre 1.07 (o 1.10 o 1.15, según la tarifa). La diferencia es el impuesto. Restar el 7% del total da una base demasiado baja.' },
+  { q: '¿Qué significa ITBMS?', a: 'Impuesto de transferencia de bienes corporales muebles y la prestación de servicios. Se cobra en cada venta o servicio gravado y el comercio lo entrega a la DGI.' },
+  { q: '¿Todos los productos pagan ITBMS?', a: 'No. El mismo artículo 1057-V del Código Fiscal enumera operaciones exentas. Si un producto de tu factura no muestra ITBMS, puede estar exento. Ante una duda concreta, consulta a la DGI o a un contador.' },
+];
+---
+<EditorialPage title="ITBMS en Panamá: tarifas del 7%, 10% y 15% y cómo calcularlo" description="Guía del ITBMS en Panamá: tarifa general del 7%, tarifas del 10% y 15%, cómo agregar o quitar el impuesto de un precio, ejemplos y errores comunes." canonicalPath={guide.path} kicker="Guía · Impuestos" heading={guide.title} lede="El ITBMS aparece en casi todas las facturas. Saber qué tarifa corresponde y cómo se calcula evita errores al comparar precios o cotizar." crumbs={[{ label: 'Guías', path: '/guias/' }, { label: 'ITBMS', path: guide.path }]} related={[
+  { label: 'Calculadora de ITBMS', path: '/impuestos/itbms/', note: 'Agrega o separa el 7%, 10% o 15%.' },
+  { label: 'Dividir la cuenta', path: '/compras/dividir-la-cuenta/', note: 'Propina sobre el consumo sin ITBMS.' },
+  { label: 'Descuentos y promociones', path: '/compras/descuentos-y-promociones/', note: 'Precio final y ahorro efectivo.' },
+  { label: 'Precio por unidad', path: '/compras/precio-por-unidad/', note: 'Compara por kilo, litro o unidad.' }
+]}>
+    <h2>Tarifas vigentes</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th scope="col">Tarifa</th><th scope="col">A qué se aplica</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">7%</th><td>Tarifa general (desde 2010)</td></tr>
+          <tr><th scope="row">10%</th><td>Bebidas alcohólicas y hospedaje</td></tr>
+          <tr><th scope="row">15%</th><td>Productos del tabaco</td></tr>
+        </tbody>
+        <caption>Código Fiscal, art. 1057-V, parágrafo 6, en la redacción del art. 76 de la Ley 8 de 2010.</caption>
+      </table>
+    </div>
+    <p>El impuesto se calcula aplicando el porcentaje a la base imponible: el precio de la venta o del servicio, sin el propio impuesto.</p>
+    <h2>Cómo agregar el ITBMS</h2>
+    <p class="formula">ITBMS = precio sin impuesto × tarifa &nbsp;·&nbsp; Total = precio + ITBMS</p>
+    <p>Una cotización de B/.100.00 «más ITBMS» cuesta B/.107.00 con la tarifa general.</p>
+    <AdSlot name="inArticle" />
+    <h2>Cómo quitar el ITBMS de un precio</h2>
+    <p class="formula">Precio sin impuesto = precio con impuesto ÷ (1 + tarifa)</p>
+    <p>Con el 7%, se divide entre 1.07. Un precio de B/.107.00 tiene una base de B/.100.00 y B/.7.00 de impuesto. El error más común es restar el 7% del total: B/.107.00 × 0.93 = B/.{wrong}, una base B/.0.49 más baja de la real.</p>
+    <h2>Ejemplos</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th scope="col">Caso</th><th scope="col">Tarifa</th><th scope="col">Base</th><th scope="col">ITBMS</th><th scope="col">Total</th></tr></thead>
+        <tbody>{examples.map(e => <tr><th scope="row">{e.label}</th><td>{e.r.rate}%</td><td>{formatMoney(e.r.base)}</td><td>{formatMoney(e.r.tax)}</td><td><strong>{formatMoney(e.r.total)}</strong></td></tr>)}</tbody>
+        <caption>Ejemplos hipotéticos, redondeados al centésimo más cercano.</caption>
+      </table>
+    </div>
+    <h2>Redondeo y facturas con varios artículos</h2>
+    <p>Cada importe se redondea al centésimo. Un comercio puede calcular el impuesto artículo por artículo o sobre el total de la factura, y los dos métodos pueden diferir en uno o dos centésimos. No es un error si la diferencia es solo de redondeo.</p>
+    <h2>Qué no cubre esta guía</h2>
+    <ul>
+      <li>Qué productos o servicios están exentos o tienen una tarifa distinta: consulta el artículo 1057-V del Código Fiscal, la DGI o a un contador.</li>
+      <li>Otros impuestos que pueden sumarse al precio, como el impuesto selectivo al consumo.</li>
+      <li>Las obligaciones del comercio que cobra el impuesto: inscripción, declaración y pago a la DGI.</li>
+    </ul>
+    <p><a class="button primary" href={`${base}impuestos/itbms/`}>Calcular el ITBMS</a></p>
+    <Faq items={faq} />
+    <LegalSources sources={['itbms']} reviewedOn="2026-11-27" />
+</EditorialPage>

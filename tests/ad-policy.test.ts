@@ -32,7 +32,7 @@ describe('política de publicidad por página (CP-ADS-002)', () => {
   it('la primera etapa contiene solo guías, directorios y herramientas sin datos personales', () => {
     expect(pagesByTier('stage1').sort()).toEqual([
       '/', '/compras/', '/compras/descuentos-y-promociones/', '/compras/dividir-la-cuenta/', '/compras/precio-por-unidad/', '/guias/',
-      '/guias/descuentos-del-salario-en-panama/', '/guias/fechas-de-pago-del-decimo-tercer-mes/', '/guias/prima-de-antiguedad-e-indemnizacion/',
+      '/guias/descuentos-del-salario-en-panama/', '/guias/fechas-de-pago-del-decimo-tercer-mes/', '/guias/horas-extras-en-panama/', '/guias/itbms-en-panama/', '/guias/prima-de-antiguedad-e-indemnizacion/',
       '/herramientas/', '/impuestos/itbms/', '/vehiculos/combustible-por-viaje/', '/vida-cotidiana/consumo-electrico/'
     ]);
   });

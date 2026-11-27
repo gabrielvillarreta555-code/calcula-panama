@@ -126,6 +126,14 @@
     "/compras/dividir-la-cuenta/": {
       "tier": "stage1",
       "reason": "Importe de una cuenta y número de personas: no son datos personales."
+    },
+    "/guias/horas-extras-en-panama/": {
+      "tier": "stage1",
+      "reason": "Artículo original sin campos de usuario."
+    },
+    "/guias/itbms-en-panama/": {
+      "tier": "stage1",
+      "reason": "Artículo original sin campos de usuario."
     }
   }
 }
