@@ -7,6 +7,6 @@ const href = (p: string) => `${base}${p.replace(/^\//, '')}`;
 <EditorialPage title="Página no encontrada | Calcula Panamá" description="La página que buscas no existe. Elige una de nuestras calculadoras laborales." noindex kicker="Error 404" heading="No encontramos esa página" lede="Puede que el enlace haya cambiado. Estas son nuestras calculadoras:">
   <p><a class="arrow-link" href={base}>Ir al inicio <span>→</span></a></p>
   <ul class="toollist ed-big-list">
-    {CALCULATORS.map((c, i) => <li><a href={href(c.path)}><span class="n">{String(i + 1).padStart(2, '0')}</span><strong>{c.label}</strong><i aria-hidden="true">→</i><small>{c.description}</small></a></li>)}
+    {CALCULATORS.map((c, i) => <li><a href={href(c.path)}><span class="n" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span><strong>{c.label}</strong><i aria-hidden="true">→</i><small>{c.description}</small></a></li>)}
   </ul>
 </EditorialPage>

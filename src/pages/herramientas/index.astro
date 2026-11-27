@@ -21,6 +21,6 @@ const plural = (n: number) => `${n} ${n === 1 ? 'herramienta' : 'herramientas'}`
   {categories.map((category, i) => <section id={category.id} class="ed-category" aria-labelledby={`title-${category.id}`}>
     <span class="label">{String(i + 1).padStart(2, '0')} — {category.name}</span>
     <h2 id={`title-${category.id}`}>{category.name}</h2>
-    <ul class="toollist">{category.tools.map((tool, j) => <li><a href={href(tool.path)}><span class="n">{i + 1}.{j + 1}</span><strong>{tool.title}</strong><i aria-hidden="true">→</i><small>{tool.description}</small></a></li>)}</ul>
+    <ul class="toollist">{category.tools.map((tool, j) => <li><a href={href(tool.path)}><span class="n" aria-hidden="true">{i + 1}.{j + 1}</span><strong>{tool.title}</strong><i aria-hidden="true">→</i><small>{tool.description}</small></a></li>)}</ul>
   </section>)}
 </EditorialPage>

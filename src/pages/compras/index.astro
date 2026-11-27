@@ -21,7 +21,7 @@ const related = [{ label: 'Modo Pasillo', path: '/compras/modo-pasillo/', note: 
   <p class="notes">Modo Pasillo no aplica ITBMS, descuentos ni promociones automáticamente. Introduce el precio que deseas sumar. Tu lista permanece en la memoria de esta pestaña.</p>
   <h2 id="shopping-tools-title">Tres preguntas antes de pagar.</h2>
   <p>¿Cuánto llevo? ¿Qué presentación sale más barata? ¿Cuánto ahorro de verdad con la oferta?</p>
-  <ul class="toollist">{shoppingTools.map((t, i) => <li><a href={href(t.path)}><span class="n">{String(i + 1).padStart(2, '0')}</span><strong>{t.title}</strong><i aria-hidden="true">→</i><small>{t.description}</small></a></li>)}</ul>
+  <ul class="toollist">{shoppingTools.map((t, i) => <li><a href={href(t.path)}><span class="n" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span><strong>{t.title}</strong><i aria-hidden="true">→</i><small>{t.description}</small></a></li>)}</ul>
   <h2 id="shopping-guide-title">Cómo usarlas juntas en el supermercado</h2>
   <ol>
     <li><strong>Antes de salir:</strong> define cuánto puedes gastar. Si organizas tu dinero por quincena, <a href={href('/finanzas/mi-quincena/')}>Mi Quincena</a> te muestra cuánto tienes disponible hasta el próximo pago.</li>

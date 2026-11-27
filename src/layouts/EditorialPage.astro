@@ -39,7 +39,7 @@ const crumbSchema = trail && { '@context': 'https://schema.org', '@type': 'Bread
     {related.length > 0 && (
       <aside aria-labelledby="ed-related-t">
         <span class="label" id="ed-related-t">{relatedTitle}</span>
-        <ul class="toollist">{related.map((r, i) => <li><a href={href(r.path)}><span class="n">{String(i + 1).padStart(2, '0')}</span><strong>{r.label}</strong><i aria-hidden="true">→</i>{r.note && <small>{r.note}</small>}</a></li>)}</ul>
+        <ul class="toollist">{related.map((r, i) => <li><a href={href(r.path)}><span class="n" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span><strong>{r.label}</strong><i aria-hidden="true">→</i>{r.note && <small>{r.note}</small>}</a></li>)}</ul>
       </aside>
     )}
   </section>
