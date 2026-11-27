@@ -1,4 +1,4 @@
-import { carFinancing, carMonthlyCost, compareUnits, decimal, electricity, fuelTrip, grades, promotion, savings, type EfficiencyUnit, type Frequency, type Promotion, type Unit } from '../lib/tools/calculations';
+import { carFinancing, carMonthlyCost, compareUnits, decimal, electricity, fuelTrip, grades, itbms, promotion, savings, splitBill, type EfficiencyUnit, type Frequency, type ItbmsMode, type Promotion, type SplitRounding, type Unit } from '../lib/tools/calculations';
 const number = (n: number, digits = 2) => n.toLocaleString('es-PA', { minimumFractionDigits: digits, maximumFractionDigits: digits });
 const money = (n: number, digits = 2) => `B/.${number(n, digits)}`;
 for (const root of document.querySelectorAll<HTMLElement>('[data-tool]')) {
@@ -136,6 +136,21 @@ for (const root of document.querySelectorAll<HTMLElement>('[data-tool]')) {
           line(`Al año: ${money(r.annual)}.${num('depreciationYear') > 0 ? ` Sin la pérdida de valor: ${money(r.withoutDepreciation)} al mes.` : ''}`);
           if (r.perKm !== null) line(`Costo por kilómetro: ${money(r.perKm, 3)}.`);
           details.append(scroll(table(['Concepto', 'Al mes', 'Parte del total'], r.items.map(item => [item.label, money(item.monthly), `${number(item.share, 1)}%`]), 'Desglose mensual (los anuales se dividen entre 12)'))); break;
+        }
+        case 'itbms': {
+          const r = itbms(num('amount'), Number(value('rate')), value('mode') as ItbmsMode);
+          line(`${value('mode') === 'add' ? 'Total con ITBMS' : 'Precio sin ITBMS'}: ${money(value('mode') === 'add' ? r.total : r.base)}`);
+          line(`ITBMS (${r.rate}%): ${money(r.tax)}.`);
+          details.append(table(['Concepto', 'Importe'], [['Base sin impuesto', money(r.base)], [`ITBMS ${r.rate}%`, money(r.tax)], ['Total con ITBMS', money(r.total)]], 'Desglose del ITBMS')); break;
+        }
+        case 'split': {
+          const people = num('people');
+          const r = splitBill({ total: num('total'), tax: optional('tax'), tipPercent: num('tip'), people, rounding: value('rounding') as SplitRounding });
+          line(`Cada persona paga: ${money(r.maxShare)}`);
+          if (r.extraPeople) line(`${r.extraPeople} ${r.extraPeople === 1 ? 'persona paga' : 'personas pagan'} ${money(r.maxShare)} y ${people - r.extraPeople} ${people - r.extraPeople === 1 ? 'paga' : 'pagan'} ${money(r.share)}, para sumar exactamente el total.`);
+          line(`Propina: ${money(r.tip)} sobre ${money(r.tipBase)}. Total a pagar: ${money(r.grand)}.`);
+          if (r.surplus > 0) line(`Con el redondeo se reúnen ${money(r.collected)}: sobran ${money(r.surplus)}, que se suman a la propina.`);
+          break;
         }
       }
       placeholder.hidden = true;

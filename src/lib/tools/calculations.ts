@@ -225,3 +225,63 @@ export function carMonthlyCost(input: CarMonthlyInput) {
     items: items.filter(item => item.monthly > 0).map(item => ({ ...item, share: item.monthly / total * 100 })).sort((a, b) => b.monthly - a.monthly),
   };
 }
+
+/* ---------------------------------------------------------------- CP-SEO-001, fase 1: herramientas cotidianas */
+
+/**
+ * Tarifas del ITBMS: Código Fiscal, art. 1057-V, parágrafo 6, según el art. 76 de la Ley 8 de 2010 (DGI).
+ * 7% general; 10% bebidas alcohólicas y hospedaje; 15% productos derivados del tabaco.
+ */
+export const ITBMS_RATES = [7, 10, 15] as const;
+export type ItbmsRate = typeof ITBMS_RATES[number];
+export type ItbmsMode = 'add' | 'remove';
+
+/** Agrega el ITBMS a un precio sin impuesto, o lo separa de un precio que ya lo incluye. Todo en centésimos. */
+export function itbms(amount: number, rate: number, mode: ItbmsMode) {
+  const value = cents(amount, 'Importe');
+  if (!(ITBMS_RATES as readonly number[]).includes(rate)) throw new Error('Selecciona una tarifa de ITBMS válida: 7%, 10% o 15%.');
+  if (mode !== 'add' && mode !== 'remove') throw new Error('Indica si el importe incluye o no el ITBMS.');
+  // Redondeo al centésimo más cercano, con los empates hacia arriba (enteros exactos: sin error de coma flotante).
+  const base = mode === 'add' ? value : Math.round(value * 100 / (100 + rate));
+  const tax = mode === 'add' ? Math.round(value * rate / 100) : value - base;
+  return { base: base / 100, tax: tax / 100, total: (base + tax) / 100, rate };
+}
+
+/** Redondeos admitidos al dividir una cuenta, en centésimos (monedas de 1, 5, 25 centésimos y B/.1). */
+export const SPLIT_ROUNDING = { none: 1, '0.05': 5, '0.25': 25, '1.00': 100 } as const;
+export type SplitRounding = keyof typeof SPLIT_ROUNDING;
+
+export interface SplitBillInput {
+  /** Total de la factura, con ITBMS. */
+  total: number;
+  /** ITBMS que figura en la factura. Si se indica, la propina se calcula sobre el consumo sin impuesto. */
+  tax?: number;
+  tipPercent: number;
+  people: number;
+  rounding: SplitRounding;
+}
+
+/** Divide una cuenta en partes iguales, con propina opcional, sin perder ni inventar centésimos. */
+export function splitBill(input: SplitBillInput) {
+  const total = cents(input.total, 'Total de la cuenta');
+  if (total === 0) throw new Error('Total de la cuenta: debe ser mayor que cero.');
+  const tax = input.tax === undefined ? 0 : cents(input.tax, 'ITBMS de la factura');
+  if (tax >= total) throw new Error('El ITBMS debe ser menor que el total de la cuenta.');
+  bounded(input.tipPercent, 'Propina', 0, 50);
+  bounded(input.people, 'Personas', 1, 100);
+  if (!Number.isInteger(input.people)) throw new Error('Personas: usa un número entero.');
+  const step = SPLIT_ROUNDING[input.rounding];
+  if (!step) throw new Error('Selecciona un redondeo válido.');
+  const tipBase = total - tax;
+  const tip = Math.round(tipBase * input.tipPercent / 100);
+  const grand = total + tip;
+  if (step === 1) {
+    // Reparto exacto: las primeras personas pagan un centésimo más si la división no es exacta.
+    const share = Math.floor(grand / input.people), extra = grand % input.people;
+    return { total: total / 100, tipBase: tipBase / 100, tip: tip / 100, grand: grand / 100, share: share / 100, extraPeople: extra, maxShare: (share + (extra ? 1 : 0)) / 100, collected: grand / 100, surplus: 0 };
+  }
+  // Con redondeo, cada persona paga lo mismo, redondeado hacia arriba; lo sobrante se suma a la propina.
+  const share = Math.ceil(grand / (input.people * step)) * step;
+  const collected = share * input.people;
+  return { total: total / 100, tipBase: tipBase / 100, tip: tip / 100, grand: grand / 100, share: share / 100, extraPeople: 0, maxShare: share / 100, collected: collected / 100, surplus: (collected - grand) / 100 };
+}
