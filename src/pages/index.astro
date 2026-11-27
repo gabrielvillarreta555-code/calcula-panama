@@ -23,6 +23,7 @@ const allTools = [
   { name: 'Mi Quincena', path: '/finanzas/mi-quincena/' },
   { name: 'Calculadora de préstamos', path: '/finanzas/calculadora-prestamos/' },
   { name: 'Modo Pasillo', path: '/compras/modo-pasillo/' },
+  { name: 'Calculadora de horas extras', path: '/calculadoras/horas-extras/' },
   ...[...expansionTools, ...vehicleTools].map(t => ({ name: t.title, path: t.path }))
 ];
 const schema = [
@@ -37,7 +38,7 @@ const fmtPct = (n: number) => `${new Intl.NumberFormat('es-PA', { maximumFractio
 const [netInt, netCents] = formatMoney(example.net).replace(/^B\/\.\s?/, '').split('.');
 
 // Secciones del prototipo con las rutas reales.
-type Tool = { n: string; name: string; desc: string; path: string };
+type Tool = { n: string; name: string; desc: string; path: string; group?: 'hogar' | 'compras' };
 const sections: { id: string; num: string; name: string; deck: string; tools: Tool[] }[] = [
   { id: 'movilidad', num: '01', name: 'Movilidad', deck: 'Más allá del precio.', tools: [
     { n: '1.1', name: 'Financiamiento de autos', desc: 'Letra, tasa efectiva y tabla de amortización.', path: '/vehiculos/financiamiento-de-auto/' },
@@ -46,17 +47,22 @@ const sections: { id: string; num: string; name: string; deck: string; tools: To
   { id: 'finanzas', num: '02', name: 'Finanzas', deck: 'Tu futuro comienza hoy.', tools: [
     { n: '2.1', name: 'Préstamos', desc: 'Cuota, intereses y costo total.', path: '/finanzas/calculadora-prestamos/' },
     { n: '2.2', name: 'Metas de ahorro', desc: 'Cuánto apartar por quincena o por mes.', path: '/finanzas/meta-de-ahorro/' },
-    { n: '2.3', name: 'Mi Quincena', desc: 'Tu dinero disponible hasta el próximo pago.', path: '/finanzas/mi-quincena/' }] },
+    { n: '2.3', name: 'Mi Quincena', desc: 'Tu dinero disponible hasta el próximo pago.', path: '/finanzas/mi-quincena/' },
+    { n: '2.4', name: 'Tarjeta de crédito', desc: 'Intereses, pago mínimo y cuándo terminas de pagar.', path: '/finanzas/tarjeta-de-credito/' }] },
   { id: 'trabajo', num: '03', name: 'Trabajo', deck: 'El valor de tu esfuerzo.', tools: [
     { n: '3.1', name: 'Salario neto', desc: 'Seguro Social, Seguro Educativo e ISR.', path: '/calculadoras/salario-neto/' },
     { n: '3.2', name: 'Décimo tercer mes', desc: 'Partidas del 15 de abril, agosto y diciembre.', path: '/calculadoras/decimo-tercer-mes/' },
     { n: '3.3', name: 'Vacaciones', desc: 'Días acumulados y pago proporcional.', path: '/calculadoras/vacaciones/' },
-    { n: '3.4', name: 'Liquidación laboral', desc: 'Prima de antigüedad, indemnización y preaviso.', path: '/calculadoras/liquidacion-laboral/' }] },
+    { n: '3.4', name: 'Liquidación laboral', desc: 'Prima de antigüedad, indemnización y preaviso.', path: '/calculadoras/liquidacion-laboral/' },
+    { n: '3.5', name: 'Horas extras', desc: 'Recargos del 25%, 50% y 75%, domingos y feriados.', path: '/calculadoras/horas-extras/' }] },
   { id: 'hogar', num: '04', name: 'Hogar y compras', deck: 'El costo de vivir.', tools: [
-    { n: '4.1', name: 'Consumo eléctrico', desc: 'kWh de cada aparato y su costo con tu tarifa.', path: '/vida-cotidiana/consumo-electrico/' },
-    { n: '4.2', name: 'Modo Pasillo', desc: 'Suma tu compra mientras recorres el supermercado.', path: '/compras/modo-pasillo/' },
-    { n: '4.3', name: 'Descuentos y promociones', desc: 'El ahorro real de un 2x1 o un 3x2.', path: '/compras/descuentos-y-promociones/' },
-    { n: '4.4', name: 'Precio por unidad', desc: 'Libra, kilo o litro: qué sale más barato.', path: '/compras/precio-por-unidad/' }] },
+    { n: '4.1', name: 'Consumo eléctrico', desc: 'kWh de cada aparato y su costo con tu tarifa.', path: '/vida-cotidiana/consumo-electrico/', group: 'hogar' },
+    { n: '4.2', name: 'Días hábiles y feriados', desc: 'Días laborables entre dos fechas y feriados de 2027.', path: '/vida-cotidiana/dias-habiles-y-feriados/', group: 'hogar' },
+    { n: '4.3', name: 'Modo Pasillo', desc: 'Suma tu compra mientras recorres el supermercado.', path: '/compras/modo-pasillo/', group: 'compras' },
+    { n: '4.4', name: 'Descuentos y promociones', desc: 'El ahorro real de un 2x1 o un 3x2.', path: '/compras/descuentos-y-promociones/', group: 'compras' },
+    { n: '4.5', name: 'Precio por unidad', desc: 'Libra, kilo o litro: qué sale más barato.', path: '/compras/precio-por-unidad/', group: 'compras' },
+    { n: '4.6', name: 'ITBMS', desc: 'Agrega o separa el 7%, 10% o 15% de un precio.', path: '/impuestos/itbms/', group: 'compras' },
+    { n: '4.7', name: 'Dividir la cuenta', desc: 'Partes iguales, propina y redondeo.', path: '/compras/dividir-la-cuenta/', group: 'compras' }] },
   { id: 'educacion', num: '05', name: 'Educación', deck: 'Cuentas claras para estudiar.', tools: [
     { n: '5.1', name: 'Promedio de notas', desc: 'Tu promedio ponderado y la nota que necesitas.', path: '/educacion/promedio-de-notas/' }] }
 ];
@@ -142,13 +148,13 @@ const guides = GUIDES;
       <figure class="photo"><EdPicture name="hogar" ratio="3/2" alt="Sala de un apartamento con vista al atardecer sobre los edificios de la ciudad." /><figcaption><span>Apartamento moderno · Imagen ilustrativa</span><span>Recurso de Calcula Panamá</span></figcaption></figure>
       <span class="label" style="display:block;margin-top:22px">04 — Hogar</span>
       <h2>El costo de vivir.</h2>
-      <ul class="toollist">{byId.hogar!.tools.slice(0, 1).map(t => <li><a href={href(t.path)}><span class="n">{t.n}</span><strong>{t.name}</strong><i aria-hidden="true">→</i><small>{t.desc}</small></a></li>)}</ul>
+      <ul class="toollist">{byId.hogar!.tools.filter(t => t.group === 'hogar').map(t => <li><a href={href(t.path)}><span class="n">{t.n}</span><strong>{t.name}</strong><i aria-hidden="true">→</i><small>{t.desc}</small></a></li>)}</ul>
     </section>
     <section>
       <figure class="photo"><EdPicture name="compras" ratio="3/2" alt="Carrito con frutas, verduras y productos en el pasillo de un supermercado." /><figcaption><span>Supermercado · Imagen ilustrativa</span><span>Recurso de Calcula Panamá</span></figcaption></figure>
       <span class="label" style="display:block;margin-top:22px">04 — Compras</span>
       <h2>Del estante al carrito.</h2>
-      <ul class="toollist">{byId.hogar!.tools.slice(1).map(t => <li><a href={href(t.path)}><span class="n">{t.n}</span><strong>{t.name}</strong><i aria-hidden="true">→</i><small>{t.desc}</small></a></li>)}</ul>
+      <ul class="toollist">{byId.hogar!.tools.filter(t => t.group === 'compras').map(t => <li><a href={href(t.path)}><span class="n">{t.n}</span><strong>{t.name}</strong><i aria-hidden="true">→</i><small>{t.desc}</small></a></li>)}</ul>
     </section>
   </section>
 
@@ -168,13 +174,13 @@ const guides = GUIDES;
       <article class="lead">
         <figure class="photo"><EdPicture name="revista" ratio="16/10" alt="Escritorio con cuaderno, calculadora, informes y café, iluminado por una lámpara." /><figcaption><span>Escritorio editorial · Imagen ilustrativa</span><span>Recurso de Calcula Panamá</span></figcaption></figure>
         <div style="display:flex;flex-direction:column;gap:14px;justify-content:end">
-          <span class="label">Guía · Trabajo</span>
+          <span class="label">Guía · {guides[0]!.topic}</span>
           <h3><a href={href(guides[0]!.path)}>{guides[0]!.title}</a></h3>
           <p>{guides[0]!.description}</p>
           <div class="meta"><span>Con tablas de ejemplo</span><span>·</span><span>Norma citada</span></div>
         </div>
       </article>
-      {guides.slice(1).map(g => <article><span class="label">Guía · Trabajo</span><h3><a href={href(g.path)}>{g.title}</a></h3><p>{g.description}</p></article>)}
+      {guides.slice(1).map(g => <article><span class="label">Guía · {g.topic}</span><h3><a href={href(g.path)}>{g.title}</a></h3><p>{g.description}</p></article>)}
       <article><span class="label">Principios</span><h3><a href={href('/sobre-nosotros/')}>Privado, con fuentes y sin falsa precisión</a></h3><p>Los cálculos ocurren en tu navegador; cada regla cita su norma.</p></article>
     </div>
   </section>

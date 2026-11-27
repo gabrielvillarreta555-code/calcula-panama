@@ -16,7 +16,7 @@ const categories = [
 ];
 const plural = (n: number) => `${n} ${n === 1 ? 'herramienta' : 'herramientas'}`;
 ---
-<EditorialPage title="Herramientas y calculadoras gratuitas | Calcula Panamá" description="Encuentra calculadoras de compras, ahorro, autos, salarios, notas y consumo eléctrico. Herramientas gratuitas con ejemplos y límites explicados." canonicalPath="/herramientas/" kicker="Tu día, con las cuentas claras" heading="Herramientas y calculadoras" lede="Elige lo que necesitas resolver. Cada herramienta explica sus datos, su cálculo y sus límites." wide>
+<EditorialPage title="Herramientas y calculadoras gratuitas | Calcula Panamá" description="Calculadoras gratuitas para Panamá: salarios, horas extras, ITBMS, préstamos, tarjeta, autos, compras, feriados y más, con ejemplos y fuentes." canonicalPath="/herramientas/" kicker="Tu día, con las cuentas claras" heading="Herramientas y calculadoras" lede="Elige lo que necesitas resolver. Cada herramienta explica sus datos, su cálculo y sus límites." wide>
   <nav class="index ed-index" aria-label="Categorías de herramientas">
     <ol>{categories.map((c, i) => <li><a href={`#${c.id}`}><span class="num">{String(i + 1).padStart(2, '0')}</span><span class="name">{c.name}</span><span class="count">{plural(c.tools.length)} →</span></a></li>)}</ol>
   </nav>

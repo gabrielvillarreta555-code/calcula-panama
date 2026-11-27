@@ -71,26 +71,31 @@ export const CALCULATORS: NavItem[] = [
 export const GUIDES = [
   {
     path: '/guias/descuentos-del-salario-en-panama/',
+    topic: 'Trabajo',
     title: 'Descuentos del salario en Panamá: CSS, Seguro Educativo e ISR',
     description: 'Qué te descuentan de la quincena, por qué y cuánto queda en salarios habituales.'
   },
   {
     path: '/guias/fechas-de-pago-del-decimo-tercer-mes/',
+    topic: 'Trabajo',
     title: 'Décimo tercer mes: fechas de pago, períodos y descuentos',
     description: 'Qué meses cubre cada partida, cómo se calcula y qué pasa si entraste a mitad del período.'
   },
   {
     path: '/guias/prima-de-antiguedad-e-indemnizacion/',
+    topic: 'Trabajo',
     title: 'Prima de antigüedad e indemnización: diferencias y cálculo',
     description: 'Quién cobra cada una, cuántas semanas corresponden y qué salario se usa.'
   },
   {
     path: '/guias/horas-extras-en-panama/',
+    topic: 'Trabajo',
     title: 'Horas extras en Panamá: recargos, límites, domingos y feriados',
     description: 'Cuánto se paga la hora extra diurna, nocturna y mixta, y el trabajo en descanso o en fiesta nacional.'
   },
   {
     path: '/guias/itbms-en-panama/',
+    topic: 'Impuestos',
     title: 'ITBMS en Panamá: tarifas del 7%, 10% y 15% y cómo calcularlo',
     description: 'Qué tarifa corresponde, cómo agregar o quitar el impuesto de un precio y los errores más comunes.'
   }

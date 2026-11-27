@@ -17,7 +17,7 @@ for (const tool of vehicleTools) {
     await expect(page.locator('h1')).toHaveText(tool.title);
     await expect(page.locator('link[rel=canonical]')).toHaveAttribute('href', `https://calculapanama.com${tool.path}`);
     await expect(page.locator('meta[name=description]')).toHaveAttribute('content', tool.description);
-    await expect(page).toHaveTitle(`${tool.title} | Calcula Panamá`);
+    await expect(page).toHaveTitle(tool.seoTitle ?? `${tool.title} | Calcula Panamá`);
     await expect(page.locator('.faq details')).toHaveCount(tool.faq!.length);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     expect(await page.locator('input,select').evaluateAll(inputs => inputs.every(el => (el as HTMLInputElement).labels?.length))).toBe(true);
