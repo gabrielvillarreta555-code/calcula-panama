@@ -75,6 +75,12 @@ export const OFFICIAL_SOURCES = {
     detail: 'Arts. 54 (vacaciones), 74, 75 y 77 (contratos definidos), 78 (período probatorio), 149 (salario base), 212 (preaviso), 213 C, 215, 223, 224, 225, 226 y 227 (prima e indemnizaciones).',
     url: 'https://www.organojudicial.gob.pa/uploads/wp_repo/uploads/2016/11/c%C3%B3digo-detrabajo.pdf'
   },
+  laborCodeOvertime: {
+    institution: 'Órgano Judicial / MITRADEL (recopilación MITRADEL–OIT)',
+    title: 'Código de Trabajo: jornada, horas extraordinarias y descansos',
+    detail: 'Arts. 30 (períodos y tipos de jornada), 31 (límites diarios y semanales), 32 (turnos rotativos), 33 (recargos de 25%, 50% y 75%), 34 (tiempo computable), 36 (máximo de 3 horas extra diarias y 9 semanales y 75% adicional), 39 (descansos), 45 a 49 (descanso semanal, días libres, fiestas y duelo nacional) y 50 (acumulación de recargos).',
+    url: 'https://www.organojudicial.gob.pa/uploads/wp_repo/uploads/2016/11/c%C3%B3digo-detrabajo.pdf'
+  },
   css: {
     institution: 'Caja de Seguro Social (Gaceta Oficial 30284-B de 2025)',
     title: 'Texto único de la Ley 51 de 2005, con las reformas de la Ley 462 de 2025',

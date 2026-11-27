@@ -1,12 +1,13 @@
 ---
 import { LEGAL_PARAMETERS, OFFICIAL_SOURCES, type SourceKey } from '../data/legal';
 import { formatDate } from '../lib/format';
-interface Props { sources: SourceKey[] }
+interface Props { sources: SourceKey[]; reviewedOn?: string }
+const reviewed = Astro.props.reviewedOn ?? LEGAL_PARAMETERS.reviewedOn;
 const list = Astro.props.sources.map(key => OFFICIAL_SOURCES[key]);
 ---
 <section class="sources" aria-labelledby="fuentes">
   <h2 id="fuentes">Fuentes y vigencia</h2>
-  <p class="muted">Parámetros revisados el {formatDate(LEGAL_PARAMETERS.reviewedOn)} contra el texto de las normas citadas.</p>
+  <p class="muted">Parámetros revisados el {formatDate(reviewed)} contra el texto de las normas citadas.</p>
   <ul class="source-list">
     {list.map(source => (
       <li>

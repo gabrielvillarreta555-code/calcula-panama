@@ -19,7 +19,7 @@ describe('resúmenes compartibles', () => {
     expect(text).toContain('2 × Pan'); expect(text).not.toContain('Café'); expect(text.match(/2 × Pan/g)).toHaveLength(1);
   });
   it('utiliza rutas reales y nunca añade información a las URLs públicas', () => {
-    expect(Object.values(SHARE_TOOLS).map(item => item.path)).toEqual(['/calculadoras/salario-neto/', '/calculadoras/decimo-tercer-mes/', '/calculadoras/vacaciones/', '/calculadoras/liquidacion-laboral/', '/finanzas/mi-quincena/', '/finanzas/calculadora-prestamos/', '/compras/modo-pasillo/']);
+    expect(Object.values(SHARE_TOOLS).map(item => item.path)).toEqual(['/calculadoras/salario-neto/', '/calculadoras/decimo-tercer-mes/', '/calculadoras/vacaciones/', '/calculadoras/liquidacion-laboral/', '/finanzas/mi-quincena/', '/finanzas/calculadora-prestamos/', '/compras/modo-pasillo/', '/calculadoras/horas-extras/']);
     for (const [tool, meta] of Object.entries(SHARE_TOOLS)) {
       const text = buildShareText({ tool: tool as ShareData['tool'], primary: 'B/.123.45' });
       expect(text).toContain(`https://calculapanama.com${meta.path}`); expect(meta.path).not.toMatch(/[?#]/);
