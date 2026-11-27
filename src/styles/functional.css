@@ -443,3 +443,5 @@ body.fx { margin: 0; padding: 0; background: var(--fx-bg); color: var(--fx-text)
 .fx-rehearsal { padding-block: 24px 48px; }
 .fx-rehearsal .fx-panel { margin: 14px 0; }
 .fx-rehearsal .fx-btn { display: inline-flex; }
+/* Títulos con palabras largas («financiamiento») en pantallas de 320 px con fuentes del sistema más anchas. */
+.fx .fx-title h1 { min-width: 0; overflow-wrap: break-word; hyphens: auto; }
