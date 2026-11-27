@@ -25,15 +25,15 @@ describe('política de publicidad por página (CP-ADS-002)', () => {
   it('las herramientas con datos personales quedan en la segunda etapa', () => {
     expect(pagesByTier('stage2').sort()).toEqual([
       '/calculadoras/decimo-tercer-mes/', '/calculadoras/horas-extras/', '/calculadoras/liquidacion-laboral/', '/calculadoras/salario-neto/', '/calculadoras/vacaciones/',
-      '/compras/modo-pasillo/', '/educacion/promedio-de-notas/', '/finanzas/calculadora-prestamos/', '/finanzas/meta-de-ahorro/',
+      '/compras/modo-pasillo/', '/educacion/promedio-de-notas/', '/finanzas/calculadora-prestamos/', '/finanzas/meta-de-ahorro/', '/finanzas/tarjeta-de-credito/',
       '/vehiculos/costo-mensual-de-un-auto/', '/vehiculos/financiamiento-de-auto/'
     ]);
   });
   it('la primera etapa contiene solo guías, directorios y herramientas sin datos personales', () => {
     expect(pagesByTier('stage1').sort()).toEqual([
       '/', '/compras/', '/compras/descuentos-y-promociones/', '/compras/dividir-la-cuenta/', '/compras/precio-por-unidad/', '/guias/',
-      '/guias/descuentos-del-salario-en-panama/', '/guias/fechas-de-pago-del-decimo-tercer-mes/', '/guias/prima-de-antiguedad-e-indemnizacion/',
-      '/herramientas/', '/impuestos/itbms/', '/vehiculos/combustible-por-viaje/', '/vida-cotidiana/consumo-electrico/'
+      '/guias/descuentos-del-salario-en-panama/', '/guias/fechas-de-pago-del-decimo-tercer-mes/', '/guias/horas-extras-en-panama/', '/guias/itbms-en-panama/', '/guias/prima-de-antiguedad-e-indemnizacion/',
+      '/herramientas/', '/impuestos/itbms/', '/vehiculos/combustible-por-viaje/', '/vida-cotidiana/consumo-electrico/', '/vida-cotidiana/dias-habiles-y-feriados/'
     ]);
   });
   it('una ruta desconocida no admite publicidad y las rutas se normalizan', () => {

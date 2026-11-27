@@ -1,5 +1,6 @@
 /** Pure mathematical engines. No DOM, storage, network or official tariff assumptions. */
 import { calculateLoan, type Installment } from '../finance/loans';
+import { holidayName } from '../overtime';
 export const LIMIT = 10_000_000;
 export function bounded(n: number, name: string, min = 0, max = LIMIT): number {
   if (!Number.isFinite(n) || n < min || n > max) throw new Error(`${name}: usa un número entre ${min} y ${max}.`);
@@ -284,4 +285,72 @@ export function splitBill(input: SplitBillInput) {
   const share = Math.ceil(grand / (input.people * step)) * step;
   const collected = share * input.people;
   return { total: total / 100, tipBase: tipBase / 100, tip: tip / 100, grand: grand / 100, share: share / 100, extraPeople: 0, maxShare: share / 100, collected: collected / 100, surplus: (collected - grand) / 100 };
+}
+
+/**
+ * Días hábiles y feriados. Fiestas y duelos nacionales del art. 46 del Código de Trabajo (con la Ley 291 de 2022)
+ * y el lunes de descanso del art. 47 cuando la fiesta cae en domingo: los mismos datos verificados de
+ * src/data/overtime-rules.ts. No incluye días libres decretados por el Órgano Ejecutivo ni feriados locales.
+ */
+export type WorkWeek = 'mon-fri' | 'mon-sat';
+const capitalize = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
+export function holidayLabel(iso: string): string | null {
+  const name = holidayName(iso);
+  return name === null ? null : capitalize(name.replace(/^el /, ''));
+}
+export function businessDays(start: string, end: string, week: WorkWeek) {
+  const first = dateValue(start), last = dateValue(end);
+  if (last < first) throw new Error('La fecha final no puede ser anterior a la inicial.');
+  if (week !== 'mon-fri' && week !== 'mon-sat') throw new Error('Selecciona los días laborables.');
+  const days = Math.round((last.getTime() - first.getTime()) / 86400000) + 1;
+  if (days > 3660) throw new Error('El intervalo admite hasta 10 años.');
+  let business = 0, weekend = 0;
+  const holidays: { date: string; name: string; weekday: number; counted: boolean }[] = [];
+  for (let i = 0; i < days; i++) {
+    const date = new Date(first.getTime() + i * 86400000);
+    const iso = date.toISOString().slice(0, 10), weekday = date.getUTCDay();
+    const workday = weekday !== 0 && (week === 'mon-sat' || weekday !== 6);
+    const name = holidayLabel(iso);
+    if (name) holidays.push({ date: iso, name, weekday, counted: workday });
+    if (!workday) weekend++;
+    else if (!name) business++;
+  }
+  return { days, business, weekend, holidays, holidaysOnWorkdays: holidays.filter(h => h.counted).length };
+}
+
+/**
+ * Tarjeta de crédito: simulación mensual de una deuda sin compras nuevas. Interés = saldo × tasa nominal anual ÷ 12,
+ * redondeado al centésimo. Es una aproximación: los bancos suelen calcular el interés sobre el saldo diario y
+ * pueden cobrar cargos, seguros y comisiones que esta simulación no incluye.
+ */
+export type CardMode = 'fixed' | 'minimum';
+export interface CardInput { balance: number; annualRate: number; mode: CardMode; payment: number; minPercent: number }
+export function creditCard(input: CardInput) {
+  const balance0 = cents(input.balance, 'Saldo');
+  if (balance0 === 0) throw new Error('Saldo: debe ser mayor que cero.');
+  bounded(input.annualRate, 'Tasa de interés anual', 0, 100);
+  if (input.mode !== 'fixed' && input.mode !== 'minimum') throw new Error('Selecciona cómo vas a pagar.');
+  const fixed = input.mode === 'fixed' ? cents(input.payment, 'Pago mensual') : 0;
+  const floor = input.mode === 'minimum' ? cents(input.payment, 'Pago mínimo en B/.') : 0;
+  if (input.mode === 'minimum') bounded(input.minPercent, 'Porcentaje del pago mínimo', 0.1, 100);
+  const rate = input.annualRate / 1200;
+  let balance = balance0, interestTotal = 0, paid = 0, months = 0, firstPayment = 0;
+  const schedule: { month: number; payment: number; interest: number; balance: number }[] = [];
+  while (balance > 0) {
+    if (++months > 600) throw new Error('Con este pago, la deuda tardaría más de 50 años en saldarse. Aumenta el pago mensual.');
+    const interest = Math.round(balance * rate);
+    const due = balance + interest;
+    const wanted = input.mode === 'fixed' ? fixed : Math.max(floor, Math.round(due * input.minPercent / 100));
+    if (wanted <= interest && wanted < due) throw new Error(`El pago (B/.${(wanted / 100).toFixed(2)}) no cubre los intereses del mes (B/.${(interest / 100).toFixed(2)}): la deuda nunca bajaría. Aumenta el pago.`);
+    const payment = Math.min(wanted, due);
+    if (months === 1) firstPayment = payment;
+    balance = due - payment; interestTotal += interest; paid += payment;
+    schedule.push({ month: months, payment: payment / 100, interest: interest / 100, balance: balance / 100 });
+  }
+  /** Pago fijo necesario para saldar la deuda en n meses (sistema francés, sin compras nuevas). */
+  const paymentFor = (n: number) => rate === 0 ? balance0 / n / 100 : balance0 * rate / -Math.expm1(-n * Math.log1p(rate)) / 100;
+  return {
+    months, interest: interestTotal / 100, paid: paid / 100, firstPayment: firstPayment / 100, schedule,
+    payoff: [12, 24, 36].map(n => ({ months: n, payment: Math.ceil(paymentFor(n) * 100) / 100 })),
+  };
 }

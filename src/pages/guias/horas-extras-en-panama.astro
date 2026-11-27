@@ -1,0 +1,84 @@
+---
+/** Guía de horas extras (CP-SEO-001). Los parámetros salen de src/data/overtime-rules.ts, verificados en CP-TOOL-008. */
+import EditorialPage from '../../layouts/EditorialPage.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import Faq from '../../components/Faq.astro';
+import LegalSources from '../../components/LegalSources.astro';
+import { GUIDES } from '../../data/site';
+import { OVERTIME_RULES as R } from '../../data/overtime-rules';
+import { chainFactor, hourlyRate } from '../../lib/overtime';
+import { formatMoney } from '../../lib/format';
+
+const guide = GUIDES[3];
+const base = import.meta.env.BASE_URL;
+const pct = (n: number) => `${Math.round(n * 100)}%`;
+const salary = 1000;
+const hourly = hourlyRate(salary, 'monthly', R.weeklyMaxHours.diurna);
+const rows = [
+  { label: 'Hora ordinaria', factor: 1 },
+  { label: `Hora extra diurna (+${pct(R.overtime.day)})`, factor: chainFactor(0, R.overtime.day, false) },
+  { label: `Hora extra nocturna (+${pct(R.overtime.night)})`, factor: chainFactor(0, R.overtime.night, false) },
+  { label: `Prolongación de la jornada nocturna (+${pct(R.overtime.nightExtension)})`, factor: chainFactor(0, R.overtime.nightExtension, false) },
+  { label: `Hora extra diurna por encima del límite (+${pct(R.overtime.day)} y +${pct(R.overLimitSurcharge)})`, factor: chainFactor(0, R.overtime.day, true) },
+  { label: `Hora en domingo o día de descanso (+${pct(R.day.restDay)})`, factor: chainFactor(R.day.restDay, 0, false) },
+  { label: `Hora en fiesta o duelo nacional (+${pct(R.day.holiday)})`, factor: chainFactor(R.day.holiday, 0, false) },
+];
+const h = (minutes: number) => minutes / 60;
+const faq = [
+  { q: '¿Cuánto se paga la hora extra en Panamá?', a: `Depende de cuándo se trabaja: ${pct(R.overtime.day)} más en el período diurno, ${pct(R.overtime.night)} más en el nocturno y ${pct(R.overtime.nightExtension)} más cuando se prolonga una jornada nocturna (Código de Trabajo, art. 33).` },
+  { q: '¿Cuántas horas extras se pueden trabajar?', a: `No más de ${h(R.overtimeDailyLimitMinutes)} horas en un día ni ${h(R.overtimeWeeklyLimitMinutes)} en una semana (art. 36). Si se superan, el excedente se paga con un ${pct(R.overLimitSurcharge)} adicional, sin perjuicio de las sanciones al empleador.` },
+  { q: '¿Cuánto se paga si trabajo un feriado?', a: `Un recargo del ${pct(R.day.holiday)} sobre el salario de la jornada ordinaria (art. 49). MITRADEL lo ilustró con un salario diario de B/.20: el día trabajado se paga B/.20 + B/.30 = B/.50.` },
+  { q: '¿Los recargos se suman o se multiplican?', a: 'Se aplican uno sobre otro (art. 50): primero el del día de descanso o feriado y, sobre ese resultado, el de la hora extraordinaria. Por eso una hora extra en día de descanso vale más que la suma simple de los porcentajes.' },
+];
+---
+<EditorialPage title="Horas extras en Panamá: recargos del 25%, 50% y 75%, límites y feriados" description="Cómo se pagan las horas extras en Panamá según el Código de Trabajo: jornadas diurna, nocturna y mixta, recargos del 25%, 50% y 75%, límites y trabajo en domingos y feriados." canonicalPath={guide.path} kicker="Guía · Trabajo" heading={guide.title} lede="La hora extra no vale siempre lo mismo. Su recargo depende del tipo de jornada, de la hora en que se trabaja y del día." crumbs={[{ label: 'Guías', path: '/guias/' }, { label: 'Horas extras', path: guide.path }]} related={[
+  { label: 'Horas extras', path: '/calculadoras/horas-extras/', note: 'Valor de la hora, recargos y registro de jornadas.' },
+  { label: 'Salario neto', path: '/calculadoras/salario-neto/', note: 'Seguro Social, Seguro Educativo e ISR.' },
+  { label: 'Décimo tercer mes', path: '/calculadoras/decimo-tercer-mes/', note: 'Las horas extras cuentan para el décimo.' },
+  { label: 'Vacaciones', path: '/calculadoras/vacaciones/', note: 'Días acumulados y pago proporcional.' }
+]}>
+    <h2>Tipos de jornada y límites</h2>
+    <p>El artículo 30 del Código de Trabajo divide el día en un período <strong>diurno</strong>, de 6:00 a.m. a 6:00 p.m., y uno <strong>nocturno</strong>, de 6:00 p.m. a 6:00 a.m. La jornada <strong>mixta</strong> combina ambos períodos sin abarcar más de {h(R.mixedMaxNightMinutes)} horas del nocturno; si abarca más, es nocturna.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th scope="col">Jornada</th><th scope="col">Máximo diario</th><th scope="col">Máximo semanal</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Diurna</th><td>{h(R.dailyMaxMinutes.diurna)} horas</td><td>{R.weeklyMaxHours.diurna} horas</td></tr>
+          <tr><th scope="row">Mixta</th><td>7 horas y 30 minutos</td><td>{R.weeklyMaxHours.mixta} horas</td></tr>
+          <tr><th scope="row">Nocturna</th><td>{h(R.dailyMaxMinutes.nocturna)} horas</td><td>{R.weeklyMaxHours.nocturna} horas</td></tr>
+        </tbody>
+        <caption>Código de Trabajo, art. 31. El tiempo que excede estos límites es jornada extraordinaria.</caption>
+      </table>
+    </div>
+    <h2>Recargos de las horas extras</h2>
+    <p>El artículo 33 fija tres recargos sobre el salario de la hora ordinaria:</p>
+    <ul>
+      <li><strong>{pct(R.overtime.day)}</strong> si la hora extra se trabaja en el período diurno.</li>
+      <li><strong>{pct(R.overtime.night)}</strong> si se trabaja en el período nocturno, o si prolonga una jornada mixta que empezó en el período diurno.</li>
+      <li><strong>{pct(R.overtime.nightExtension)}</strong> si prolonga una jornada nocturna, o una mixta que empezó en el período nocturno.</li>
+    </ul>
+    <p>El artículo 36 limita la jornada extraordinaria a <strong>{h(R.overtimeDailyLimitMinutes)} horas diarias</strong> y <strong>{h(R.overtimeWeeklyLimitMinutes)} semanales</strong>. Las horas por encima de esos límites se pagan con un <strong>{pct(R.overLimitSurcharge)} adicional</strong>.</p>
+    <AdSlot name="inArticle" />
+    <h2>Domingos, días de descanso y feriados</h2>
+    <p>Trabajar el domingo o el día de descanso semanal obligatorio se paga con un recargo del <strong>{pct(R.day.restDay)}</strong> sobre la jornada ordinaria (art. 48). Trabajar en una fiesta o duelo nacional se paga con un recargo del <strong>{pct(R.day.holiday)}</strong> (art. 49). Según el ejemplo de MITRADEL, con un salario diario de B/.20.00 el feriado trabajado se paga B/.20.00 + B/.30.00 = B/.50.00.</p>
+    <p>Si en ese día se trabajan además horas extras, los recargos se aplican uno sobre otro (art. 50): primero el del día y, sobre el resultado, el de la hora extra.</p>
+    <h2>Ejemplo con B/.{salary.toLocaleString('en-US')} al mes</h2>
+    <p>Para un salario mensual fijo en jornada diurna de {R.weeklyMaxHours.diurna} horas semanales, la hora ordinaria vale unos <strong>{formatMoney(hourly)}</strong>: {formatMoney(salary)} ÷ ({R.weeklyMaxHours.diurna} horas × 4⅓ semanas).</p>
+    <p class="formula">Valor de la hora extra = salario por hora × (1 + recargo)</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th scope="col">Hora trabajada</th><th scope="col">Multiplicador</th><th scope="col">Valor por hora</th></tr></thead>
+        <tbody>{rows.map(r => <tr><th scope="row">{r.label}</th><td>× {r.factor.toLocaleString('en-US', { maximumFractionDigits: 4 })}</td><td>{formatMoney(hourly * r.factor)}</td></tr>)}</tbody>
+        <caption>Estimación. El Código de Trabajo no fija cómo pasar un salario mensual a valor por hora; se usan 4⅓ semanas por mes, la equivalencia del art. 54. Si tu comprobante indica el valor de tu hora, usa ese.</caption>
+      </table>
+    </div>
+    <h2>Casos que requieren revisión</h2>
+    <ul>
+      <li>Turnos rotativos con jornadas de distinto tipo en la misma semana: el Código no precisa qué límite semanal aplica.</li>
+      <li>Salarios variables, comisiones o pagos por obra: el valor de la hora puede calcularse de otra forma.</li>
+      <li>Trabajadores de confianza y otras excepciones a la jornada máxima previstas en el Código.</li>
+    </ul>
+    <p><a class="button primary" href={`${base}calculadoras/horas-extras/`}>Calcular mis horas extras</a></p>
+    <Faq items={faq} />
+    <LegalSources sources={['laborCodeOvertime', 'law291', 'mitradelHolidays', 'mitradel']} reviewedOn={R.reviewedOn} />
+</EditorialPage>

@@ -126,6 +126,22 @@
     "/compras/dividir-la-cuenta/": {
       "tier": "stage1",
       "reason": "Importe de una cuenta y número de personas: no son datos personales."
+    },
+    "/guias/horas-extras-en-panama/": {
+      "tier": "stage1",
+      "reason": "Artículo original sin campos de usuario."
+    },
+    "/guias/itbms-en-panama/": {
+      "tier": "stage1",
+      "reason": "Artículo original sin campos de usuario."
+    },
+    "/vida-cotidiana/dias-habiles-y-feriados/": {
+      "tier": "stage1",
+      "reason": "Solo fechas de un calendario: no son datos personales."
+    },
+    "/finanzas/tarjeta-de-credito/": {
+      "tier": "stage2",
+      "reason": "Deuda personal. Requiere calculadora aislada."
     }
   }
 }

@@ -135,6 +135,12 @@ export const OFFICIAL_SOURCES = {
     detail: 'Art. 119: ISR de preaviso, prima e indemnización; art. 140: retención según tablas de la DGI; deducción del Seguro Educativo derogada por el DE 98 de 2010.',
     url: 'https://www.impuestospanama.com/images/docs/decretos_ejecutivos_fiscales/Decreto_Ejecutivo_Fiscal_170_de_1993_Actualizado_al_2010.pdf'
   },
+  itbms: {
+    institution: 'Dirección General de Ingresos — MEF (Gaceta Oficial 26489-A)',
+    title: 'Ley 8 de 2010, art. 76: Código Fiscal, art. 1057-V, parágrafo 6',
+    detail: 'Tarifa general del ITBMS de 7% desde el 1 de julio de 2010; 10% para bebidas alcohólicas y hospedaje; 15% para productos derivados del tabaco.',
+    url: 'https://dgi.mef.gob.pa/itbms/Normativa/Ley-8-15-marzo-2010.pdf'
+  },
   mitradel: {
     institution: 'Ministerio de Trabajo y Desarrollo Laboral',
     title: 'Consultas y cálculo oficial de prestaciones',

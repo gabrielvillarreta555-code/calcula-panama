@@ -42,3 +42,41 @@ test('dividir la cuenta: propina sin ITBMS, reparto exacto y redondeo', async ({
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   expect(requests).toEqual([]);
 });
+
+test('días hábiles: año 2027 completo, feriados y sin peticiones', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/vida-cotidiana/dias-habiles-y-feriados/', { waitUntil: 'networkidle' });
+  const requests: string[] = []; page.on('request', r => requests.push(r.url()));
+  await expect(page.locator('.tool-reading')).toContainText('martes 9 de febrero: martes de carnaval');
+  await page.getByLabel('Fecha inicial').fill('2027-01-01'); await page.getByLabel('Fecha final').fill('2027-12-31'); await calculate(page);
+  await expect(page.locator('[data-result]')).toContainText('Días hábiles: 252');
+  await page.locator('[data-details] summary').click();
+  await expect(page.locator('[data-details] table')).toContainText('Viernes santo');
+  await page.getByLabel('Días laborables').selectOption('mon-sat'); await calculate(page);
+  await expect(page.locator('[data-result]')).toContainText('Días hábiles: 301');
+  await page.getByLabel('Fecha final').fill('2026-12-31'); await calculate(page);
+  await expect(page.locator('[data-error]')).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  expect(requests).toEqual([]);
+});
+
+test('tarjeta de crédito: pago fijo, pago mínimo y pago insuficiente', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/finanzas/tarjeta-de-credito/', { waitUntil: 'networkidle' });
+  const requests: string[] = []; page.on('request', r => requests.push(r.url()));
+  await expect(page.getByLabel('Pago mínimo: porcentaje del saldo (%)')).toBeHidden();
+  await page.getByLabel('Saldo de la tarjeta (B/.)').fill('2000'); await page.getByLabel('Tasa de interés anual (%)').fill('36');
+  await page.getByLabel('Pago fijo mensual (B/.)').fill('100'); await calculate(page);
+  await expect(page.locator('[data-result]')).toContainText('31 meses (2 años y 7 meses)');
+  await expect(page.locator('[data-result]')).toContainText('Intereses: B/.1,099.92');
+  await expect(page.locator('[data-details] table').first()).toContainText('B/.200.93');
+  await page.getByLabel('Cómo vas a pagar').selectOption('minimum');
+  await expect(page.getByLabel('Pago fijo mensual (B/.)')).toBeHidden();
+  await calculate(page);
+  await expect(page.locator('[data-result]')).toContainText('95 meses');
+  await expect(page.locator('[data-result]')).toContainText('B/.103.00');
+  await page.getByLabel('Cómo vas a pagar').selectOption('fixed'); await page.getByLabel('Pago fijo mensual (B/.)').fill('50'); await calculate(page);
+  await expect(page.locator('[data-error]')).toContainText('no cubre los intereses');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  expect(requests).toEqual([]);
+});

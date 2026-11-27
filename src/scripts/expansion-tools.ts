@@ -1,3 +1,4 @@
+import { businessDays, creditCard, type CardMode, type WorkWeek } from '../lib/tools/calculations';
 import { carFinancing, carMonthlyCost, compareUnits, decimal, electricity, fuelTrip, grades, itbms, promotion, savings, splitBill, type EfficiencyUnit, type Frequency, type ItbmsMode, type Promotion, type SplitRounding, type Unit } from '../lib/tools/calculations';
 const number = (n: number, digits = 2) => n.toLocaleString('es-PA', { minimumFractionDigits: digits, maximumFractionDigits: digits });
 const money = (n: number, digits = 2) => `B/.${number(n, digits)}`;
@@ -34,6 +35,13 @@ for (const root of document.querySelectorAll<HTMLElement>('[data-tool]')) {
     root.querySelector<HTMLButtonElement>('[data-add]')!.disabled = list.length >= 20;
   }
   function syncPromotion() {
+    if (root.dataset.tool === 'card') {
+      const minimum = value('mode') === 'minimum';
+      for (const [key, visible] of [['payment', !minimum], ['minPercent', minimum], ['minFloor', minimum]] as const) {
+        const input = field(key); input.disabled = !visible; input.closest<HTMLElement>('[data-field]')!.hidden = !visible;
+      }
+      return;
+    }
     if (root.dataset.tool !== 'discount') return;
     for (const key of ['discount', 'secondDiscount']) {
       const visible = key === 'secondDiscount' ? value('mode') === 'successive' : ['percent', 'successive', 'second'].includes(value('mode'));
@@ -136,6 +144,29 @@ for (const root of document.querySelectorAll<HTMLElement>('[data-tool]')) {
           line(`Al año: ${money(r.annual)}.${num('depreciationYear') > 0 ? ` Sin la pérdida de valor: ${money(r.withoutDepreciation)} al mes.` : ''}`);
           if (r.perKm !== null) line(`Costo por kilómetro: ${money(r.perKm, 3)}.`);
           details.append(scroll(table(['Concepto', 'Al mes', 'Parte del total'], r.items.map(item => [item.label, money(item.monthly), `${number(item.share, 1)}%`]), 'Desglose mensual (los anuales se dividen entre 12)'))); break;
+        }
+        case 'card': {
+          const mode = value('mode') as CardMode;
+          const r = creditCard({ balance: num('balance'), annualRate: num('rate'), mode, payment: mode === 'fixed' ? num('payment') : num('minFloor'), minPercent: mode === 'minimum' ? num('minPercent') : 0 });
+          const years = Math.floor(r.months / 12), rest = r.months % 12;
+          line(`La deuda se salda en ${r.months} ${r.months === 1 ? 'mes' : 'meses'}${years ? ` (${years} ${years === 1 ? 'año' : 'años'}${rest ? ` y ${rest} ${rest === 1 ? 'mes' : 'meses'}` : ''})` : ''}`);
+          line(`Intereses: ${money(r.interest)}. Total pagado: ${money(r.paid)}.`);
+          if (mode === 'minimum') line(`El primer pago mínimo es de ${money(r.firstPayment)} y baja a medida que baja el saldo.`);
+          details.append(table(['Para saldarla en', 'Pago fijo mensual'], r.payoff.map(p => [`${p.months} meses`, money(p.payment)]), 'Pago fijo necesario, sin compras nuevas'));
+          const section = document.createElement('details'); const summary = document.createElement('summary'); summary.textContent = 'Ver el calendario de pagos'; section.append(summary);
+          section.append(scroll(table(['Mes', 'Pago', 'Interés', 'Saldo'], r.schedule.map(row => [`${row.month}`, money(row.payment), money(row.interest), money(row.balance)]), 'Calendario de pagos'))); details.append(section);
+          break;
+        }
+        case 'holidays': {
+          const r = businessDays(value('start'), value('end'), value('week') as WorkWeek);
+          line(`Días hábiles: ${r.business}`);
+          line(`Del ${value('start').split('-').reverse().join('/')} al ${value('end').split('-').reverse().join('/')}: ${r.days} días calendario, ${r.weekend} de descanso semanal y ${r.holidaysOnWorkdays} ${r.holidaysOnWorkdays === 1 ? 'feriado' : 'feriados'} en días laborables.`);
+          if (r.holidays.length) {
+            const section = document.createElement('details'); const summary = document.createElement('summary'); summary.textContent = `Ver los ${r.holidays.length} feriados del intervalo`; section.append(summary);
+            const names = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
+            section.append(scroll(table(['Fecha', 'Día', 'Fiesta o duelo', 'Resta un día hábil'], r.holidays.map(h => [h.date.split('-').reverse().join('/'), names[h.weekday]!, h.name, h.counted ? 'Sí' : 'No: no es laborable']), 'Fiestas y duelos nacionales'))); details.append(section);
+          } else line('No hay fiestas ni duelos nacionales en el intervalo.');
+          break;
         }
         case 'itbms': {
           const r = itbms(num('amount'), Number(value('rate')), value('mode') as ItbmsMode);
