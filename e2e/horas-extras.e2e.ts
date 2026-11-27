@@ -186,6 +186,7 @@ test('horario contratado, estimaciones condicionadas e imagen editorial', async 
   const img = page.locator('.fx-figure img');
   await expect(img).toHaveAttribute('alt', /reloj despertador/);
   await img.scrollIntoViewIfNeeded();
-  expect(await img.evaluate((i: HTMLImageElement) => i.complete && i.naturalWidth > 0)).toBe(true);
+  // La imagen es diferida (loading="lazy"): se espera a que termine de cargar.
+  await expect.poll(() => img.evaluate((i: HTMLImageElement) => i.complete && i.naturalWidth > 0), { timeout: 10_000 }).toBe(true);
   await expect(page.locator('.sources')).toContainText('Ley 291 de 2022');
 });
