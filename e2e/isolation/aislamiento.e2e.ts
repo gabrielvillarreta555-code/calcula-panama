@@ -40,13 +40,13 @@ async function seed(page: Page, origin: string, value: string) {
 }
 const stored = (page: Page) => page.evaluate(k => localStorage.getItem(k), BUDGET_KEY);
 
-test('primera etapa: AdSense se carga en las 18 páginas y no encuentra datos financieros, aunque el usuario use Mi Quincena en la app', async ({ page }) => {
+test('primera etapa: AdSense se carga en las 19 páginas y no encuentra datos financieros, aunque el usuario use Mi Quincena en la app', async ({ page }) => {
   await seed(page, APP, SAMPLE_BUDGET);
   await page.goto(`${APP}/quincena/`);
   await expect(page.locator('#budget-opening')).toHaveValue('842.50');
   const hits = await spyOnAds(page);
   const stage1 = pagesByTier('stage1');
-  expect(stage1).toHaveLength(18);
+  expect(stage1).toHaveLength(19);
   for (const path of stage1) {
     await page.goto(`${MAIN}${path}`);
     await page.waitForFunction(() => (window as any).__adSpy, null, { timeout: 5000 });
@@ -56,7 +56,7 @@ test('primera etapa: AdSense se carga en las 18 páginas y no encuentra datos fi
     expect(spy.frames.every((f: string) => f === 'blocked'), path).toBe(true);
     expect(await page.locator('html').getAttribute('data-ads'), path).toBe('loaded');
   }
-  expect(hits).toHaveLength(18);
+  expect(hits).toHaveLength(19);
 });
 
 test('segunda etapa, Mi Quincena, páginas legales y 404: nunca cargan AdSense y mantienen la CSP estricta', async ({ page }) => {
