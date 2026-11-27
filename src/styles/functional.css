@@ -338,7 +338,7 @@ body.fx { margin: 0; padding: 0; background: var(--fx-bg); color: var(--fx-text)
 @media (min-width: 960px) { .fx-overtime ~ .fx-dock { display: none; } }
 
 /* Legibilidad del contenido editorial en páginas .fx: anula fondos claros heredados de global.css
-   (tablas, fórmulas y avisos). Detectado en CP-TOOL-008; afectaba también a Salario neto. */
+   (tablas, fórmulas y avisos). Afectaba a Salario neto desde CP-DESIGN-007. */
 .fx .fx-prose .table-wrap { background: var(--fx-panel); }
 .fx .fx-prose thead th { background: var(--fx-field); color: var(--fx-muted); font-weight: 600; }
 .fx .fx-prose tbody th, .fx .fx-prose td { color: var(--fx-text); }

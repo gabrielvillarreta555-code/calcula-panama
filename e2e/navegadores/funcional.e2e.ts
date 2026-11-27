@@ -83,3 +83,17 @@ test('la portada no usa la variante funcional y no hay publicidad', async ({ pag
   await expect(page.locator('body')).not.toHaveClass(/\bfx\b/);
   await expect(page.locator('script[src*="adsbygoogle"]')).toHaveCount(0);
 });
+
+test('Salario neto: tabla, fórmulas y aviso de fuentes legibles (contraste AA)', async ({ page }) => {
+  await page.goto('/calculadoras/salario-neto/');
+  const ratios = await page.evaluate(() => {
+    const parse = (s: string) => (s.match(/[\d.]+/g) ?? []).map(Number);
+    const lum = (c: number[]) => c.slice(0, 3).map(v => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; }).reduce((s, v, i) => s + v * [.2126, .7152, .0722][i]!, 0);
+    const bg = (el: Element | null): number[] => { for (let e = el; e; e = e.parentElement) { const c = parse(getComputedStyle(e).backgroundColor); if ((c[3] ?? 1) > .5) return c; } return [8, 9, 12]; };
+    return ['.fx-prose tbody td', '.fx-prose thead th', '.fx-prose .formula', '.sources .callout'].map(sel => {
+      const el = document.querySelector(sel)!; const a = lum(parse(getComputedStyle(el).color)), b = lum(bg(el));
+      return (Math.max(a, b) + .05) / (Math.min(a, b) + .05);
+    });
+  });
+  for (const ratio of ratios) expect(ratio).toBeGreaterThanOrEqual(4.5);
+});

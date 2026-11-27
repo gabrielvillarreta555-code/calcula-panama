@@ -3,12 +3,9 @@ import { test, expect } from '@playwright/test';
 for (const width of [320, 375, 1280]) {
   test(`portada y Compras son visibles y navegables a ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 850 });
+    // Portada editorial (CP-DESIGN-006): Modo Pasillo sigue accesible desde la sección Compras.
     await page.goto('/');
-    await expect(page.getByRole('heading', { name: 'Respuestas claras a dudas frecuentes' })).toHaveCount(0);
-    const shopping = page.locator('.shopping-feature');
-    await expect(shopping.getByRole('link', { name: /Abrir Modo Pasillo/ })).toHaveAttribute('href', '/compras/modo-pasillo/');
-    await expect(page.locator('.labor-card')).toHaveCount(4);
-    await expect(page.locator('.labor-card .calculator-art')).toHaveCount(4);
+    await expect(page.locator('#hogar').getByRole('link', { name: /Modo Pasillo/ })).toHaveAttribute('href', '/compras/modo-pasillo/');
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 
     await page.goto('/compras/');
