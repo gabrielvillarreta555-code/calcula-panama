@@ -1,4 +1,4 @@
-export type ToolId = 'unit' | 'discount' | 'savings' | 'grades' | 'energy' | 'car-loan' | 'fuel-trip' | 'car-cost';
+export type ToolId = 'unit' | 'discount' | 'savings' | 'grades' | 'energy' | 'car-loan' | 'fuel-trip' | 'car-cost' | 'itbms' | 'split';
 export interface Field {
   key: string; label: string; value?: string; type?: 'date' | 'select';
   options?: { value: string; label: string }[]; optional?: boolean; digits?: number;
@@ -147,6 +147,62 @@ export const expansionTools: Tool[] = [
       { q: '¿Qué precio por kWh escribo?', a: 'El de tu propia factura. Una aproximación es dividir el cargo por energía entre los kWh facturados, sin incluir los cargos fijos ni otros conceptos. No uses una tarifa supuesta: varía según la distribuidora, el bloque de consumo y el período.' },
       { q: '¿Por qué el resultado no coincide con mi factura?', a: 'Porque la factura incluye cargos fijos, bloques de consumo, subsidios, impuestos y otros aparatos de la casa. Esta herramienta estima solo la energía de un aparato.' },
       { q: '¿Qué porcentaje de tiempo activo uso para una nevera o un aire acondicionado?', a: 'Trabajan por ciclos: el compresor se enciende y se apaga. Si no conoces el valor, prueba con varios porcentajes para ver un rango; para medir el consumo real, usa un medidor de enchufe.' },
+    ],
+  },
+  {
+    id: 'itbms', path: '/impuestos/itbms/', category: 'Impuestos', title: 'Calculadora de ITBMS en Panamá: 7%, 10% y 15%',
+    description: 'Agrega el ITBMS a un precio o sepáralo de un total que ya lo incluye. Tarifas del 7%, 10% y 15% según el Código Fiscal de Panamá.',
+    intro: 'Calcula el ITBMS de una compra o de una factura. Elige si tu importe ya incluye el impuesto y la tarifa que corresponde; obtienes la base, el impuesto y el total.',
+    fields: [
+      { key: 'amount', label: 'Importe (B/.)', digits: 2 },
+      { key: 'mode', label: '¿El importe incluye ITBMS?', type: 'select', options: [{ value: 'add', label: 'No: agregar el ITBMS' }, { value: 'remove', label: 'Sí: separar el ITBMS del total' }] },
+      { key: 'rate', label: 'Tarifa', type: 'select', options: [{ value: '7', label: '7%: tarifa general' }, { value: '10', label: '10%: bebidas alcohólicas y hospedaje' }, { value: '15', label: '15%: productos del tabaco' }] },
+    ],
+    steps: ['Escribe el importe con hasta dos decimales.', 'Indica si ese importe ya incluye el impuesto: un precio de etiqueta suele incluirlo; una cotización «más ITBMS», no.', 'Elige la tarifa. La general es 7%; usa 10% o 15% solo para los casos que indica la ley.'],
+    formula: 'Agregar: ITBMS = base × tarifa; total = base + ITBMS. Separar: base = total ÷ (1 + tarifa); ITBMS = total − base. Cada resultado se redondea al centésimo más cercano.',
+    example: 'Ejemplos hipotéticos: B/.100.00 más el 7% son B/.107.00. Un total de B/.53.50 con el 7% incluido tiene una base de B/.50.00 y B/.3.50 de ITBMS. Una noche de hotel de B/.120.00 más el 10% cuesta B/.132.00.',
+    limits: ['No determina qué tarifa ni qué exención corresponde a cada producto o servicio: eso lo fija la ley. Si tienes dudas, consulta la DGI o a un contador.', 'No calcula otros impuestos ni cargos, como el impuesto selectivo al consumo, la propina o el envío.', 'El comercio puede redondear producto por producto; el total de una factura con varios artículos puede diferir en algún centésimo.', 'Importe hasta B/.10,000,000 con dos decimales.'],
+    context: [
+      'El ITBMS es el impuesto a la transferencia de bienes muebles y la prestación de servicios. Desde el 1 de julio de 2010 su tarifa general es 7% (Ley 8 de 2010, que modificó el artículo 1057-V del Código Fiscal).',
+      'La misma norma fija dos tarifas especiales: 10% para la importación y venta de bebidas alcohólicas y para el hospedaje, y 15% para los productos derivados del tabaco.',
+      'Para quitar el ITBMS de un precio se divide entre 1.07; no se resta el 7% del total. B/.107.00 × 0.93 da B/.99.51, pero la base correcta es B/.100.00.',
+    ],
+    checkedOn: '2026-11-27',
+    sources: [itbms],
+    related: [{ title: 'Dividir la cuenta y la propina', path: '/compras/dividir-la-cuenta/' }, { title: 'Comparar descuentos y promociones', path: '/compras/descuentos-y-promociones/' }, shopping],
+    faq: [
+      { q: '¿Cuál es la tarifa del ITBMS en Panamá?', a: 'La tarifa general es 7%. La ley aplica 10% a las bebidas alcohólicas y al hospedaje, y 15% a los productos derivados del tabaco (Código Fiscal, artículo 1057-V, parágrafo 6, según la Ley 8 de 2010).' },
+      { q: '¿Cómo saco el ITBMS de un precio que ya lo incluye?', a: 'Divide el precio entre 1.07 para obtener la base; la diferencia es el impuesto. B/.53.50 ÷ 1.07 = B/.50.00 de base y B/.3.50 de ITBMS. Restar el 7% del total da un resultado incorrecto.' },
+      { q: '¿Todos los productos pagan ITBMS?', a: 'No. El Código Fiscal enumera operaciones exentas en el mismo artículo 1057-V. Si un producto de tu factura no muestra ITBMS, puede estar exento; esta herramienta no lo determina.' },
+    ],
+  },
+  {
+    id: 'split', path: '/compras/dividir-la-cuenta/', category: 'Compras', title: 'Calculadora para dividir la cuenta y la propina',
+    description: 'Divide la cuenta del restaurante entre varias personas, con propina sobre el consumo sin ITBMS y redondeo a monedas de 5 o 25 centésimos.',
+    intro: 'Reparte una cuenta en partes iguales. Añade la propina que quieras dejar y, si lo prefieres, redondea lo que paga cada persona para pagar con monedas.',
+    fields: [
+      { key: 'total', label: 'Total de la factura, con ITBMS (B/.)', digits: 2 },
+      { key: 'tax', label: 'ITBMS de la factura (B/.), opcional', digits: 2, optional: true },
+      { key: 'tip', label: 'Propina (%)', value: '10' },
+      { key: 'people', label: 'Número de personas', value: '2', digits: 0 },
+      { key: 'rounding', label: 'Redondear lo que paga cada persona', type: 'select', options: [{ value: 'none', label: 'Sin redondeo: reparto exacto' }, { value: '0.05', label: 'Hacia arriba, a 5 centésimos' }, { value: '0.25', label: 'Hacia arriba, a 25 centésimos' }, { value: '1.00', label: 'Hacia arriba, a B/.1.00' }] },
+    ],
+    steps: ['Escribe el total de la factura tal como figura, con el ITBMS incluido.', 'Si quieres calcular la propina sobre el consumo sin impuesto, escribe el ITBMS de la factura. Si lo dejas vacío, la propina se calcula sobre el total.', 'Revisa si la factura ya incluye un cargo por servicio o propina; en ese caso, escribe 0%.', 'Indica cuántas personas pagan y si quieres redondear cada parte.'],
+    formula: 'Propina = (total − ITBMS) × porcentaje. Total a pagar = total de la factura + propina. Sin redondeo, se reparte en centésimos y las primeras personas pagan un centésimo más si la división no es exacta. Con redondeo, cada parte se redondea hacia arriba y lo sobrante se suma a la propina.',
+    example: 'Ejemplo hipotético: factura de B/.85.60 con B/.5.60 de ITBMS. La propina del 10% sobre B/.80.00 es B/.8.00 y el total es B/.93.60. Entre 4 personas, cada una paga B/.23.40. Redondeando a 25 centésimos, cada una paga B/.23.50 y la propina sube a B/.8.40.',
+    limits: ['Divide en partes iguales. No reparte por lo que consumió cada persona.', 'No sabe si el comercio ya cobró un cargo por servicio: revísalo en la factura.', 'La propina se redondea al centésimo más cercano. Total hasta B/.10,000,000, propina de 0% a 50% y de 1 a 100 personas.'],
+    context: [
+      'En Panamá, los precios del menú y la factura suelen incluir el ITBMS del 7%; las bebidas alcohólicas tributan al 10%. Si la factura lo desglosa, escribe ese importe para calcular la propina sobre el consumo.',
+      'Las monedas en circulación son de 1, 5, 10, 25 y 50 centésimos, y de un balboa. Redondear a 5 o 25 centésimos facilita pagar en efectivo sin quedarse corto.',
+    ],
+    checkedOn: '2026-11-27',
+    sources: [itbms],
+    sourceNote: 'El reparto es una división aritmética en centésimos y no depende de una norma. La propina es una decisión de quien paga: la herramienta no recomienda un porcentaje.',
+    related: [{ title: 'Calcular el ITBMS', path: '/impuestos/itbms/' }, shopping, budget],
+    faq: [
+      { q: '¿La propina se calcula antes o después del ITBMS?', a: 'Es una decisión de quien paga. Si escribes el ITBMS de la factura, la herramienta calcula la propina sobre el consumo sin impuesto; si lo dejas vacío, sobre el total.' },
+      { q: '¿Por qué una persona paga un centésimo más?', a: 'Porque no siempre se puede dividir un importe en partes exactas de centésimos. B/.10.00 entre 3 son B/.3.34 + B/.3.33 + B/.3.33: la suma da exactamente B/.10.00.' },
+      { q: '¿Qué pasa con lo que sobra al redondear?', a: 'Se suma a la propina. La herramienta te muestra cuánto se recauda en total y cuánto sobra frente al importe exacto.' },
     ],
   },
 ];

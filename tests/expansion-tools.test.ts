@@ -109,9 +109,9 @@ describe('electricity', () => {
     expect(() => electricity(1e308, 5, 30, 100)).toThrow();
   });
 });
-it('catalog keeps five unique complete editorial entries', () => {
-  expect(expansionTools).toHaveLength(5);
-  for (const key of ['path', 'title', 'description'] as const) expect(new Set(expansionTools.map(t => t[key])).size).toBe(5);
+it('catalog keeps seven unique complete editorial entries', () => {
+  expect(expansionTools).toHaveLength(7);
+  for (const key of ['path', 'title', 'description'] as const) expect(new Set(expansionTools.map(t => t[key])).size).toBe(expansionTools.length);
   for (const t of expansionTools) { expect(t.sources.length > 0 || Boolean(t.sourceNote)).toBe(true); expect(t.example.length).toBeGreaterThan(60); expect(t.limits.length).toBeGreaterThan(1); }
 });
 

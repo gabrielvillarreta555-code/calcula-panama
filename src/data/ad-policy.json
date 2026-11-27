@@ -118,6 +118,14 @@
     "/ensayo/traslado-quincena/": {
       "tier": "never",
       "reason": "Página interna de ensayo con datos ficticios; noindex y fuera del sitemap."
+    },
+    "/impuestos/itbms/": {
+      "tier": "stage1",
+      "reason": "Solo importes de compras y tarifas del impuesto: no son datos personales."
+    },
+    "/compras/dividir-la-cuenta/": {
+      "tier": "stage1",
+      "reason": "Importe de una cuenta y número de personas: no son datos personales."
     }
   }
 }
