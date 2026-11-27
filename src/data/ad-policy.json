@@ -150,6 +150,10 @@
     "/guias/calendario-de-quincenas-2027/": {
       "tier": "stage1",
       "reason": "Artículo original sin campos de usuario."
+    },
+    "/guias/como-administrar-el-decimo/": {
+      "tier": "stage1",
+      "reason": "Artículo original sin campos de usuario."
     }
   }
 }

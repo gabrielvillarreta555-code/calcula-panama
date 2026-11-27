@@ -132,7 +132,7 @@ const schema = {
         <tbody>{dec2026Examples.map(({ salary, r }) => <tr><th scope="row">{formatMoney(salary)}</th><td>{formatMoney(r.gross)}</td><td>{formatMoney(r.socialSecurity)}</td><td>{formatMoney(r.incomeTax ?? 0)}</td><td><strong>{formatMoney(r.net)}</strong></td></tr>)}</tbody>
       </table>
     </div>
-    <p>Si entraste a trabajar después del 16 de agosto, indica tu fecha de ingreso en el modo «Salario fijo». Si tu salario cambió o cobraste horas extras o comisiones, usa el modo «Con lo devengado». Antes de gastarlo, compara qué te conviene más: <a href={`${base}finanzas/tarjeta-de-credito/`}>adelantar el pago de una tarjeta de crédito</a> o <a href={`${base}finanzas/meta-de-ahorro/`}>reservarlo para una meta de ahorro</a>.</p>
+    <p>Si entraste a trabajar después del 16 de agosto, indica tu fecha de ingreso en el modo «Salario fijo». Si tu salario cambió o cobraste horas extras o comisiones, usa el modo «Con lo devengado». Antes de gastarlo, compara qué te conviene más: <a href={`${base}finanzas/tarjeta-de-credito/`}>adelantar el pago de una tarjeta de crédito</a> o <a href={`${base}finanzas/meta-de-ahorro/`}>reservarlo para una meta de ahorro</a>. Encontrarás ejemplos con cifras en la guía <a href={`${base}guias/como-administrar-el-decimo/`}>Cómo administrar el décimo</a>.</p>
 
     <h2>¿Cómo se calcula el décimo tercer mes?</h2>
     <p>El décimo tercer mes lo creó el Decreto de Gabinete 221 de 1971 y se paga en tres partidas, el 15 de abril, el 15 de agosto y el 15 de diciembre. Cada una corresponde a lo devengado en los cuatro meses anteriores. La norma fija las fechas de pago; los cortes del día 15 de la tabla son los habituales en planilla:</p>
