@@ -110,5 +110,11 @@ export const GUIDES = [
     topic: 'Finanzas',
     title: 'Cómo administrar el décimo tercer mes en Panamá',
     description: 'Ejemplos calculados para repartir el décimo entre deudas, ahorro, gastos de diciembre y planes familiares.'
+  },
+  {
+    path: '/guias/gastos-de-comprar-vivienda/',
+    topic: 'Vivienda',
+    title: 'Gastos de comprar vivienda en Panamá',
+    description: 'Abono, gastos de cierre, seguros, ITBI de la vivienda nueva e interés preferencial: qué paga el comprador y qué el vendedor.'
   }
 ] as const;

@@ -123,3 +123,43 @@ test('guía para administrar el décimo: cifras calculadas y enlaces a las calcu
   for (const href of ['/calculadoras/decimo-tercer-mes/', '/finanzas/tarjeta-de-credito/', '/finanzas/meta-de-ahorro/', '/finanzas/mi-quincena/']) await expect(page.locator(`main a[href="${href}"]`).first()).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
+
+test('vivienda: hipoteca con tramo 3, capacidad de compra y alquilar o comprar', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/vivienda/calculadora-de-hipoteca/', { waitUntil: 'networkidle' });
+  const requests: string[] = []; page.on('request', r => requests.push(r.url()));
+  await page.getByLabel('Precio de la vivienda (B/.)').fill('150000'); await page.getByLabel('Abono inicial (B/.)').fill('15000');
+  await page.getByLabel('Tasa de interés anual del banco (%)').fill('6.5'); await calculate(page);
+  await expect(page.locator('[data-result]')).toContainText('Letra mensual: B/.853.29');
+  await page.getByLabel('Interés preferencial').selectOption('tramo3'); await calculate(page);
+  await expect(page.locator('[data-error]')).toContainText('tramo 3');
+  await page.getByLabel('Precio de la vivienda (B/.)').fill('110000'); await page.getByLabel('Abono inicial (B/.)').fill('11000'); await calculate(page);
+  await expect(page.locator('[data-result]')).toContainText('Letra los primeros 84 meses');
+  await expect(page.locator('[data-result]')).toContainText('2.50%');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+
+  await page.goto('/vivienda/capacidad-de-compra/');
+  await page.getByLabel('Ingreso neto mensual del hogar (B/.)').fill('1500'); await page.getByLabel('Otras deudas mensuales: préstamos, tarjetas, auto (B/.)').fill('150');
+  await page.getByLabel('Porcentaje máximo del ingreso para todas las deudas (%)').fill('30'); await page.getByLabel('Tasa de interés anual (%)').fill('6.5');
+  await page.getByLabel('Abono disponible (B/.)').fill('10000'); await calculate(page);
+  await expect(page.locator('[data-result]')).toContainText('Letra máxima sin seguros: B/.300.00');
+  await expect(page.locator('[data-result]')).toContainText('B/.57,463');
+
+  await page.goto('/vivienda/alquilar-o-comprar/');
+  for (const [label, v] of [['Alquiler mensual (B/.)', '800'], ['Precio de la vivienda (B/.)', '150000'], ['Abono (B/.)', '15000'], ['Tasa de interés anual de la hipoteca (%)', '6.5']] as const) await page.getByLabel(label, { exact: true }).fill(v);
+  await calculate(page);
+  await expect(page.locator('[data-result]')).toContainText('de patrimonio a 10 años');
+  await page.locator('[data-details] summary').click();
+  await expect(page.locator('[data-details] tbody tr')).toHaveCount(10);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  expect(requests.filter(u => new URL(u).origin !== new URL(page.url()).origin)).toEqual([]);
+});
+
+test('guía de gastos de comprar vivienda: ITBI de la Ley 546 y tramo 3', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/guias/gastos-de-comprar-vivienda/');
+  await expect(page.locator('main')).toContainText('le corresponde al vendedor');
+  await expect(page.locator('main table').first()).toContainText('Exenta');
+  await expect(page.locator('main table').first()).toContainText('1.80%');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});

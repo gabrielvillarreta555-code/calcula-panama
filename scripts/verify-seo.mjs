@@ -51,7 +51,7 @@ for (const loc of locs) {
 for (const path of priorityPaths) if (!locs.includes(new URL(path, site).toString())) errors.push(`Página prioritaria ausente del sitemap: ${path}`);
 
 // Primera expansión: cada herramienta debe ser rastreable y accesible desde el directorio.
-const expansionPaths = ['compras/precio-por-unidad/', 'compras/descuentos-y-promociones/', 'compras/dividir-la-cuenta/', 'impuestos/itbms/', 'vida-cotidiana/dias-habiles-y-feriados/', 'finanzas/tarjeta-de-credito/', 'calculadoras/salario-minimo/', 'finanzas/meta-de-ahorro/', 'educacion/promedio-de-notas/', 'vida-cotidiana/consumo-electrico/', 'vehiculos/financiamiento-de-auto/', 'vehiculos/combustible-por-viaje/', 'vehiculos/costo-mensual-de-un-auto/'];
+const expansionPaths = ['compras/precio-por-unidad/', 'compras/descuentos-y-promociones/', 'compras/dividir-la-cuenta/', 'impuestos/itbms/', 'vida-cotidiana/dias-habiles-y-feriados/', 'finanzas/tarjeta-de-credito/', 'calculadoras/salario-minimo/', 'vivienda/calculadora-de-hipoteca/', 'vivienda/capacidad-de-compra/', 'vivienda/alquilar-o-comprar/', 'finanzas/meta-de-ahorro/', 'educacion/promedio-de-notas/', 'vida-cotidiana/consumo-electrico/', 'vehiculos/financiamiento-de-auto/', 'vehiculos/combustible-por-viaje/', 'vehiculos/costo-mensual-de-un-auto/'];
 const directory = read('dist/herramientas/index.html');
 const toolTitles = new Set();
 const toolDescriptions = new Set();

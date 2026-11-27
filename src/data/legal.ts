@@ -147,6 +147,30 @@ export const OFFICIAL_SOURCES = {
     detail: 'Tarifa general del ITBMS de 7% desde el 1 de julio de 2010; 10% para bebidas alcohólicas y hospedaje; 15% para productos derivados del tabaco.',
     url: 'https://dgi.mef.gob.pa/itbms/Normativa/Ley-8-15-marzo-2010.pdf'
   },
+  law546: {
+    institution: 'Gaceta Oficial 30601-B (copia de LEGISPAN, Asamblea Nacional)',
+    title: 'Ley 546 de 31 de agosto de 2026, que modifica el artículo 4 de la Ley 106 de 1974 (ITBI)',
+    detail: 'Exención de los primeros B/.120,000 en la primera venta de vivienda nueva dentro de los 2 años del permiso de ocupación; escala de 0.50% a 1.80% sobre el excedente hasta B/.200,000; nula la cláusula que traslade el impuesto al comprador; régimen transitorio de 30 meses (art. 2).',
+    url: 'https://s3-legispan.asamblea.gob.pa/legispan/GACETAS/2020/2026/30601-B_2026.pdf'
+  },
+  law481: {
+    institution: 'Gaceta Oficial 30361-C (copia de LEGISPAN, Asamblea Nacional)',
+    title: 'Ley 481 de 9 de septiembre de 2025, que modifica la Ley 468 de 2025 (interés preferencial)',
+    detail: 'Art. 6: subsidio igual al menor entre la tasa del tramo y el 85% de la tasa del banco. Art. 7, literal c: tramo 3 (viviendas nuevas de B/.80,000.01 a B/.120,000), 4% durante 7 años en las dos regiones. Vigente desde el 1 de enero de 2026.',
+    url: 'https://s3-legispan.asamblea.gob.pa/legispan/NORMAS/2020/2025/LEY/JOSEPH%20VALENCIA_30361-C_2025_9_9_ASAMBLEA%20NACIONAL_481.pdf'
+  },
+  decree23of2026: {
+    institution: 'Gaceta Oficial 30545 (copia de LEGISPAN, Asamblea Nacional)',
+    title: 'Decreto Ejecutivo 23 de 2026, que reglamenta la Ley 468 de 2025 modificada por la Ley 481',
+    detail: 'Vivienda nueva (comercializada por primera vez), destinada a residencia principal, con precio de hasta B/.120,000.',
+    url: 'https://s3-legispan.asamblea.gob.pa/legispan/GACETAS/2020/2026/30545_2026.pdf'
+  },
+  dgiForm106: {
+    institution: 'Dirección General de Ingresos — MEF',
+    title: 'Instructivo del Formulario 106 (ITBI), actualizado a 2026',
+    detail: 'Declaración del impuesto de transferencia de bienes inmuebles, con la tarifa aplicable (2%, 5% o la de la Ley 546) y el valor catastral actualizado.',
+    url: 'https://dgi.mef.gob.pa/TI/nuevostramites/INSTRUCTIVO-F106%20V4-ACTUALIZADO2026.pdf'
+  },
   mitradel: {
     institution: 'Ministerio de Trabajo y Desarrollo Laboral',
     title: 'Consultas y cálculo oficial de prestaciones',

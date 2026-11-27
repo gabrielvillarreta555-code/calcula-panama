@@ -1,0 +1,6 @@
+---
+import ToolLayout from "../../layouts/ToolLayout.astro";
+import { expansionTools } from "../../data/expansion-tools";
+const tool = expansionTools.find(item => item.id === "mortgage")!;
+---
+<ToolLayout tool={tool} />

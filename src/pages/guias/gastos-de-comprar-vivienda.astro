@@ -1,0 +1,78 @@
+---
+/**
+ * Guía de gastos de comprar vivienda (CP-SEO-003, entrega 3). Solo cifras verificadas: Ley 546 de 2026 (ITBI),
+ * Ley 481 de 2025 y Decreto Ejecutivo 23 de 2026 (interés preferencial, tramo 3). Sin tarifas de notaría ni registro:
+ * no se encontró un arancel oficial consultable.
+ */
+import EditorialPage from '../../layouts/EditorialPage.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import Faq from '../../components/Faq.astro';
+import LegalSources from '../../components/LegalSources.astro';
+import { GUIDES } from '../../data/site';
+import { itbiNewHome, mortgage } from '../../lib/tools/housing';
+import { formatMoney } from '../../lib/format';
+
+const guide = GUIDES.find(g => g.path === '/guias/gastos-de-comprar-vivienda/')!;
+const base = import.meta.env.BASE_URL;
+const href = (p: string) => `${base}${p.replace(/^\//, '')}`;
+const itbiRows = [110000, 125000, 140000, 160000, 180000, 200000].map(b => ({ b, ...itbiNewHome(b) }));
+const pref = mortgage({ price: 110000, downPayment: 11000, annualRate: 6.5, years: 30, insurance: 0, closingCosts: 0, preferential: true });
+const plain = mortgage({ price: 110000, downPayment: 11000, annualRate: 6.5, years: 30, insurance: 0, closingCosts: 0, preferential: false });
+const faq = [
+  { q: '¿Quién paga el impuesto de transferencia al comprar una vivienda?', a: 'El vendedor. La Ley 546 de 2026 declara nula cualquier cláusula que imponga al comprador el pago o el reembolso del ITBI en la primera venta de vivienda nueva.' },
+  { q: '¿Las viviendas nuevas pagan ITBI?', a: 'En la primera venta, formalizada dentro de los dos años siguientes al permiso de ocupación, los primeros B/.120,000 están exentos. Entre B/.120,000 y B/.200,000 se paga una tasa de 0.50% a 1.80% solo sobre el excedente (Ley 546 de 2026).' },
+  { q: '¿Cuánto abono piden los bancos?', a: 'No encontramos una norma general que fije un abono mínimo: cada banco lo define según el tipo de vivienda y tu perfil. Pide la condición por escrito y compárala.' },
+  { q: '¿Cuáles son los tramos del interés preferencial para viviendas de menos de B/.80,000?', a: 'Están en la Ley 468 de 2025. Aún no los publicamos porque no hemos podido verificarlos en el texto oficial; consúltalos con tu banco.' },
+];
+---
+<EditorialPage title="Gastos de comprar vivienda en Panamá: abono, cierre, ITBI e interés preferencial" description="Qué gastos paga el comprador de una vivienda en Panamá y cuáles el vendedor: abono, gastos de cierre, seguros, ITBI de la vivienda nueva (Ley 546) e interés preferencial." canonicalPath={guide.path} kicker="Guía · Vivienda" heading={guide.title} lede="El precio de la vivienda es solo una parte. Antes de firmar, suma el abono, los gastos de cierre y los seguros, y revisa qué impuestos corresponden al vendedor." crumbs={[{ label: 'Guías', path: '/guias/' }, { label: 'Gastos de comprar vivienda', path: guide.path }]} related={[
+  { label: 'Calculadora de hipoteca', path: '/vivienda/calculadora-de-hipoteca/', note: 'Letra, abono, gastos e interés preferencial.' },
+  { label: 'Capacidad de compra', path: '/vivienda/capacidad-de-compra/', note: 'Cuánta vivienda puedes pagar.' },
+  { label: 'Alquilar o comprar', path: '/vivienda/alquilar-o-comprar/', note: 'Compara con tus supuestos.' },
+  { label: 'Metas de ahorro', path: '/finanzas/meta-de-ahorro/', note: 'Ahorra para el abono.' }
+]}>
+    <h2>Lo que necesitas al inicio</h2>
+    <ul>
+      <li><strong>Abono.</strong> La parte del precio que no financia el banco. No hay un mínimo general fijado por norma: cada banco lo define.</li>
+      <li><strong>Gastos de cierre.</strong> Avalúo, honorarios de notaría, derechos del Registro Público y, según el banco, comisión de cierre o de trámite. Pide la cotización detallada: no hay un arancel único que podamos publicar.</li>
+      <li><strong>Seguros.</strong> El banco suele exigir seguro de vida y de incendio, que se suman a la letra mensual.</li>
+    </ul>
+    <p>La <a href={href('/vivienda/calculadora-de-hipoteca/')}>calculadora de hipoteca</a> suma el abono y los gastos que escribas para mostrarte el dinero que necesitas al inicio.</p>
+
+    <h2>El impuesto de transferencia (ITBI)</h2>
+    <p>El ITBI <strong>le corresponde al vendedor</strong>. Para la primera venta de una vivienda nueva, formalizada dentro de los dos años siguientes al permiso de ocupación, la Ley 546 de 2026 exime los primeros B/.120,000 de la base imponible y declara nula cualquier cláusula que traslade el impuesto al comprador. Las ventas formalizadas desde su vigencia con permiso de ocupación anterior tienen un plazo transitorio de 30 meses.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th scope="col">Base imponible</th><th scope="col">Tasa sobre el excedente de B/.120,000</th><th scope="col">ITBI</th></tr></thead>
+        <tbody>{itbiRows.map(r => <tr><th scope="row">{formatMoney(r.b)}</th><td>{r.rate ? `${r.rate.toFixed(2)}%` : 'Exenta'}</td><td>{formatMoney(r.tax)}</td></tr>)}</tbody>
+        <caption>Primera venta de vivienda nueva (Ley 106 de 1974, art. 4, según la Ley 546 de 2026). Por encima de B/.200,000, el excedente paga el régimen general. Lo paga el vendedor.</caption>
+      </table>
+    </div>
+    <p>En las demás transferencias se aplica el régimen general de la Ley 106 de 1974, que la DGI declara con el Formulario 106. En la compra de una vivienda usada, revisa con tu notario qué paga cada parte.</p>
+    <AdSlot name="inArticle" />
+
+    <h2>El interés preferencial</h2>
+    <p>Desde el 1 de enero de 2026, el Estado subsidia en ciertos préstamos hipotecarios el menor entre la tasa del tramo y el 85% de la tasa del banco (Ley 468 de 2025, modificada por la Ley 481 de 2025). El reglamento exige vivienda nueva, destinada a residencia principal, con precio de hasta B/.120,000.</p>
+    <p>Para viviendas de B/.80,000.01 a B/.120,000 (tramo 3), la tasa subsidiada máxima es 4% durante 7 años, en todo el país. Ejemplo: vivienda de B/.110,000 con 10% de abono, tasa del banco de 6.5% a 30 años:</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th scope="col">Plan</th><th scope="col">Letra los primeros 84 meses</th><th scope="col">Letra después</th><th scope="col">Intereses totales</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Sin interés preferencial</th><td>{formatMoney(plain.phases[0]!.payment)}</td><td>{formatMoney(plain.phases[0]!.payment)}</td><td>{formatMoney(plain.interest)}</td></tr>
+          <tr><th scope="row">Con interés preferencial (2.5% los primeros 7 años)</th><td>{formatMoney(pref.phases[0]!.payment)}</td><td>{formatMoney(pref.phases[1]!.payment)}</td><td>{formatMoney(pref.interest)}</td></tr>
+        </tbody>
+        <caption>Estimación sin seguros. Supone que al terminar el subsidio el saldo se recalcula a la tasa del banco por el plazo restante: confirma cómo lo hace tu banco.</caption>
+      </table>
+    </div>
+    <p>Los tramos para viviendas de hasta B/.80,000 están en la Ley 468 de 2025. Aún no los publicamos porque no hemos podido verificarlos en el texto oficial: consúltalos con tu banco.</p>
+
+    <h2>Antes de firmar</h2>
+    <ul>
+      <li>Pide al banco la cuota por escrito, con seguros y cargos.</li>
+      <li>Calcula tu <a href={href('/vivienda/capacidad-de-compra/')}>capacidad de compra</a> con tu ingreso neto y tus otras deudas.</li>
+      <li>Si dudas entre comprar o seguir alquilando, compara ambos escenarios en <a href={href('/vivienda/alquilar-o-comprar/')}>alquilar o comprar</a>.</li>
+    </ul>
+
+    <Faq items={faq} />
+    <LegalSources sources={['law546', 'law481', 'decree23of2026', 'dgiForm106']} reviewedOn="2026-11-27" />
+</EditorialPage>
