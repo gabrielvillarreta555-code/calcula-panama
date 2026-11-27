@@ -12,7 +12,7 @@ for (const tool of vehicleTools) {
     for (const text of [tool.example, 'Cómo se calcula', 'Preguntas frecuentes', 'Herramientas relacionadas']) expect(html).toContain(text);
     expect(html).toContain('"@type":"FAQPage"');
     await page.setViewportSize({ width: 360, height: 800 });
-    await page.goto('/herramientas/'); await page.locator('#vehiculos').getByRole('link', { name: tool.title, exact: true }).click();
+    await page.goto('/herramientas/'); await page.locator(`#vehiculos a[href="${tool.path}"]`).click();
     await expect(page).toHaveURL(new RegExp(tool.path));
     await expect(page.locator('h1')).toHaveText(tool.title);
     await expect(page.locator('link[rel=canonical]')).toHaveAttribute('href', `https://calculapanama.com${tool.path}`);

@@ -4,7 +4,7 @@ import { defineConfig, devices } from '@playwright/test';
 // escritorio y iPhone) sobre la compilación local. Se ejecuta en CI («Navegadores») porque aquí solo hay Chromium.
 export default defineConfig({
   testDir: './e2e',
-  testMatch: ['navegadores/**/*.e2e.ts', 'mi-quincena.e2e.ts', 'aisle.e2e.ts', 'aisle-invalid-edits.e2e.ts', 'aisle-mobile-redesign.e2e.ts', 'portada-editorial.e2e.ts'],
+  testMatch: ['navegadores/**/*.e2e.ts', 'mi-quincena.e2e.ts', 'aisle.e2e.ts', 'aisle-invalid-edits.e2e.ts', 'aisle-mobile-redesign.e2e.ts', 'portada-editorial.e2e.ts', 'navegacion-completa.e2e.ts'],
   retries: process.env.CI ? 1 : 0,
   use: { baseURL: 'http://127.0.0.1:4329' },
   projects: [

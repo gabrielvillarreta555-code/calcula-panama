@@ -6,21 +6,21 @@
 import Layout from '../../layouts/Layout.astro';
 import { APP_ORIGIN } from '../../data/isolation';
 ---
-<Layout title="Ensayo del traslado de Mi Quincena | Calcula Panamá" description="Página interna de ensayo con datos ficticios." canonicalPath="/ensayo/traslado-quincena/" noindex frameSrc={APP_ORIGIN}>
-  <article class="container article" id="rehearsal" data-app-origin={APP_ORIGIN} data-channel="ensayo">
+<Layout title="Ensayo del traslado de Mi Quincena | Calcula Panamá" description="Página interna de ensayo con datos ficticios." canonicalPath="/ensayo/traslado-quincena/" noindex frameSrc={APP_ORIGIN} variant="functional">
+  <article class="fx-wrap fx-prose article fx-rehearsal" id="rehearsal" data-app-origin={APP_ORIGIN} data-channel="ensayo">
     <h1>Ensayo del traslado de Mi Quincena</h1>
-    <p class="notice">Página interna de validación. Usa <strong>solo un presupuesto ficticio</strong> guardado en una clave de ensayo. No lee, no envía y no borra presupuestos reales.</p>
-    <p><button class="button secondary" type="button" data-rehearsal-create>1. Crear presupuesto ficticio</button></p>
-    <section class="notice" data-migration-panel hidden>
+    <p class="callout info">Página interna de validación. Usa <strong>solo un presupuesto ficticio</strong> guardado en una clave de ensayo. No lee, no envía y no borra presupuestos reales.</p>
+    <p><button class="fx-btn is-ghost" type="button" data-rehearsal-create>1. Crear presupuesto ficticio</button></p>
+    <section class="fx-panel" data-migration-panel hidden>
       <p>Hay un presupuesto ficticio de ensayo en este navegador.</p>
-      <p><button class="button primary" type="button" data-migration-move>2. Trasladar el presupuesto ficticio</button> <a class="button secondary" data-migration-download href="#">Descargar copia</a></p>
+      <p><button class="fx-btn" type="button" data-migration-move>2. Trasladar el presupuesto ficticio</button> <a class="fx-btn is-ghost" data-migration-download href="#">Descargar copia</a></p>
       <p role="status" data-migration-status></p>
     </section>
-    <section class="notice" data-migration-done hidden>
+    <section class="fx-panel" data-migration-done hidden>
       <p>Ensayo trasladado: el presupuesto ficticio ya no está en esta dirección. <a href={`${APP_ORIGIN}/ensayo/`}>3. Comprobarlo en la app</a>.</p>
     </section>
     <h2>4. Comprobación de aislamiento</h2>
-    <p><button class="button secondary" type="button" data-isolation-check>Comprobar desde esta página</button></p>
+    <p><button class="fx-btn is-ghost" type="button" data-isolation-check>Comprobar desde esta página</button></p>
     <ul data-isolation-result></ul>
   </article>
   <script>

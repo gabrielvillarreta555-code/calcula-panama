@@ -1,12 +1,11 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import Breadcrumbs from '../../components/Breadcrumbs.astro';
-import BlueHelp from '../../components/BlueHelp.astro';
-import { BLUE_GUIDES } from '../../data/blue-help';
+import FxCrumb from '../../components/fx/FxCrumb.astro';
+import FxIcon from '../../components/fx/FxIcon.astro';
+import FxRelated from '../../components/fx/FxRelated.astro';
+import FxGuide from '../../components/fx/FxGuide.astro';
 import Faq from '../../components/Faq.astro';
-import Icon from '../../components/Icon.astro';
 import LegalSources from '../../components/LegalSources.astro';
-import RelatedCalculators from '../../components/RelatedCalculators.astro';
 
 const path = '/calculadoras/vacaciones/';
 const faq = [
@@ -28,18 +27,15 @@ const schema = {
   offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' }
 };
 ---
-<Layout title="Calculadora de vacaciones en Panamá | Días y pago" description="Estima tus días de vacaciones y su pago en Panamá. Revisa el cálculo proporcional, los descuentos considerados y sus supuestos legales." canonicalPath={path} schema={schema}>
-  <header class="page-head container">
-    <Breadcrumbs items={[{ label: 'Vacaciones', path }]} />
-    <span class="eyebrow">Descanso anual</span>
-    <h1>Calculadora de vacaciones</h1>
-    <p>Calcula los días que has acumulado y el pago de vacaciones completas o proporcionales según el artículo 54 del Código de Trabajo.</p>
-  </header>
+<Layout title="Calculadora de vacaciones en Panamá | Días y pago" description="Estima tus días de vacaciones y su pago en Panamá. Revisa el cálculo proporcional, los descuentos considerados y sus supuestos legales." canonicalPath={path} schema={schema} variant="functional">
+<div class="fx-wrap">
+  <FxCrumb items={[{ label: 'Vacaciones', path }]} category={{ label: 'Trabajo', path: '/herramientas/#trabajo' }} />
+  <div class="fx-title"><FxIcon name="sun" size={22} framed class="is-lg" /><h1>Calculadora de vacaciones</h1></div>
+  <p class="fx-lede">Calcula los días que has acumulado y el pago de vacaciones completas o proporcionales según el artículo 54 del Código de Trabajo.</p>
 
-  <BlueHelp guide={BLUE_GUIDES.vacation} />
-
-  <div class="container calculator-shell">
-    <form class="panel" id="vacation-form" novalidate>
+  <FxGuide guide="vacation" />
+  <div class="fx-tool fx-legacy">
+    <form class="fx-panel fx-form fx-col-side fx-o2" id="vacation-form" novalidate>
       <h2>Datos</h2>
       <div class="form-grid">
         <div class="field full">
@@ -83,11 +79,11 @@ const schema = {
         </details>
       </div>
       <p class="form-error" id="vacation-error" role="alert"></p>
-      <button class="calculate" type="submit">Calcular vacaciones</button>
+      <button class="fx-btn is-block" type="submit">Calcular vacaciones</button>
     </form>
 
-    <section class="panel results" aria-live="polite" aria-label="Resultado">
-      <div id="vacation-empty" class="empty-state"><Icon name="vacation" size={40} /><p>Escribe tu salario y el período trabajado para ver tus días y el pago.</p></div>
+    <section class="fx-panel fx-o1 results" aria-live="polite" aria-label="Resultado">
+      <div id="vacation-empty" class="empty-state"><FxIcon name="sun" size={28} /><p>Escribe tu salario y el período trabajado para ver tus días y el pago.</p></div>
       <div id="vacation-result" hidden>
         <div class="result-hero">
           <div class="label">Pago bruto de vacaciones</div>
@@ -105,13 +101,13 @@ const schema = {
           <li class="total"><span>Neto antes de ISR</span><strong data-out="net"></strong></li>
         </ul>
         <p class="callout info">Si tu salario anual supera B/.11,000, el empleador también puede retener ISR sobre este pago.</p>
-        <div class="result-actions"><button class="button secondary" type="button" id="vacation-share"><Icon name="share" size={18} />Compartir resultado</button></div>
+        <div class="result-actions"><button class="fx-btn is-ghost" type="button" id="vacation-share"><FxIcon name="share" size={18} />Compartir resultado</button></div>
       </div>
     </section>
   </div>
 
 
-  <article class="container article">
+  <article class="fx-prose article">
     <h2>Qué necesitas para estimar tus vacaciones</h2>
     <p>Ten a mano tu salario mensual y el tiempo transcurrido desde el inicio de la relación laboral o desde tus últimas vacaciones. Si conoces los días pendientes, revisa tus registros y confirma el saldo con tu empleador: esta herramienta ofrece una estimación, no consulta tu expediente.</p>
     <p>Si la relación laboral terminó, puedes revisar las vacaciones pendientes junto con otros conceptos en la <a href={`${import.meta.env.BASE_URL}calculadoras/liquidacion-laboral/`}>calculadora de liquidación</a>. Para una estimación del pago habitual, usa la <a href={`${import.meta.env.BASE_URL}calculadoras/salario-neto/`}>calculadora de salario neto</a>.</p>
@@ -129,8 +125,8 @@ const schema = {
     <Faq items={faq} />
     <LegalSources sources={['laborCode', 'css', 'educationalInsurance', 'mitradel']} />
   </article>
-
-  <div class="container"><RelatedCalculators current={path} /></div>
+  <div class="fx-related-wrap"><FxRelated current={path} /></div>
+</div>
 </Layout>
 
 <script>

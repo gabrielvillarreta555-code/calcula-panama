@@ -307,3 +307,141 @@ body.fx { margin: 0; padding: 0; background: var(--fx-bg); color: var(--fx-text)
 .fx .fx-prose .formula { color: var(--fx-text) !important; border-left-width: 1px; } /* global.css usa !important */
 .fx .callout { background: var(--fx-panel); border: 1px solid var(--fx-border); border-radius: var(--fx-radius-sm); color: var(--fx-text); }
 .fx .callout.warning { border-color: var(--fx-warn); background: var(--fx-warn-bg); }
+
+/* ==========================================================================
+   CP-DESIGN-008 · Herramientas de ToolLayout en Midnight Functional.
+   Mapea los ganchos que usa scripts/expansion-tools.ts (.tool-field, .tool-row, .tool-table, data-result) a los
+   componentes aprobados; no introduce estilos nuevos.
+   ========================================================================== */
+.fx .tool-fields { display: grid; gap: 14px; margin: 0; }
+@media (min-width: 700px) and (max-width: 959px) { .fx .tool-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.fx .tool-field { min-width: 0; }
+.fx .tool-field label { display: block; margin-bottom: 8px; color: var(--fx-muted); font-size: 14px; font-weight: 500; }
+.fx .tool-field input, .fx .tool-field select { width: 100%; min-width: 0; min-height: 52px; padding: 12px 14px; border: 1px solid var(--fx-border); border-radius: var(--fx-radius-sm); background: var(--fx-field); color: var(--fx-text); font: inherit; font-size: 16px; box-shadow: none; color-scheme: dark; }
+.fx .tool-field input:focus, .fx .tool-field select:focus { outline: none; border-color: var(--fx-accent); box-shadow: none; }
+.fx .tool-field [aria-invalid=true] { border-color: var(--fx-warn); }
+.fx .tool-row { min-width: 0; margin: 0; padding: 14px; border: 1px solid var(--fx-border); border-radius: var(--fx-radius); display: grid; gap: 12px; }
+.fx .tool-row legend { padding-inline: 6px; color: var(--fx-text); font-weight: 600; }
+.fx [data-rows] { display: grid; gap: 14px; }
+.fx-generated .fx-result p { margin: 0 0 8px; color: var(--fx-muted); font-variant-numeric: tabular-nums; }
+.fx-generated .fx-result p:first-child { margin: 6px 0 12px; color: var(--fx-text); font-size: clamp(1.6rem, 6vw, 2.2rem); font-weight: 750; line-height: 1.15; letter-spacing: -.01em; }
+.fx-generated .fx-result:not(:empty) + .fx-result-details:not(:empty) { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--fx-line); }
+.fx .tool-table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.fx .tool-table caption { padding-bottom: 8px; color: var(--fx-muted); font-size: 13px; text-align: left; }
+.fx .tool-table th, .fx .tool-table td { padding: 10px 8px; border-bottom: 1px solid var(--fx-line); color: var(--fx-text); text-align: left; background: none; }
+.fx .tool-table thead th { color: var(--fx-muted); font-weight: 600; }
+.fx .tool-table-scroll { max-width: 100%; overflow-x: auto; }
+.fx .tool-table-scroll:focus-visible { outline: 2px solid var(--fx-accent); outline-offset: 2px; }
+.fx .tool-table-scroll .tool-table { min-width: 460px; }
+.fx-generated details summary { display: flex; align-items: center; min-height: 44px; color: var(--fx-icon); cursor: pointer; }
+.fx .tool-reading section { margin-block: 28px; }
+
+/* ==========================================================================
+   CP-DESIGN-008 · Calculadoras laborales (Décimo, Vacaciones, Liquidación) en Midnight Functional.
+   Conservan su marcado e ids (sus scripts no cambian); estas reglas lo presentan con los componentes aprobados.
+   ========================================================================== */
+.fx-legacy .form-grid { display: grid; gap: 14px; }
+@media (min-width: 560px) { .fx-legacy .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .fx-legacy .form-grid > .full { grid-column: 1 / -1; } }
+.fx-legacy .field { display: grid; gap: 8px; min-width: 0; }
+.fx-legacy .field > label, .fx-legacy .field-label { color: var(--fx-muted); font-size: 14px; font-weight: 500; }
+.fx-legacy .field small, .fx-legacy .field .muted { color: var(--fx-muted); font-size: 13px; }
+.fx-legacy input[type=number], .fx-legacy input[type=date], .fx-legacy input[type=text], .fx-legacy select { width: 100%; min-width: 0; min-height: 52px; padding: 12px 14px; border: 1px solid var(--fx-border); border-radius: var(--fx-radius-sm); background: var(--fx-field); color: var(--fx-text); font: inherit; font-size: 16px; box-shadow: none; color-scheme: dark; }
+.fx-legacy input:focus, .fx-legacy select:focus { outline: none; border-color: var(--fx-accent); box-shadow: none; }
+.fx-legacy .input-wrap { display: flex; align-items: center; gap: 8px; min-height: 52px; padding: 0 14px; border: 1px solid var(--fx-border); border-radius: var(--fx-radius-sm); background: var(--fx-field); }
+.fx-legacy .input-wrap:focus-within { border-color: var(--fx-accent); }
+.fx-legacy .input-wrap .prefix { color: var(--fx-muted); font-weight: 600; }
+.fx-legacy .input-wrap input { border: 0; min-height: 50px; padding: 0; background: transparent; }
+.fx-legacy .segmented { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 6px; margin: 0; padding: 4px; border: 1px solid var(--fx-border); border-radius: var(--fx-radius); background: var(--fx-field); }
+.fx-legacy .segmented label { position: relative; display: grid; place-items: center; min-height: 44px; padding: 4px 8px; border-radius: var(--fx-radius-sm); color: var(--fx-muted); font-size: 14px; text-align: center; cursor: pointer; }
+.fx-legacy .segmented input { position: absolute; inset: 0; opacity: 0; cursor: pointer; margin: 0; }
+.fx-legacy .segmented label:has(input:checked) { background: var(--fx-button); color: #fff; outline: 1px solid var(--fx-accent); }
+.fx-legacy .segmented label:has(input:focus-visible) { outline: 2px solid var(--fx-accent); outline-offset: 2px; }
+.fx-legacy details.more { border: 1px solid var(--fx-border); border-radius: var(--fx-radius); padding: 0 14px; }
+.fx-legacy details.more > summary { display: flex; align-items: center; min-height: 48px; color: var(--fx-text); font-weight: 600; cursor: pointer; }
+.fx-legacy details.more[open] { padding-bottom: 14px; }
+.fx-legacy .form-error { min-height: 0; margin: 0; color: var(--fx-warn); font-weight: 600; }
+.fx-legacy .form-error:empty { display: none; }
+.fx-legacy .empty-state { display: grid; justify-items: start; gap: 10px; color: var(--fx-muted); }
+.fx-legacy .empty-state .fx-icon { color: var(--fx-icon); }
+.fx-legacy .result-hero { padding: 0; background: none; border: 0; color: var(--fx-text); box-shadow: none; }
+.fx-legacy .result-hero .label { color: var(--fx-muted); font-size: 13px; letter-spacing: .12em; text-transform: uppercase; opacity: 1; }
+.fx-legacy .result-hero .amount { margin: 6px 0 4px; font-size: clamp(2.2rem, 9vw, 3.2rem); font-weight: 750; line-height: 1.05; letter-spacing: -.02em; font-variant-numeric: tabular-nums; color: var(--fx-text); }
+.fx-legacy .result-hero .sub { color: var(--fx-muted); }
+.fx-legacy .stack-bar { display: flex; gap: 2px; height: 10px; margin: 16px 0 10px; border-radius: 999px; overflow: hidden; background: none; box-shadow: none; }
+.fx-legacy .stack-bar span { min-width: 3px; }
+.fx-legacy .stack-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 0 0 8px; padding: 0; list-style: none; color: var(--fx-muted); font-size: 13px; }
+.fx-legacy .stack-legend i, .fx-legacy .stack-legend span[class^="tone-"] { display: inline-block; width: 10px; height: 10px; margin-right: 6px; border-radius: 2px; }
+.fx-legacy .tone-net, .fx-legacy .tone-1 { background: #3978EF; } .fx-legacy .tone-css, .fx-legacy .tone-2 { background: #729EFF; }
+.fx-legacy .tone-edu, .fx-legacy .tone-4 { background: #AEB6C4; } .fx-legacy .tone-isr, .fx-legacy .tone-3 { background: #2059D1; }
+.fx-legacy .breakdown { list-style: none; margin: 14px 0 0; padding: 0; border-top: 1px solid var(--fx-line); }
+.fx-legacy .breakdown li { display: flex; justify-content: space-between; align-items: center; gap: 14px; min-height: 56px; padding: 10px 0; border-bottom: 1px solid var(--fx-line); background: none; color: var(--fx-text); }
+.fx-legacy .breakdown li small { display: block; color: var(--fx-muted); font-size: 13px; }
+.fx-legacy .breakdown li strong { font-weight: 650; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.fx-legacy .breakdown li.minus strong::before { content: '−'; margin-right: 2px; }
+.fx-legacy .breakdown li.total { border-bottom: 0; font-weight: 700; }
+.fx-legacy .breakdown li.total strong { font-size: 1.3rem; }
+.fx-legacy .breakdown li.muted-row { color: var(--fx-muted); }
+.fx-legacy .breakdown-title { margin: 20px 0 0; color: var(--fx-muted); font-size: 13px; letter-spacing: .12em; text-transform: uppercase; }
+.fx-legacy .notes:not(:empty) { display: grid; gap: 8px; margin-top: 12px; }
+.fx-legacy .result-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+.fx-legacy .result-actions .fx-btn { flex: 1 1 180px; }
+.fx .callout.info { margin: 12px 0 0; padding: 10px 12px; border: 1px solid var(--fx-accent); border-radius: var(--fx-radius-sm); background: none; color: var(--fx-text); font-size: 14px; }
+.fx-related-wrap { margin: 8px 0 40px; }
+.fx-guide { margin: 0 0 16px; }
+.fx-guide-steps { display: grid; gap: 10px; margin: 10px 0; padding-left: 20px; }
+.fx-guide-steps li strong { display: block; color: var(--fx-text); font-weight: 600; }
+.fx-guide-steps li span { color: var(--fx-muted); font-size: 15px; }
+
+/* ==========================================================================
+   CP-DESIGN-008 · Calculadora de préstamos en Midnight Functional (sustituye a loans.css; ids y data-* intactos).
+   ========================================================================== */
+.fx-loan .loan-layout, .fx-loan .loan-main { display: grid; gap: var(--fx-gap); }
+.fx-loan .loan-layout { padding-bottom: 40px; }
+.fx-loan .loan-result, .fx-loan .loan-panel { padding: clamp(18px, 4vw, 24px); border: 1px solid var(--fx-border); border-radius: var(--fx-radius); background: var(--fx-panel); color: var(--fx-text); box-shadow: none; }
+.fx-loan .loan-result { border-color: var(--fx-accent); }
+.fx-loan .loan-kicker { color: var(--fx-muted); font-size: 13px; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; }
+.fx-loan .loan-result h2, .fx-loan .loan-panel h2 { margin: 6px 0 10px; color: var(--fx-text); font-size: 1.15rem; font-weight: 650; }
+.fx-loan .loan-amount { display: block; margin: 4px 0 8px; font-size: clamp(2.2rem, 9vw, 3.2rem); font-weight: 750; line-height: 1.05; letter-spacing: -.02em; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.fx-loan .loan-result > p, .fx-loan .loan-panel > p { color: var(--fx-muted); }
+.fx-loan .loan-result-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
+.fx-loan .loan-result-grid > div { padding: 12px; border: 1px solid var(--fx-border); border-radius: var(--fx-radius-sm); background: var(--fx-field); }
+.fx-loan .loan-result-grid span { display: block; color: var(--fx-muted); font-size: 13px; }
+.fx-loan .loan-result-grid strong { display: block; margin-top: 4px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.fx-loan .loan-note-result { display: flex; gap: 8px; align-items: center; margin: 12px 0 0; }
+.fx-loan .loan-fields { display: grid; gap: 12px; min-width: 0; margin: 0 0 14px; padding: 14px; border: 1px solid var(--fx-border); border-radius: var(--fx-radius); }
+.fx-loan .loan-fields legend { padding-inline: 6px; color: var(--fx-text); font-weight: 600; }
+.fx-loan .loan-grid { display: grid; gap: 14px; }
+@media (min-width: 560px) { .fx-loan .loan-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.fx-loan .loan-grid label { display: grid; gap: 8px; min-width: 0; color: var(--fx-muted); font-size: 14px; font-weight: 500; }
+.fx-loan .loan-grid small { color: var(--fx-muted); font-size: 12px; }
+.fx-loan .loan-grid input, .fx-loan .loan-grid select { width: 100%; min-width: 0; min-height: 52px; padding: 12px 14px; border: 1px solid var(--fx-border); border-radius: var(--fx-radius-sm); background: var(--fx-field); color: var(--fx-text); font: inherit; font-size: 16px; box-shadow: none; color-scheme: dark; }
+.fx-loan .loan-grid input:focus, .fx-loan .loan-grid select:focus { outline: none; border-color: var(--fx-accent); box-shadow: none; }
+.fx-loan .loan-grid [aria-invalid=true] { border-color: var(--fx-warn); }
+.fx-loan .loan-field-error { margin: 0; color: var(--fx-warn); font-weight: 600; }
+.fx-loan .loan-field-error:empty { display: none; }
+.fx-loan .loan-breakdown { display: grid; margin: 0; border-top: 1px solid var(--fx-line); }
+.fx-loan .loan-breakdown > div { display: flex; justify-content: space-between; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--fx-line); }
+.fx-loan .loan-breakdown dt { color: var(--fx-muted); }
+.fx-loan .loan-breakdown dd { margin: 0; font-weight: 650; font-variant-numeric: tabular-nums; }
+.fx-loan .loan-breakdown-total dt, .fx-loan .loan-breakdown-total dd { color: var(--fx-text); font-weight: 750; }
+.fx-loan details summary { display: flex; align-items: center; min-height: 44px; color: var(--fx-icon); cursor: pointer; }
+.fx-loan .loan-schedule, .fx-loan .loan-comparison { margin: 10px 0 0; padding: 0; list-style: none; font-variant-numeric: tabular-nums; }
+.fx-loan .loan-schedule li, .fx-loan .loan-comparison > * { padding: 10px 0; border-bottom: 1px solid var(--fx-line); }
+.fx-loan .loan-note { color: var(--fx-muted); font-size: 14px; }
+.fx-loan .loan-explain h3 { margin: 18px 0 6px; font-size: 1rem; }
+.fx-loan .loan-explain p, .fx-loan .loan-explain li { color: var(--fx-muted); }
+.fx-loan button:not(.fx-btn):not(.fx-iconbtn) { min-height: 44px; padding: 0 16px; border: 1px solid var(--fx-border); border-radius: var(--fx-radius-sm); background: transparent; color: var(--fx-text); font: 500 15px var(--fx-font); cursor: pointer; }
+.fx-loan button[type=submit] { width: 100%; min-height: 52px; border: 1px solid var(--fx-accent); background: var(--fx-button); color: #fff; font-weight: 650; }
+/* Variables heredadas de global.css (tema claro) reasignadas a los tokens funcionales, solo en lo migrado en CP-DESIGN-008. */
+.fx-legacy, .fx-loan, .fx-generated, .fx-guide, .fx-prose.article, .fx-prose.tool-reading { --text: var(--fx-text); --muted: var(--fx-muted); --line: var(--fx-line); --surface: var(--fx-panel); --surface-2: var(--fx-field); --brand-2: var(--fx-accent); --bg: var(--fx-bg); --focus: var(--fx-accent); }
+.fx-legacy .input-wrap .prefix { position: static; pointer-events: none; }
+.fx-legacy .input-wrap .prefix + input { padding-left: 0; }
+.fx-legacy details.more { border-top: 1px solid var(--fx-border); }
+.fx-legacy details.more > summary::before { width: 22px; height: 22px; border: 1px solid var(--fx-border); border-radius: var(--fx-radius-sm); background: var(--fx-field); color: var(--fx-icon); }
+.fx-legacy .breakdown .total { border-top: 1px solid var(--fx-border); }
+/* Página interna de ensayo (no pública): mismos componentes funcionales. */
+.fx-rehearsal { padding-block: 24px 48px; }
+.fx-rehearsal .fx-panel { margin: 14px 0; }
+.fx-rehearsal .fx-btn { display: inline-flex; }
+/* Títulos con palabras largas («financiamiento») en pantallas de 320 px con fuentes del sistema más anchas. */
+.fx .fx-title h1 { min-width: 0; overflow-wrap: break-word; hyphens: auto; }

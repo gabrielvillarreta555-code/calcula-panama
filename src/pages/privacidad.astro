@@ -1,6 +1,5 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import Breadcrumbs from '../components/Breadcrumbs.astro';
+import EditorialPage from '../layouts/EditorialPage.astro';
 import { SITE, isAdsenseEnabled } from '../data/site';
 import { ADS_ACTIVE, pagesByTier } from '../data/ad-policy';
 import { APP_ORIGIN, QUINCENA_MOVED } from '../data/isolation';
@@ -10,14 +9,7 @@ const adPages = pagesByTier('stage1').length;
 const base = import.meta.env.BASE_URL;
 const href = (p: string) => `${base}${p.replace(/^\//, '')}`;
 ---
-<Layout title="Política de privacidad | Calcula Panamá" description="Cómo trata Calcula Panamá tus datos: cálculos en tu navegador, qué se guarda en tu dispositivo, alojamiento, publicidad y cookies de terceros." canonicalPath="/privacidad/">
-  <header class="page-head container">
-    <Breadcrumbs items={[{ label: 'Privacidad', path: '/privacidad/' }]} />
-    <span class="eyebrow">Legal</span>
-    <h1>Política de privacidad</h1>
-    <p>Última actualización: 26 de noviembre de 2026.</p>
-  </header>
-  <article class="container article">
+<EditorialPage title="Política de privacidad | Calcula Panamá" description="Cómo trata Calcula Panamá tus datos: cálculos en tu navegador, qué se guarda en tu dispositivo, alojamiento, publicidad y cookies de terceros." canonicalPath="/privacidad/" kicker="Legal" heading="Política de privacidad" lede="Última actualización: 26 de noviembre de 2026." crumbs={[{ label: 'Privacidad', path: '/privacidad/' }]}>
     <p>Responsable del sitio: Blue Lab Studios, a través del proyecto Calcula Panamá (<a href={href('/sobre-nosotros/')}>quiénes somos</a>).</p>
 
     <h2>Datos que escribes en las herramientas</h2>
@@ -60,5 +52,4 @@ const href = (p: string) => `${base}${p.replace(/^\//, '')}`;
 
     <h2>Contacto</h2>
     <p>Para dudas sobre esta política, usa el <a href={SITE.issuesUrl} target="_blank" rel="noopener noreferrer">canal público de reportes</a> sin incluir datos personales.</p>
-  </article>
-</Layout>
+</EditorialPage>

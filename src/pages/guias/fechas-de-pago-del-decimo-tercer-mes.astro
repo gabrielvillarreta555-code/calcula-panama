@@ -1,10 +1,8 @@
 ---
-import Layout from '../../layouts/Layout.astro';
+import EditorialPage from '../../layouts/EditorialPage.astro';
 import AdSlot from '../../components/AdSlot.astro';
-import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import Faq from '../../components/Faq.astro';
 import LegalSources from '../../components/LegalSources.astro';
-import RelatedCalculators from '../../components/RelatedCalculators.astro';
 import { GUIDES } from '../../data/site';
 import { calculateThirteenthMonth, estimatePeriodEarnings, thirteenthPeriod } from '../../lib/calculations';
 import { formatDate, formatMoney } from '../../lib/format';
@@ -24,14 +22,13 @@ const faq = [
   { q: '¿Los servidores públicos calculan igual?', a: 'No. El sector público tiene su propia ley (Ley 52 de 1974 y sus reformas), con una base salarial máxima. Esta guía y la calculadora se refieren al sector privado.' }
 ];
 ---
-<Layout title="Décimo tercer mes 2027 en Panamá: fechas de pago, períodos y cálculo" description="Fechas de pago del décimo tercer mes en Panamá (15 de abril, 15 de agosto y 15 de diciembre), qué meses cubre cada partida, cuánto se descuenta y cómo se calcula si entraste a mitad del período." canonicalPath={guide.path}>
-  <header class="page-head container">
-    <Breadcrumbs items={[{ label: 'Guías', path: '/guias/' }, { label: 'Décimo tercer mes', path: guide.path }]} />
-    <span class="eyebrow">Guía</span>
-    <h1>{guide.title}</h1>
-    <p>Qué meses cubre cada pago, cuánto recibes con salarios habituales y cómo se calcula cuando entraste o saliste a mitad del período (sector privado).</p>
-  </header>
-  <article class="container article">
+<EditorialPage title="Décimo tercer mes 2027 en Panamá: fechas de pago, períodos y cálculo" description="Fechas de pago del décimo tercer mes en Panamá (15 de abril, 15 de agosto y 15 de diciembre), qué meses cubre cada partida, cuánto se descuenta y cómo se calcula si entraste a mitad del período." canonicalPath={guide.path} kicker="Guía · Trabajo" heading={guide.title} lede="Qué meses cubre cada pago, cuánto recibes con salarios habituales y cómo se calcula cuando entraste o saliste a mitad del período (sector privado)." crumbs={[{ label: 'Guías', path: '/guias/' }, { label: 'Décimo tercer mes', path: guide.path }]} related={[
+  { label: 'Salario neto', path: '/calculadoras/salario-neto/', note: 'Seguro Social, Seguro Educativo e ISR.' },
+  { label: 'Décimo tercer mes', path: '/calculadoras/decimo-tercer-mes/', note: 'Partidas del 15 de abril, agosto y diciembre.' },
+  { label: 'Vacaciones', path: '/calculadoras/vacaciones/', note: 'Días acumulados y pago proporcional.' },
+  { label: 'Liquidación laboral', path: '/calculadoras/liquidacion-laboral/', note: 'Prima, indemnización y preaviso.' },
+  { label: 'Mi Quincena', path: '/finanzas/mi-quincena/', note: 'Tu dinero hasta el próximo pago.' }
+]}>
     <h2>Fechas de pago y períodos de {year}</h2>
     <div class="table-wrap">
       <table>
@@ -60,6 +57,4 @@ const faq = [
     <p><a class="button primary" href={`${base}calculadoras/decimo-tercer-mes/`}>Calcular mi décimo</a></p>
     <Faq items={faq} />
     <LegalSources sources={['thirteenth', 'thirteenthRegulation', 'css', 'mitradel']} />
-  </article>
-  <div class="container"><RelatedCalculators /></div>
-</Layout>
+</EditorialPage>

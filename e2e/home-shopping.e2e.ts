@@ -10,7 +10,7 @@ for (const width of [320, 375, 1280]) {
 
     await page.goto('/compras/');
     await expect(page.getByRole('heading', { name: /compra más tranquila/ })).toBeVisible();
-    await expect(page.locator('.shopping-scene-blue')).toBeVisible();
+    await expect(page.locator('img[src*="blue"]')).toHaveCount(0);
     await expect(page.getByRole('link', { name: /Ir a Modo Pasillo/ })).toHaveAttribute('href', '/compras/modo-pasillo/');
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   });

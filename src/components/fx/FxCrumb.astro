@@ -3,8 +3,8 @@
  * Ruta de navegación funcional (CP-DESIGN-007). `items` produce exactamente el mismo BreadcrumbList que
  * Breadcrumbs.astro (SEO sin cambios); `category` solo añade la categoría visible.
  */
-interface Props { items: { label: string; path: string }[]; category?: { label: string; path: string } }
-const { items, category } = Astro.props;
+interface Props { items: { label: string; path: string }[]; category?: { label: string; path: string }; /** false: la página ya publica su propio BreadcrumbList (no se duplica ni se cambia su SEO). */ schema?: boolean }
+const { items, category, schema: withSchema = true } = Astro.props;
 const base = import.meta.env.BASE_URL;
 const href = (path: string) => `${base}${path.replace(/^\//, '')}`;
 const crumbs = [{ label: 'Inicio', path: '/' }, ...items];
@@ -13,5 +13,5 @@ const schema = { '@context': 'https://schema.org', '@type': 'BreadcrumbList', it
 ---
 <nav class="fx-crumb" aria-label="Ruta de navegación">
   {visible.map((crumb, i) => i < visible.length - 1 ? <><a href={href(crumb.path)}>{crumb.label}</a> / </> : <span aria-current="page">{crumb.label}</span>)}
-  <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+  {withSchema && <script type="application/ld+json" set:html={JSON.stringify(schema)} />}
 </nav>
